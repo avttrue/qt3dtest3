@@ -71,6 +71,9 @@ Qt3DCore::QEntity *addEntityLine(const QVector3D& start,
     lineEntity->addComponent(line);
     lineEntity->addComponent(material);
 
+    QObject::connect(lineEntity, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityLine destroyed"; });
+    qDebug() << parent->objectName() << ": EntityLine created";
+
     return lineEntity;
 }
 
@@ -152,6 +155,8 @@ Qt3DCore::QEntity *createEntityBox(const QVector3D &min,
     lineEntity->addComponent(line);
     lineEntity->addComponent(material);
 
+    QObject::connect(lineEntity, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityBox destroyed"; });
+    qDebug() << parent->objectName() << ": EntityBox created";
     return lineEntity;
 }
 
@@ -181,8 +186,8 @@ void applyEntityName(Qt3DCore::QEntity *entity, const QString& prefix, const QSt
 
 void applyEntityGeometry(Qt3DCore::QEntity* e, Qt3DRender::QGeometryRenderer *gr)
 {
-    if(!e) { qDebug() << __func__ << ": Entity is empty"; }
-    if(!gr) { qDebug() << __func__ << ": GeometryRenderer is empty"; }
+    if(!e) { qCritical() << __func__ << ": Entity is empty"; return; }
+    if(!gr) { qCritical() << __func__ << ": GeometryRenderer is empty"; return; }
 
     // searching old geometry and meshes
     QVector<Qt3DCore::QComponent*> vc;

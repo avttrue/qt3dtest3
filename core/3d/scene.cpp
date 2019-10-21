@@ -29,7 +29,7 @@ SceneEntity* Scene::createEntity(Qt3DRender::QGeometryRenderer *geometry,
 void Scene::deleteEntity(const QString &name)
 {
     auto e = m_Entities.take(name);
-    if(!e) return;
+    if(!e) { qCritical() << __func__ << ": Entity <" << name << "> not found"; return; }
 
     e->setEnabled(false);
     e->deleteLater();
@@ -38,7 +38,7 @@ void Scene::deleteEntity(const QString &name)
 void Scene::slotEntityClicked(Qt3DRender::QPickEvent *event, const QString &name)
 {
     auto e = Entities().value(name);
-    if(!e) { qCritical() << "Entity <" << name << "> not found"; return; }
+    if(!e) { qCritical() << __func__ << ": Entity <" << name << "> not found"; return; }
 
     if(event->button() == Qt3DRender::QPickEvent::Buttons::LeftButton)
     {

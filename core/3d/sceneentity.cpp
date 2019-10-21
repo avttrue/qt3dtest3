@@ -11,11 +11,7 @@ SceneEntity::SceneEntity(Qt3DCore::QNode *parent, Qt3DRender::QGeometryRenderer 
     m_Box(nullptr),
     m_Selected(false)
 {
-    if(!geometry || !material)
-    {
-        qCritical() << __func__ << ": SceneEntity init error";
-        return;
-    }
+    if(!geometry || !material) { qCritical() << __func__ << ": SceneEntity init error"; return; }
 
     m_Geometry = geometry;
 
