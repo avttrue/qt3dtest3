@@ -9,6 +9,7 @@
 #include <Qt3DExtras/QText2DEntity>
 #include <Qt3DCore/QTransform>
 
+
 Qt3DCore::QEntity *addEntityLine(const QVector3D& start,
                                  const QVector3D& end,
                                  const QColor& color,
