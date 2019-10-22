@@ -18,10 +18,10 @@ public:
     Scene(Qt3DExtras::Qt3DWindow* view, const QString &name = "");
     void addLight(Qt3DRender::QAbstractLight* light, Qt3DCore::QTransform* transform, const QString &name = "");
     bool delLight(const QString& name);
-    SceneEntity* createEntity(Qt3DRender::QGeometryRenderer *geometry,
-                              Qt3DRender::QMaterial *material,
-                              const QString &name = "");
-    void deleteEntity(const QString &name);
+    SceneEntity* addEntity(Qt3DRender::QGeometryRenderer *geometry,
+                           Qt3DRender::QMaterial *material,
+                           const QString &name = "");
+    void delEntity(const QString &name);
     QHash<QString, SceneEntity *> Entities() const;
     QHash<QString, Qt3DCore::QEntity *> Lights() const;
 

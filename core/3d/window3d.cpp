@@ -71,7 +71,7 @@ void Window3D::createSpheresTest()
                     QRandomGenerator::global()->bounded(0, 256),
                     QRandomGenerator::global()->bounded(0, 256)));
 
-                auto sphere = m_Scene->createEntity(mesh, material);
+                auto sphere = m_Scene->addEntity(mesh, material);
                 sphere->addComponent(transform);
             }
     m_Scene->setEnabled(true);

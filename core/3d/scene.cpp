@@ -71,7 +71,7 @@ bool Scene::delLight(const QString &name)
     return false;
 }
 
-SceneEntity* Scene::createEntity(Qt3DRender::QGeometryRenderer *geometry,
+SceneEntity* Scene::addEntity(Qt3DRender::QGeometryRenderer *geometry,
                                  Qt3DRender::QMaterial *material,
                                  const QString &name)
 {
@@ -86,7 +86,7 @@ SceneEntity* Scene::createEntity(Qt3DRender::QGeometryRenderer *geometry,
     return entity;
 }
 
-void Scene::deleteEntity(const QString &name)
+void Scene::delEntity(const QString &name)
 {
     auto e = m_Entities.take(name);
     if(!e) { qCritical() << __func__ << ": Entity <" << name << "> not found"; return; }
@@ -114,7 +114,7 @@ void Scene::slotEntityClicked(Qt3DRender::QPickEvent *event, const QString &name
     }
     else if(event->button() == Qt3DRender::QPickEvent::Buttons::RightButton)
     {
-        deleteEntity(name);
+        delEntity(name);
     }
 }
 
