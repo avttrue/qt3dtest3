@@ -21,7 +21,7 @@ public:
     SceneEntity* addEntity(Qt3DRender::QGeometryRenderer *geometry,
                            Qt3DRender::QMaterial *material,
                            const QString &name = "");
-    void delEntity(const QString &name);
+    bool delEntity(const QString &name);
     QHash<QString, SceneEntity *> Entities() const;
     QHash<QString, Qt3DCore::QEntity *> Lights() const;
 

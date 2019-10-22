@@ -72,27 +72,33 @@ bool Scene::delLight(const QString &name)
 }
 
 SceneEntity* Scene::addEntity(Qt3DRender::QGeometryRenderer *geometry,
-                                 Qt3DRender::QMaterial *material,
-                                 const QString &name)
+                              Qt3DRender::QMaterial *material,
+                              const QString &name)
 {
+
     auto entity = new SceneEntity(this, geometry, material);
     applyEntityName(entity, "entity", name);
-    m_Entities.insert(entity->objectName(), entity);
 
     QObject::connect(entity, &SceneEntity::signalClicked, this, &Scene::slotEntityClicked, Qt::DirectConnection);
     QObject::connect(entity, &SceneEntity::signalSelected, this, &Scene::slotEntitySelected, Qt::DirectConnection);
+
+    delEntity(entity->objectName());
+    m_Entities.insert(entity->objectName(), entity);
 
     qDebug() << objectName() << ": Entity created, count =" << m_Entities.count();
     return entity;
 }
 
-void Scene::delEntity(const QString &name)
+bool Scene::delEntity(const QString &name)
 {
     auto e = m_Entities.take(name);
-    if(!e) { qCritical() << __func__ << ": Entity <" << name << "> not found"; return; }
-
-    e->setEnabled(false);
-    e->deleteLater();
+    if(e)
+    {
+        if(m_SelectedEntity == e) m_SelectedEntity = nullptr;
+        e->deleteLater();
+        return true;
+    }
+    return false;
 }
 
 void Scene::slotEntityClicked(Qt3DRender::QPickEvent *event, const QString &name)
