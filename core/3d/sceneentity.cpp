@@ -1,4 +1,5 @@
 #include "sceneentity.h"
+#include "properties.h"
 #include "helpers.h"
 
 #include <Qt3DRender/QObjectPicker>
@@ -29,21 +30,20 @@ SceneEntity::SceneEntity(Qt3DCore::QNode *parent, Qt3DRender::QGeometryRenderer 
 
 void SceneEntity::slotClicked(Qt3DRender::QPickEvent *event)
 {
-    qDebug() << objectName() << event->button();
     emit signalClicked(event, objectName());
 }
 
 void SceneEntity::createBox()
 {
-    auto max = m_Geometry->geometry()->maxExtent() + QVector3D(1.0, 1.0 ,1.0);
-    auto min = m_Geometry->geometry()->minExtent() - QVector3D(1.0, 1.0 ,1.0);
-    if(!m_Box) m_Box = createEntityBox(min, max, QColor("#1047c7"), this);
-    else
+    auto excess = QVector3D(SELECTION_BOX_EXCESS, SELECTION_BOX_EXCESS ,SELECTION_BOX_EXCESS);
+    auto max = m_Geometry->geometry()->maxExtent() + excess;
+    auto min = m_Geometry->geometry()->minExtent() - excess;
+    if(m_Box)
     {
         m_Box->setEnabled(false);
         m_Box->deleteLater();
-        m_Box = createEntityBox(min, max, QColor("#1047c7"), this);
     }
+    m_Box = createEntityBox(min, max, QColor(COLOR_SELECT), this);
 }
 
 void SceneEntity::applyGeometry(Qt3DRender::QGeometryRenderer* geometry)
@@ -63,6 +63,9 @@ void SceneEntity::Select(bool value)
         m_Box->deleteLater();
         m_Box = nullptr;
     }
+    qDebug() << objectName() << ": selection" << m_Selected;
+
+    emit signalSelected(this, m_Selected);
 }
 
 Qt3DCore::QEntity *SceneEntity::Box() const { return m_Box; }

@@ -1,4 +1,5 @@
 ﻿#include "window3d.h"
+#include "properties.h"
 #include "helpers.h"
 #include "scene.h"
 #include "sceneentity.h"
@@ -9,7 +10,6 @@
 #include <Qt3DExtras/QSphereMesh>
 #include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DCore/QTransform>
-#include <Qt3DRender/QCamera>
 #include <Qt3DRender/QPointLight>
 #include <Qt3DRender/QRenderSettings>
 
@@ -17,28 +17,35 @@ Window3D::Window3D(QScreen *screen):
     Qt3DExtras::Qt3DWindow(screen),
     m_Scene(nullptr)
 {
-    m_Scene = new Scene(this);
+    createScene();
 
-    auto light = new Qt3DRender::QPointLight;
-    m_Scene->addComponent(light);
+    QSettings settings(config->PathAppConfig(), QSettings::IniFormat);
+    resize(settings.value("MainWindow/Width", WINDOW_WIDTH).toInt(),
+           settings.value("MainWindow/Height", WINDOW_HEIGHT).toInt());
 
-    auto cam = camera();
-    cam->lens()->setPerspectiveProjection(60.0f, static_cast<float>(width()) / height(), 0.1f, 1000.0f);
-    cam->setPosition(QVector3D(0.0f, 0.0f, 500.0f));
-    cam->setViewCenter(QVector3D(0.0f, 0.0f, 0.0f));
-
-    auto camController = new Qt3DExtras::QFirstPersonCameraController(m_Scene);
-    camController->setCamera(cam);
+    QObject::connect(this, &Qt3DExtras::Qt3DWindow::heightChanged,
+                     [=](int value)
+                     { QSettings settings(config->PathAppConfig(), QSettings::IniFormat);
+                         settings.setValue("MainWindow/Height", value); });
+    QObject::connect(this, &Qt3DExtras::Qt3DWindow::widthChanged,
+                     [=](int value)
+                     { QSettings settings(config->PathAppConfig(), QSettings::IniFormat);
+                         settings.setValue("MainWindow/Width", value); });
 
     renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
+}
+
+void Window3D::createScene()
+{
+    if(m_Scene) m_Scene->deleteLater();
+    m_Scene = new Scene(this);
 }
 
 void Window3D::keyPressEvent(QKeyEvent *e)
 {
     if(e->key() == Qt::Key_Insert)
     {
-        //if(m_Scene) m_Scene->deleteLater();
-        //m_Scene = new Scene(this);
+        createScene();
         createSpheresTest();
     }
 }

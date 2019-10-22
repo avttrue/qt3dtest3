@@ -21,6 +21,7 @@ public:
 
 Q_SIGNALS:
     void signalClicked(Qt3DRender::QPickEvent *event, const QString &name);
+    void signalSelected(SceneEntity* entity, bool selected);
 
 private Q_SLOTS:
     void slotClicked(Qt3DRender::QPickEvent *event);

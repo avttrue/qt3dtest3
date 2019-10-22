@@ -10,6 +10,7 @@ class Window3D : public Qt3DExtras::Qt3DWindow
 {
 public:
     Window3D(QScreen *screen = nullptr);
+    void createScene();
 
 protected:
     void keyPressEvent(QKeyEvent *e);
