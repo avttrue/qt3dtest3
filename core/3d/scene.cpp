@@ -103,9 +103,9 @@ void Scene::slotEntityClicked(Qt3DRender::QPickEvent *event, const QString &name
     if(event->button() == Qt3DRender::QPickEvent::Buttons::LeftButton)
     {
         auto cm = new Qt3DExtras::QCuboidMesh;
-        cm->setXExtent(20);
-        cm->setYExtent(20);
-        cm->setZExtent(20);
+        cm->setXExtent(40);
+        cm->setYExtent(40);
+        cm->setZExtent(40);
         e->applyGeometry(cm);
     }
     else if(event->button() == Qt3DRender::QPickEvent::Buttons::MiddleButton)
