@@ -19,7 +19,7 @@ Qt3DCore::QEntity *addEntityLine(const QVector3D& start,
 
     // position vertices (start and end)
     QByteArray bufferBytes;
-    bufferBytes.resize(3 * 2 * sizeof(float)); // start.x, start.y, start.end + end.x, end.y, end.z
+    bufferBytes.resize(3 * 2 * sizeof(float));
     float *positions = reinterpret_cast<float*>(bufferBytes.data());
     *positions++ = start.x();
     *positions++ = start.y();
@@ -43,7 +43,7 @@ Qt3DCore::QEntity *addEntityLine(const QVector3D& start,
 
     // connectivity between vertices
     QByteArray indexBytes;
-    indexBytes.resize(2 * sizeof(unsigned int)); // start to end
+    indexBytes.resize(2 * sizeof(unsigned int));
     unsigned int *indices = reinterpret_cast<unsigned int*>(indexBytes.data());
     *indices++ = 0; *indices++ = 1;
 
