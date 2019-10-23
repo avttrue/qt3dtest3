@@ -15,7 +15,7 @@ class CameraController;
 class Scene : public Qt3DCore::QEntity
 {
 public:
-    Scene(Qt3DExtras::Qt3DWindow* view, const QString &name = "");
+    Scene(Qt3DExtras::Qt3DWindow* window, const QString &name = "");
     void addLight(Qt3DRender::QAbstractLight* light, Qt3DCore::QTransform* transform, const QString &name = "");
     bool delLight(const QString& name);
     SceneEntity* addEntity(Qt3DRender::QGeometryRenderer *geometry,

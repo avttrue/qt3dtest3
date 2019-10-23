@@ -7,18 +7,19 @@
 #include <Qt3DCore/QTransform>
 #include <Qt3DRender/QPointLight>
 
-Scene::Scene(Qt3DExtras::Qt3DWindow *view, const QString &name):
+Scene::Scene(Qt3DExtras::Qt3DWindow *window, const QString &name):
     Qt3DCore::QEntity(nullptr),
     m_SelectedEntity(nullptr)
 {
     applyEntityName(this, "scene", name);
-    view->setRootEntity(this);
+    window->setRootEntity(this);
 
-    m_CameraController = new CameraController(this);
-    m_Camera = view->camera();
-    m_Camera->lens()->setPerspectiveProjection(60.0f,static_cast<float>(view->width()) / view->height(), 0.1f, 1000.0f);
+    m_Camera = window->camera();
+    m_Camera->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
     m_Camera->setPosition(QVector3D(0.0f, 0.0f, 500.0f));
     m_Camera->setViewCenter(QVector3D(0.0f, 0.0f, 0.0f));
+
+    m_CameraController = new CameraController(this);
     m_CameraController->setCamera(m_Camera);
 
     /* обещают исправить в 5.14
