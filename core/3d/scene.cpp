@@ -1,5 +1,5 @@
 #include "scene.h"
-#include "sceneentity.h"
+#include "entity.h"
 #include "helpers.h"
 #include "cameracontroller.h"
 
@@ -58,6 +58,7 @@ void Scene::addLight(Qt3DRender::QAbstractLight *light, Qt3DCore::QTransform *tr
 
     QObject::connect(e, &QObject::destroyed, [=](QObject* o){ qDebug() << o->objectName() << ": destroyed"; });
     qDebug() << e->objectName() << ": Light added, count" << m_Lights.count();
+    emit signalLightsCountChanged(m_Lights.count());
 }
 
 bool Scene::delLight(const QString &name)
@@ -67,26 +68,28 @@ bool Scene::delLight(const QString &name)
     {
         l->deleteLater();
         qDebug() << objectName() << ": Lights count" << m_Lights.count();
+        emit signalLightsCountChanged(m_Lights.count());
         return true;
     }
     return false;
 }
 
-SceneEntity* Scene::addEntity(Qt3DRender::QGeometryRenderer *geometry,
+Entity* Scene::addEntity(Qt3DRender::QGeometryRenderer *geometry,
                               Qt3DRender::QMaterial *material,
                               const QString &name)
 {
 
-    auto entity = new SceneEntity(this, geometry, material);
+    auto entity = new Entity(this, geometry, material);
     applyEntityName(entity, "entity", name);
 
-    QObject::connect(entity, &SceneEntity::signalClicked, this, &Scene::slotEntityClicked, Qt::DirectConnection);
-    QObject::connect(entity, &SceneEntity::signalSelected, this, &Scene::slotEntitySelected, Qt::DirectConnection);
+    QObject::connect(entity, &Entity::signalClicked, this, &Scene::slotEntityClicked, Qt::DirectConnection);
+    QObject::connect(entity, &Entity::signalSelected, this, &Scene::slotEntitySelected, Qt::DirectConnection);
 
     delEntity(entity->objectName());
     m_Entities.insert(entity->objectName(), entity);
 
     qDebug() << objectName() << ": Entity created, count =" << m_Entities.count();
+    emit signalEntitiesCountChanged(m_Entities.count());
     return entity;
 }
 
@@ -97,6 +100,7 @@ bool Scene::delEntity(const QString &name)
     {
         if(m_SelectedEntity == e) m_SelectedEntity = nullptr;
         e->deleteLater();
+        emit Scene::signalEntitiesCountChanged(m_Entities.count());
         return true;
     }
     return false;
@@ -109,6 +113,7 @@ void Scene::slotEntityClicked(Qt3DRender::QPickEvent *event, const QString &name
 
     if(event->button() == Qt3DRender::QPickEvent::Buttons::LeftButton)
     {
+        // test
         auto cm = new Qt3DExtras::QCuboidMesh;
         cm->setXExtent(40);
         cm->setYExtent(40);
@@ -125,7 +130,7 @@ void Scene::slotEntityClicked(Qt3DRender::QPickEvent *event, const QString &name
     }
 }
 
-void Scene::slotEntitySelected(SceneEntity *entity, bool selected)
+void Scene::slotEntitySelected(Entity *entity, bool selected)
 {
     if(! entity) { qCritical() << __func__ << ": Selected entity is empty"; return; }
 
@@ -134,9 +139,11 @@ void Scene::slotEntitySelected(SceneEntity *entity, bool selected)
     m_SelectedEntity = nullptr;
 
     if(selected) m_SelectedEntity = entity;
+
+    emit signalEntitySelected(m_SelectedEntity);
 }
 
-SceneEntity *Scene::EntityByName(const QString &name)
+Entity *Scene::EntityByName(const QString &name)
 {
     auto e = Entities().value(name);
     if(!e) { qDebug() << ": Entity <" << name << "> not found"; return nullptr; }
@@ -144,5 +151,10 @@ SceneEntity *Scene::EntityByName(const QString &name)
     return  e;
 }
 
-QHash<QString, SceneEntity *> Scene::Entities() const { return m_Entities; }
+Entity *Scene::SelectedEntity() const
+{
+    return m_SelectedEntity;
+}
+
+QHash<QString, Entity *> Scene::Entities() const { return m_Entities; }
 QHash<QString, Qt3DCore::QEntity *> Scene::Lights() const { return m_Lights; }

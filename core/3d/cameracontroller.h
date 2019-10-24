@@ -2,7 +2,6 @@
 #define CAMERACONTROLLER_H
 
 #include <Qt3DCore/QEntity>
-
 #include <Qt3DInput/QMouseDevice>
 #include <Qt3DInput/QKeyboardDevice>
 #include <Qt3DInput/QLogicalDevice>
@@ -10,9 +9,7 @@
 #include <Qt3DInput/QActionInput>
 #include <Qt3DInput/QAxis>
 #include <Qt3DInput/QAnalogAxisInput>
-
 #include <Qt3DRender/QCamera>
-
 #include <Qt3DLogic/QFrameAction>
 
 class CameraController: public Qt3DCore::QEntity

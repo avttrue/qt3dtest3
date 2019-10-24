@@ -1,8 +1,8 @@
-﻿#include "window3d.h"
+﻿#include "view.h"
 #include "properties.h"
 #include "helpers.h"
 #include "scene.h"
-#include "sceneentity.h"
+#include "entity.h"
 
 #include <QDebug>
 #include <QRandomGenerator>
@@ -13,35 +13,23 @@
 #include <Qt3DRender/QPointLight>
 #include <Qt3DRender/QRenderSettings>
 
-Window3D::Window3D(QScreen *screen):
+View::View(QScreen *screen):
     Qt3DExtras::Qt3DWindow(screen),
     m_Scene(nullptr)
 {
     createScene();
-
-    QSettings settings(config->PathAppConfig(), QSettings::IniFormat);
-    resize(settings.value("MainWindow/Width", WINDOW_WIDTH).toInt(),
-           settings.value("MainWindow/Height", WINDOW_HEIGHT).toInt());
-
-    QObject::connect(this, &Qt3DExtras::Qt3DWindow::heightChanged,
-                     [=](int value)
-                     { QSettings settings(config->PathAppConfig(), QSettings::IniFormat);
-                         settings.setValue("MainWindow/Height", value); });
-    QObject::connect(this, &Qt3DExtras::Qt3DWindow::widthChanged,
-                     [=](int value)
-                     { QSettings settings(config->PathAppConfig(), QSettings::IniFormat);
-                         settings.setValue("MainWindow/Width", value); });
-
     renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
+    renderSettings()->setRenderPolicy(Qt3DRender::QRenderSettings::OnDemand);
 }
 
-void Window3D::createScene()
+void View::createScene()
 {
     if(m_Scene) m_Scene->deleteLater();
     m_Scene = new Scene(this);
+    emit signalSceneChanged(m_Scene);
 }
 
-void Window3D::keyPressEvent(QKeyEvent *e)
+void View::keyPressEvent(QKeyEvent *e)
 {
     if(e->key() == Qt::Key_Insert)
     {
@@ -50,7 +38,7 @@ void Window3D::keyPressEvent(QKeyEvent *e)
     }
 }
 
-void Window3D::createSpheresTest()
+void View::createSpheresTest()
 {
     m_Scene->setEnabled(false);
     for(int i = 0; i < 10; i++)
@@ -76,3 +64,5 @@ void Window3D::createSpheresTest()
             }
     m_Scene->setEnabled(true);
 }
+
+Scene* View::getScene() const { return m_Scene; }

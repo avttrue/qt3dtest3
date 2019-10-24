@@ -1,13 +1,12 @@
-#include "sceneentity.h"
+#include "entity.h"
 #include "properties.h"
 #include "helpers.h"
 
 #include <Qt3DRender/QObjectPicker>
-
 #include <QColor>
 
-SceneEntity::SceneEntity(Qt3DCore::QNode *parent, Qt3DRender::QGeometryRenderer *geometry,
-                         Qt3DRender::QMaterial *material) :
+Entity::Entity(Qt3DCore::QNode *parent, Qt3DRender::QGeometryRenderer *geometry,
+                                   Qt3DRender::QMaterial *material) :
     Qt3DCore::QEntity(parent),
     m_Box(nullptr),
     m_Selected(false)
@@ -25,15 +24,15 @@ SceneEntity::SceneEntity(Qt3DCore::QNode *parent, Qt3DRender::QGeometryRenderer 
     addComponent(objectPicker);
 
     QObject::connect(this, &QObject::destroyed, [=]() { qDebug() << objectName() << ": destroyed"; });
-    QObject::connect(objectPicker, &Qt3DRender::QObjectPicker::clicked, this, &SceneEntity::slotClicked, Qt::DirectConnection);
+    QObject::connect(objectPicker, &Qt3DRender::QObjectPicker::clicked, this, &Entity::slotClicked, Qt::DirectConnection);
 }
 
-void SceneEntity::slotClicked(Qt3DRender::QPickEvent *event)
+void Entity::slotClicked(Qt3DRender::QPickEvent *event)
 {
     emit signalClicked(event, objectName());
 }
 
-void SceneEntity::createBox()
+void Entity::createBox()
 {
     auto excess = QVector3D(SELECTION_BOX_EXCESS, SELECTION_BOX_EXCESS ,SELECTION_BOX_EXCESS);
     auto max = m_Geometry->geometry()->maxExtent() + excess;
@@ -46,14 +45,14 @@ void SceneEntity::createBox()
     m_Box = createEntityBox(min, max, QColor(COLOR_SELECT), this);
 }
 
-void SceneEntity::applyGeometry(Qt3DRender::QGeometryRenderer* geometry)
+void Entity::applyGeometry(Qt3DRender::QGeometryRenderer* geometry)
 {
     applyEntityGeometry(this, geometry);
     m_Geometry = geometry;
     Select(false);
 }
 
-void SceneEntity::Select(bool value)
+void Entity::Select(bool value)
 {
     m_Selected = value;
     if(m_Selected) createBox();
@@ -68,5 +67,5 @@ void SceneEntity::Select(bool value)
     emit signalSelected(this, m_Selected);
 }
 
-Qt3DCore::QEntity *SceneEntity::Box() const { return m_Box; }
-bool SceneEntity::isSelected() const { return m_Selected; }
+Qt3DCore::QEntity *Entity::Box() const { return m_Box; }
+bool Entity::isSelected() const { return m_Selected; }

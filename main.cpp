@@ -1,9 +1,9 @@
-#include <QGuiApplication>
+#include <QApplication>
 #include <QTextCodec>
 #include <QDebug>
 #include <QDir>
 
-#include "core/3d/window3d.h"
+#include "mainwindow.h"
 #include "properties.h"
 
 bool prepare()
@@ -50,10 +50,7 @@ bool prepare()
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication application(argc, argv);
-
-    QObject::connect(&application, &QGuiApplication::lastWindowClosed,
-                     [=](){qDebug() << "Good Bye!"; });
+    QApplication application(argc, argv);
 
     QTextCodec::setCodecForLocale(QTextCodec::codecForName(TEXT_CODEC.toLatin1()));
 
@@ -66,7 +63,8 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
-    Window3D window;
+    MainWindow window;
+
     window.show();
     return application.exec();
 }

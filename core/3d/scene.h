@@ -9,35 +9,44 @@
 #include <Qt3DRender/QCamera>
 #include <Qt3DRender/QAbstractLight>
 
-class SceneEntity;
+class Entity;
 class CameraController;
 
 class Scene : public Qt3DCore::QEntity
 {
+    Q_OBJECT
+
 public:
     Scene(Qt3DExtras::Qt3DWindow* window, const QString &name = "");
     void addLight(Qt3DRender::QAbstractLight* light, Qt3DCore::QTransform* transform, const QString &name = "");
     bool delLight(const QString& name);
-    SceneEntity* addEntity(Qt3DRender::QGeometryRenderer *geometry,
+    Entity* addEntity(Qt3DRender::QGeometryRenderer *geometry,
                            Qt3DRender::QMaterial *material,
                            const QString &name = "");
     bool delEntity(const QString &name);
-    QHash<QString, SceneEntity *> Entities() const;
+    QHash<QString, Entity *> Entities() const;
     QHash<QString, Qt3DCore::QEntity *> Lights() const;
+    Entity *SelectedEntity() const;
+
+Q_SIGNALS:
+    void signalEntitySelected(Entity* entity);
+    void signalEntitiesCountChanged(int count);
+    void signalLightsCountChanged(int count);
+
+public Q_SLOTS:
+    void slotEntityClicked(Qt3DRender::QPickEvent *event, const QString &name);
+    void slotEntitySelected(Entity* entity, bool selected);
 
 protected:
-    SceneEntity* EntityByName(const QString& name);
+    Entity* EntityByName(const QString& name);
 
 private:
     CameraController* m_CameraController;
     Qt3DRender::QCamera* m_Camera;
-    SceneEntity* m_SelectedEntity;
+    Entity* m_SelectedEntity;
     QHash <QString, Qt3DCore::QEntity*> m_Lights;
-    QHash <QString, SceneEntity*> m_Entities;
+    QHash <QString, Entity*> m_Entities;
 
-private Q_SLOTS:
-    void slotEntityClicked(Qt3DRender::QPickEvent *event, const QString &name);
-    void slotEntitySelected(SceneEntity* entity, bool selected);
 };
 
 #endif // SCENE_H

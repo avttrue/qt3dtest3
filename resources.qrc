@@ -6,5 +6,6 @@
         <file>res/default/day_sky_negz.png</file>
         <file>res/default/day_sky_negy.png</file>
         <file>res/default/day_sky_negx.png</file>
+        <file>res/icons/star.svg</file>
     </qresource>
 </RCC>
