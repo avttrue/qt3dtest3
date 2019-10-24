@@ -21,6 +21,9 @@ protected:
 
     void closeEvent(QCloseEvent* event);
 
+    void slotPrintSceneStat();
+    void slotViewSceneChanged(Scene* scene);
+
 private:
     View* view;
     QLabel* labelSceneStat;
@@ -29,9 +32,6 @@ private:
 
 public Q_SLOTS:
 
-private Q_SLOTS:
-    void slotPrintSceneStat();
-    void slotViewSceneChanged(Scene* scene);
 
 };
 
