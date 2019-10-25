@@ -2,6 +2,8 @@
 #include "sceneentity.h"
 #include "helpers3d.h"
 #include "cameracontroller.h"
+#include "frameratecalculator.h"
+#include "properties.h"
 
 #include <Qt3DExtras/QCuboidMesh>
 #include <Qt3DCore/QTransform>
@@ -13,6 +15,8 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window, const QString &name):
 {
     applyEntityName(this, "scene", name);
     window->setRootEntity(this);
+
+    m_FRC = new FrameRateCalculator(FRAME_RATE_COUNT_CALC, this);
 
     m_Camera = window->camera();
     m_Camera->lens()->setPerspectiveProjection(45.0f, static_cast<float>(window->width()) / window->height(), 0.1f, 1000.0f);
@@ -37,6 +41,9 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window, const QString &name):
     lightTransform->setTranslation(QVector3D(0.0f, 0.0f, 500.0f));
     auto light = new Qt3DRender::QPointLight;
     addLight(light, lightTransform, "MainLight");
+
+    m_FrameAction = new Qt3DLogic::QFrameAction(this);
+    QObject::connect(m_FrameAction, &Qt3DLogic::QFrameAction::triggered, this, &Scene::frameActionTriggered);
 
     QObject::connect(this, &QObject::destroyed, [=](QObject* o){ qDebug() << o->objectName() << ": destroyed"; });
     qDebug() << objectName() << ": Scene created";
@@ -143,6 +150,12 @@ void Scene::slotEntitySelected(SceneEntity *entity, bool selected)
     emit signalEntitySelected(m_SelectedEntity);
 }
 
+void Scene::frameActionTriggered(float dt)
+{
+    Q_UNUSED(dt)
+    m_FRC->calculate();
+}
+
 SceneEntity *Scene::EntityByName(const QString &name)
 {
     auto e = Entities().value(name);
@@ -151,10 +164,7 @@ SceneEntity *Scene::EntityByName(const QString &name)
     return  e;
 }
 
-SceneEntity *Scene::SelectedEntity() const
-{
-    return m_SelectedEntity;
-}
-
+FrameRateCalculator *Scene::FRC() const { return m_FRC; }
+SceneEntity *Scene::SelectedEntity() const { return m_SelectedEntity; }
 QHash<QString, SceneEntity *> Scene::Entities() const { return m_Entities; }
 QHash<QString, Qt3DCore::QEntity *> Scene::Lights() const { return m_Lights; }

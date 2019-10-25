@@ -18,7 +18,6 @@ class CameraController: public Qt3DCore::QEntity
 
 public:
     CameraController(Qt3DCore::QNode* parent = nullptr);
-
     void setCamera(Qt3DRender::QCamera *Camera);
 
 protected:

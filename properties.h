@@ -19,6 +19,7 @@ const QString TEXT_CODEC = "UTF-8";
 const QString DEF_ASSETS = ":/assets";
 const QString COLOR_SELECT = "#1047c7"; // синий
 
+const auto FRAME_RATE_COUNT_CALC = 50;
 const auto WINDOW_HEIGHT = 700;
 const auto WINDOW_WIDTH = 900;
 const auto SPLASH_TIME = 1000;

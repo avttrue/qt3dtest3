@@ -3,10 +3,12 @@
 #include "properties.h"
 #include "core/3d/sceneview.h"
 #include "core/3d/scene.h"
+#include <core/3d/frameratecalculator.h>
 #include <QMessageBox>
 #include <QScrollArea>
 #include <QSplitter>
 #include <QStatusBar>
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
@@ -101,6 +103,8 @@ void MainWindow::slotViewSceneChanged(Scene *scene)
 {
     QObject::connect(scene, &Scene::signalLightsCountChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene, &Scene::signalEntitiesCountChanged, this, &MainWindow::slotWriteSceneStat);
+    QObject::connect(scene->FRC(), &FrameRateCalculator::signalFramesPerSecondChanged,
+                     [=](auto value){ labelSceneFPS->setText(tr("<b>К/С:</b>%1 | ").arg(QString::number(value, 'f', 1))); });
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

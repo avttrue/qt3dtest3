@@ -16,6 +16,7 @@ DEFINES     += QT_DEPRECATED_WARNINGS
 SOURCES += \
     controls.cpp \
     core/3d/cameracontroller.cpp \
+    core/3d/frameratecalculator.cpp \
     core/3d/helpers3d.cpp \
     core/3d/scene.cpp \
     core/3d/sceneentity.cpp \
@@ -28,6 +29,7 @@ SOURCES += \
 HEADERS += \
     controls.h \
     core/3d/cameracontroller.h \
+    core/3d/frameratecalculator.h \
     core/3d/helpers3d.h \
     core/3d/scene.h \
     core/3d/sceneentity.h \

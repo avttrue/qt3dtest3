@@ -3,6 +3,7 @@
 
 #include <Qt3DCore/QEntity>
 #include <Qt3DExtras/Qt3DWindow>
+#include <Qt3DLogic/QFrameAction>
 #include <Qt3DRender/QMaterial>
 #include <Qt3DRender/QGeometryRenderer>
 #include <Qt3DRender/QPickEvent>
@@ -11,6 +12,7 @@
 
 class SceneEntity;
 class CameraController;
+class FrameRateCalculator;
 
 class Scene : public Qt3DCore::QEntity
 {
@@ -27,6 +29,7 @@ public:
     QHash<QString, SceneEntity *> Entities() const;
     QHash<QString, Qt3DCore::QEntity *> Lights() const;
     SceneEntity *SelectedEntity() const;
+    FrameRateCalculator *FRC() const;
 
 Q_SIGNALS:
     void signalEntitySelected(SceneEntity* entity);
@@ -36,14 +39,17 @@ Q_SIGNALS:
 public Q_SLOTS:
     void slotEntityClicked(Qt3DRender::QPickEvent *event, const QString &name);
     void slotEntitySelected(SceneEntity* entity, bool selected);
+    void frameActionTriggered(float dt);
 
 protected:
     SceneEntity* EntityByName(const QString& name);
 
 private:
+    Qt3DLogic::QFrameAction* m_FrameAction;
     CameraController* m_CameraController;
     Qt3DRender::QCamera* m_Camera;
     SceneEntity* m_SelectedEntity;
+    FrameRateCalculator* m_FRC;
     QHash <QString, Qt3DCore::QEntity*> m_Lights;
     QHash <QString, SceneEntity*> m_Entities;
 

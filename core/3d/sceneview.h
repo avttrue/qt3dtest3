@@ -9,7 +9,6 @@ class Scene;
 class SceneView : public Qt3DExtras::Qt3DWindow
 {
     Q_OBJECT
-
 public:
     SceneView(QScreen *screen = nullptr);
     void createScene();
