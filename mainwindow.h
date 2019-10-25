@@ -1,10 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QGridLayout>
 #include <QLabel>
 #include <QMainWindow>
 
-class View;
+class SceneView;
 class Scene;
 
 class MainWindow : public QMainWindow
@@ -17,17 +18,17 @@ Q_SIGNALS:
 
 protected:
     void createGUI();
-    void atAppClose();
-
+    void addControlWidget(QWidget* widget);
     void closeEvent(QCloseEvent* event);
 
-    void slotPrintSceneStat();
+    void slotWriteSceneStat();
     void slotViewSceneChanged(Scene* scene);
 
 private:
-    View* view;
+    SceneView* sceneView;
     QLabel* labelSceneStat;
     QLabel* labelSceneFPS;
+    QGridLayout* glControls;
 
 
 public Q_SLOTS:

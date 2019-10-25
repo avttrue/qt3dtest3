@@ -1,8 +1,8 @@
-﻿#include "view.h"
+﻿#include "sceneview.h"
 #include "properties.h"
-#include "helpers.h"
+#include "helpers3d.h"
 #include "scene.h"
-#include "entity.h"
+#include "sceneentity.h"
 
 #include <QDebug>
 #include <QRandomGenerator>
@@ -13,33 +13,30 @@
 #include <Qt3DRender/QPointLight>
 #include <Qt3DRender/QRenderSettings>
 
-View::View(QScreen *screen):
+SceneView::SceneView(QScreen *screen):
     Qt3DExtras::Qt3DWindow(screen),
     m_Scene(nullptr)
 {
-    createScene();
     renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
     renderSettings()->setRenderPolicy(Qt3DRender::QRenderSettings::OnDemand);
 }
 
-void View::createScene()
+void SceneView::createScene()
 {
     if(m_Scene) m_Scene->deleteLater();
     m_Scene = new Scene(this);
     emit signalSceneChanged(m_Scene);
 }
 
-void View::keyPressEvent(QKeyEvent *e)
+void SceneView::keyPressEvent(QKeyEvent *e)
 {
-    if(e->key() == Qt::Key_Insert)
-    {
-        createScene();
-        createSpheresTest();
-    }
+    qDebug() << "Button:" << e->key();
 }
 
-void View::createSpheresTest()
+void SceneView::createSpheresTest()
 {
+    if(!m_Scene) {qWarning() << "Scene is absent"; return; }
+
     m_Scene->setEnabled(false);
     for(int i = 0; i < 10; i++)
         for(int j = 0; j < 10; j++)
@@ -65,4 +62,4 @@ void View::createSpheresTest()
     m_Scene->setEnabled(true);
 }
 
-Scene* View::getScene() const { return m_Scene; }
+Scene* SceneView::getScene() const { return m_Scene; }

@@ -1,6 +1,6 @@
 #include "scene.h"
-#include "entity.h"
-#include "helpers.h"
+#include "sceneentity.h"
+#include "helpers3d.h"
 #include "cameracontroller.h"
 
 #include <Qt3DExtras/QCuboidMesh>
@@ -15,7 +15,7 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window, const QString &name):
     window->setRootEntity(this);
 
     m_Camera = window->camera();
-    m_Camera->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
+    m_Camera->lens()->setPerspectiveProjection(45.0f, static_cast<float>(window->width()) / window->height(), 0.1f, 1000.0f);
     m_Camera->setPosition(QVector3D(0.0f, 0.0f, 500.0f));
     m_Camera->setViewCenter(QVector3D(0.0f, 0.0f, 0.0f));
 
@@ -25,7 +25,7 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window, const QString &name):
     /* обещают исправить в 5.14
     m_SkyBox = new Qt3DExtras::QSkyboxEntity(this);
     m_SkyBox->setGammaCorrectEnabled(true);
-    m_SkyBox->setBaseName(config->PathAssetsDir() + QDir::separator() + QStringLiteral("day_sky"));
+    m_SkyBox->setBaseName(config->PathAssetsDir() + QDir::separator() + QStringLiteral("default_sky"));
     m_SkyBox->setExtension(QStringLiteral(".png"));
     auto skytrfm = new Qt3DCore::QTransform();
     skytrfm->setTranslation(QVector3D( 0.0f, 0.0f, 0.0f));
@@ -74,16 +74,16 @@ bool Scene::delLight(const QString &name)
     return false;
 }
 
-Entity* Scene::addEntity(Qt3DRender::QGeometryRenderer *geometry,
+SceneEntity* Scene::addEntity(Qt3DRender::QGeometryRenderer *geometry,
                               Qt3DRender::QMaterial *material,
                               const QString &name)
 {
 
-    auto entity = new Entity(this, geometry, material);
+    auto entity = new SceneEntity(this, geometry, material);
     applyEntityName(entity, "entity", name);
 
-    QObject::connect(entity, &Entity::signalClicked, this, &Scene::slotEntityClicked, Qt::DirectConnection);
-    QObject::connect(entity, &Entity::signalSelected, this, &Scene::slotEntitySelected, Qt::DirectConnection);
+    QObject::connect(entity, &SceneEntity::signalClicked, this, &Scene::slotEntityClicked, Qt::DirectConnection);
+    QObject::connect(entity, &SceneEntity::signalSelected, this, &Scene::slotEntitySelected, Qt::DirectConnection);
 
     delEntity(entity->objectName());
     m_Entities.insert(entity->objectName(), entity);
@@ -130,7 +130,7 @@ void Scene::slotEntityClicked(Qt3DRender::QPickEvent *event, const QString &name
     }
 }
 
-void Scene::slotEntitySelected(Entity *entity, bool selected)
+void Scene::slotEntitySelected(SceneEntity *entity, bool selected)
 {
     if(! entity) { qCritical() << __func__ << ": Selected entity is empty"; return; }
 
@@ -143,7 +143,7 @@ void Scene::slotEntitySelected(Entity *entity, bool selected)
     emit signalEntitySelected(m_SelectedEntity);
 }
 
-Entity *Scene::EntityByName(const QString &name)
+SceneEntity *Scene::EntityByName(const QString &name)
 {
     auto e = Entities().value(name);
     if(!e) { qDebug() << ": Entity <" << name << "> not found"; return nullptr; }
@@ -151,10 +151,10 @@ Entity *Scene::EntityByName(const QString &name)
     return  e;
 }
 
-Entity *Scene::SelectedEntity() const
+SceneEntity *Scene::SelectedEntity() const
 {
     return m_SelectedEntity;
 }
 
-QHash<QString, Entity *> Scene::Entities() const { return m_Entities; }
+QHash<QString, SceneEntity *> Scene::Entities() const { return m_Entities; }
 QHash<QString, Qt3DCore::QEntity *> Scene::Lights() const { return m_Lights; }

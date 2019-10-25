@@ -1,5 +1,5 @@
-#ifndef ENTITY_H
-#define ENTITY_H
+#ifndef SCENEENTITY_H
+#define SCENEENTITY_H
 
 #include <Qt3DCore/QEntity>
 #include <Qt3DRender/QPickEvent>
@@ -7,14 +7,14 @@
 #include <Qt3DRender/QGeometryRenderer>
 
 
-class Entity : public Qt3DCore::QEntity
+class SceneEntity : public Qt3DCore::QEntity
 {
     Q_OBJECT
 
 public:
-    Entity(Qt3DCore::QNode* parent,
-                     Qt3DRender::QGeometryRenderer* geometry,
-                     Qt3DRender::QMaterial* material);
+    SceneEntity(Qt3DCore::QNode* parent,
+                Qt3DRender::QGeometryRenderer* geometry,
+                Qt3DRender::QMaterial* material);
     Qt3DCore::QEntity *Box() const;
     void applyGeometry(Qt3DRender::QGeometryRenderer* geometry);
     void Select(bool value);
@@ -22,7 +22,7 @@ public:
 
 Q_SIGNALS:
     void signalClicked(Qt3DRender::QPickEvent *event, const QString &name);
-    void signalSelected(Entity* entity, bool selected);
+    void signalSelected(SceneEntity* entity, bool selected);
 
 public Q_SLOTS:
     void slotClicked(Qt3DRender::QPickEvent *event);
@@ -36,4 +36,4 @@ private:
     bool m_Selected;
 };
 
-#endif // ENTITY_H
+#endif // SCENEENTITY_H

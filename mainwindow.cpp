@@ -1,8 +1,11 @@
+#include "controls.h"
 #include "mainwindow.h"
 #include "properties.h"
-#include "core/3d/view.h"
+#include "core/3d/sceneview.h"
 #include "core/3d/scene.h"
 #include <QMessageBox>
+#include <QScrollArea>
+#include <QSplitter>
 #include <QStatusBar>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -26,10 +29,40 @@ MainWindow::MainWindow(QWidget *parent) :
 void MainWindow::createGUI()
 {
     // View
-    view = new View;
+    sceneView = new SceneView;
+    auto  viewContainer = QWidget::createWindowContainer(sceneView);
 
-    auto  viewContainer = QWidget::createWindowContainer(view);
-    setCentralWidget(viewContainer);
+    // Controls
+    auto saControls = new QScrollArea();
+    saControls->setAlignment(Qt::AlignTop);
+    saControls->setWidgetResizable(true);
+    auto wControls = new QWidget();
+    saControls->setWidget(wControls);
+    glControls = new QGridLayout();
+    glControls->setMargin(1);
+    glControls->setSpacing(1);
+    wControls->setLayout(glControls);
+    wControls->setFocusPolicy(Qt::NoFocus);
+    glControls->setAlignment(Qt::AlignTop);
+
+    // Splitter
+    auto vertSplitter = new QSplitter(this);
+    vertSplitter->setOrientation(Qt::Orientation::Horizontal);
+    vertSplitter->setChildrenCollapsible(false);
+    vertSplitter->addWidget(saControls);
+    vertSplitter->addWidget(viewContainer);
+    vertSplitter->setSizes(QList<int>({100, 400}));
+    setCentralWidget(vertSplitter);
+
+    // управление
+    auto btnNewScene = new ControlButton(QIcon(":/res/icons/cube.svg"), tr("Новая сцена"), this);
+    QObject::connect(btnNewScene, &QPushButton::clicked, [=]() { sceneView->createScene(); viewContainer->setFocus(); });
+    addControlWidget(btnNewScene);
+
+    // тест
+    auto btnTest = new ControlButton(tr("   тест"), this);
+    QObject::connect(btnTest, &QPushButton::clicked, [=]() { sceneView->createSpheresTest(); viewContainer->setFocus(); });
+    addControlWidget(btnTest);
 
     // статусбар
     auto statusBar = new QStatusBar(this);
@@ -46,36 +79,34 @@ void MainWindow::createGUI()
 
     setStatusBar(statusBar);
 
-    QObject::connect(view, &View::signalSceneChanged, this, &MainWindow::slotViewSceneChanged);
-    QObject::connect(view, &View::signalSceneChanged, this, &MainWindow::slotPrintSceneStat);
+    QObject::connect(sceneView, &SceneView::signalSceneChanged, this, &MainWindow::slotViewSceneChanged);
+    QObject::connect(sceneView, &SceneView::signalSceneChanged, this, &MainWindow::slotWriteSceneStat);
 
     viewContainer->setFocus();
 }
 
-void MainWindow::atAppClose()
+void MainWindow::addControlWidget(QWidget *widget)
 {
-    QSettings settings(config->PathAppConfig(), QSettings::IniFormat);
-    settings.setValue("MainWindow/Height",height());
-    settings.setValue("MainWindow/Width",width());
+    glControls->addWidget(widget, glControls->count(), 0, 1, 1, Qt::AlignTop);
 }
 
-void MainWindow::slotPrintSceneStat()
+void MainWindow::slotWriteSceneStat()
 {
-    labelSceneStat->setText(QString("<b>Lights:</b>%1 | <b>Entities:</b>%2").
-                            arg(QString::number(view->getScene()->Lights().count()),
-                                QString::number(view->getScene()->Entities().count())));
+    labelSceneStat->setText(tr("<b>Свет:</b>%1 | <b>Сущности:</b>%2").
+                            arg(QString::number(sceneView->getScene()->Lights().count()),
+                                QString::number(sceneView->getScene()->Entities().count())));
 }
 
 void MainWindow::slotViewSceneChanged(Scene *scene)
 {
-    QObject::connect(scene, &Scene::signalLightsCountChanged, this, &MainWindow::slotPrintSceneStat);
-    QObject::connect(scene, &Scene::signalEntitiesCountChanged, this, &MainWindow::slotPrintSceneStat);
+    QObject::connect(scene, &Scene::signalLightsCountChanged, this, &MainWindow::slotWriteSceneStat);
+    QObject::connect(scene, &Scene::signalEntitiesCountChanged, this, &MainWindow::slotWriteSceneStat);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, "Внимание", QString("Закончить работу с '%1'?").arg(APP_NAME),
+    reply = QMessageBox::question(this, tr("Внимание"), tr("Закончить работу с '%1'?").arg(APP_NAME),
                                   QMessageBox::Yes | QMessageBox::No);
 
     if (reply == QMessageBox::No)
@@ -84,6 +115,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
         return;
     }
 
-    atAppClose();
+    QSettings settings(config->PathAppConfig(), QSettings::IniFormat);
+    settings.setValue("MainWindow/Height",height());
+    settings.setValue("MainWindow/Width",width());
+
     event->accept();
 }

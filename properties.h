@@ -16,7 +16,7 @@ const QString LOG_DIR = "logs";
 const QString ASSETS_DIR = "assets";
 const QString DT_FORMAT = "hh:mm:ss.zzz";
 const QString TEXT_CODEC = "UTF-8";
-const QString DEF_ASSETS = ":/res/default";
+const QString DEF_ASSETS = ":/assets";
 const QString COLOR_SELECT = "#1047c7"; // синий
 
 const auto WINDOW_HEIGHT = 700;

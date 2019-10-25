@@ -6,12 +6,12 @@
 
 class Scene;
 
-class View : public Qt3DExtras::Qt3DWindow
+class SceneView : public Qt3DExtras::Qt3DWindow
 {
     Q_OBJECT
 
 public:
-    View(QScreen *screen = nullptr);
+    SceneView(QScreen *screen = nullptr);
     void createScene();
     Scene *getScene() const;
     void createSpheresTest();

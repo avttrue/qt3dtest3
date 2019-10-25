@@ -18,9 +18,9 @@ Qt3DCore::QEntity* addEntityLine(const QVector3D& start,
  * \brief addEntityBox - нарисовать каркас из линий в рамках самых удалённых точек min и max
  */
 Qt3DCore::QEntity* createEntityBox(const QVector3D& min,
-                                const QVector3D& max,
-                                const QColor& color,
-                                Qt3DCore::QEntity* parent);
+                                   const QVector3D& max,
+                                   const QColor& color,
+                                   Qt3DCore::QEntity* parent);
 
 Qt3DCore::QEntity* addText(Qt3DCore::QEntity* parent, const QString& text = "");
 
