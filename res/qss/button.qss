@@ -1,0 +1,21 @@
+QAbstractButton {
+text-align: left;
+border: 1px outset grey;
+padding: 2px;
+border-radius: 7px;
+margin: 1px;
+font-family: monospace;
+font: bold;
+}
+
+QAbstractButton:hover {
+
+}
+
+QAbstractButton:pressed {
+border: 1px inner grey;
+}
+
+QAbstractButton:checked {
+border: 1px inner grey;
+}

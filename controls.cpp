@@ -1,4 +1,5 @@
 #include "controls.h"
+#include "helpers.h"
 
 ControlButton::ControlButton(QWidget *parent):
 QPushButton(parent)
@@ -14,8 +15,7 @@ QPushButton(icon, text, parent)
 
 void ControlButton::setup()
 {
-    setFlat(true);
-    setStyleSheet("text-align: left; border: 1px outset grey; padding: 2px; border-radius: 7px;");
+    setStyleSheet(getTextFromRes(":/res/qss/button.qss"));
     setFocusPolicy(Qt::NoFocus);
 }
 

@@ -21,10 +21,12 @@ SOURCES += \
     core/3d/scene.cpp \
     core/3d/sceneentity.cpp \
     core/3d/sceneview.cpp \
+    helpers.cpp \
     main.cpp \
     mainwindow.cpp \
     properties.cpp \
-    config.cpp
+    config.cpp \
+    widgettools.cpp
 
 HEADERS += \
     controls.h \
@@ -34,9 +36,11 @@ HEADERS += \
     core/3d/scene.h \
     core/3d/sceneentity.h \
     core/3d/sceneview.h \
+    helpers.h \
     mainwindow.h \
     properties.h \
-    config.h
+    config.h \
+    widgettools.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

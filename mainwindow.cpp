@@ -1,6 +1,7 @@
 #include "controls.h"
 #include "mainwindow.h"
 #include "properties.h"
+#include "widgettools.h"
 #include "core/3d/sceneview.h"
 #include "core/3d/scene.h"
 #include <core/3d/frameratecalculator.h>
@@ -26,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
            settings.value("MainWindow/Height", WINDOW_HEIGHT).toInt());
 
     createGUI();
+    setWidgetToScreenCenter(this);
 }
 
 void MainWindow::createGUI()

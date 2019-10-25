@@ -4,5 +4,6 @@
         <file>res/icons/update.svg</file>
         <file>res/icons/setup.svg</file>
         <file>res/icons/cube.svg</file>
+        <file>res/qss/button.qss</file>
     </qresource>
 </RCC>
