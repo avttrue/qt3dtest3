@@ -83,6 +83,7 @@ void MainWindow::createGUI()
     QObject::connect(btnTest, &QPushButton::clicked, [=]() { sceneView->createSpheresTest(); viewContainer->setFocus(); });
     addControlWidget(btnTest);
 
+
     // статусбар
     auto statusBar = new QStatusBar(this);
 

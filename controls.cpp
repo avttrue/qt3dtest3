@@ -15,7 +15,7 @@ QPushButton(icon, text, parent)
 
 void ControlButton::setup()
 {
-    setStyleSheet(getTextFromRes(":/res/qss/button.qss"));
+    setStyleSheet(getTextFromRes(":/res/qss/button.css"));
     setFocusPolicy(Qt::NoFocus);
 }
 

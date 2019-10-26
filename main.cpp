@@ -5,6 +5,7 @@
 
 #include "mainwindow.h"
 #include "properties.h"
+#include "helpers.h"
 
 bool prepare()
 {
@@ -53,6 +54,7 @@ int main(int argc, char *argv[])
     QApplication application(argc, argv);
 
     QTextCodec::setCodecForLocale(QTextCodec::codecForName(TEXT_CODEC.toLatin1()));
+    application.setStyleSheet(getTextFromRes(":/res/qss/main.css"));
 
     // параметры
     config = new Config(application.applicationDirPath());

@@ -6,14 +6,20 @@ border-radius: 7px;
 margin: 1px;
 font-family: monospace;
 font: bold;
+background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+stop: 0 silver, stop: 0.5 white,
+stop: 0.5 white, stop: 1 silver);
 }
 
 QAbstractButton:hover {
-
+border: 1px inner grey;
 }
 
 QAbstractButton:pressed {
 border: 1px inner grey;
+background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+stop: 0 white, stop: 0.5 silver,
+stop: 0.5 silver, stop: 1 white);
 }
 
 QAbstractButton:checked {
