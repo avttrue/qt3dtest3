@@ -4,6 +4,7 @@
 #include "widgettools.h"
 #include "core/3d/sceneview.h"
 #include "core/3d/scene.h"
+#include "core/3d/sceneentity.h"
 #include <core/3d/frameratecalculator.h>
 #include <QMessageBox>
 #include <QScrollArea>
@@ -59,9 +60,23 @@ void MainWindow::createGUI()
     setCentralWidget(vertSplitter);
 
     // управление
+    // новая сцена
     auto btnNewScene = new ControlButton(QIcon(":/res/icons/cube.svg"), tr("Новая сцена"), this);
     QObject::connect(btnNewScene, &QPushButton::clicked, [=]() { sceneView->createScene(); viewContainer->setFocus(); });
     addControlWidget(btnNewScene);
+
+    // удалить объект
+    btnDelEntity = new ControlButton(QIcon(":/res/icons/delete.svg"), tr("Удалить объект"), this);
+    btnDelEntity->setDisabled(true);
+    QObject::connect(btnDelEntity, &QPushButton::clicked, [=]()
+                     {
+                         Scene* s = sceneView->getScene();
+                         if(!s || !s->SelectedEntity()) { btnDelEntity->setDisabled(true); return; }
+                         s->delEntity(s->SelectedEntity());
+                         btnDelEntity->setDisabled(true);
+                         viewContainer->setFocus();
+                     });
+    addControlWidget(btnDelEntity);
 
     // тест
     auto btnTest = new ControlButton(tr("   тест"), this);
@@ -105,8 +120,11 @@ void MainWindow::slotViewSceneChanged(Scene *scene)
 {
     QObject::connect(scene, &Scene::signalLightsCountChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene, &Scene::signalEntitiesCountChanged, this, &MainWindow::slotWriteSceneStat);
-    QObject::connect(scene->FRC(), &FrameRateCalculator::signalFramesPerSecondChanged,
-                     [=](auto value){ labelSceneFPS->setText(tr("<b>К/С:</b>%1 | ").arg(QString::number(value, 'f', 1))); });
+    QObject::connect(scene->FRC(), &FrameRateCalculator::signalFramesPerSecondChanged, [=](auto value)
+                     { labelSceneFPS->setText(tr("<b>К/С:</b>%1 | ").arg(QString::number(value, 'f', 1))); });
+
+    QObject::connect(sceneView->getScene(), &Scene::signalEntitySelected, [=](SceneEntity* se)
+                     { btnDelEntity->setEnabled(se); });
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

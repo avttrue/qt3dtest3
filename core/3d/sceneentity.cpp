@@ -1,11 +1,12 @@
 #include "sceneentity.h"
+#include "scene.h"
 #include "properties.h"
 #include "helpers3d.h"
 
 #include <Qt3DRender/QObjectPicker>
 #include <QColor>
 
-SceneEntity::SceneEntity(Qt3DCore::QNode *parent, Qt3DRender::QGeometryRenderer *geometry,
+SceneEntity::SceneEntity(Scene* parent, Qt3DRender::QGeometryRenderer *geometry,
                          Qt3DRender::QMaterial *material) :
     Qt3DCore::QEntity(parent),
     m_Box(nullptr),
@@ -13,7 +14,9 @@ SceneEntity::SceneEntity(Qt3DCore::QNode *parent, Qt3DRender::QGeometryRenderer 
 {
     if(!geometry || !material) { qCritical() << __func__ << ": SceneEntity init error"; return; }
 
+    m_Scene = parent;
     m_Geometry = geometry;
+    m_Material = material;
 
     auto objectPicker = new Qt3DRender::QObjectPicker;
     objectPicker->setHoverEnabled(false);

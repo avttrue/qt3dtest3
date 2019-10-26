@@ -102,16 +102,18 @@ SceneEntity* Scene::addEntity(Qt3DRender::QGeometryRenderer *geometry,
 
 bool Scene::delEntity(const QString &name)
 {
-    auto e = m_Entities.take(name);
-    if(e)
+    auto entity = m_Entities.take(name);
+    if(entity)
     {
-        if(m_SelectedEntity == e) m_SelectedEntity = nullptr;
-        e->deleteLater();
+        if(m_SelectedEntity == entity) m_SelectedEntity = nullptr;
+        entity->deleteLater();
         emit Scene::signalEntitiesCountChanged(m_Entities.count());
         return true;
     }
     return false;
 }
+
+bool Scene::delEntity(SceneEntity *entity) { return delEntity(entity->objectName()); }
 
 void Scene::slotEntityClicked(Qt3DRender::QPickEvent *event, const QString &name)
 {
@@ -120,20 +122,21 @@ void Scene::slotEntityClicked(Qt3DRender::QPickEvent *event, const QString &name
 
     if(event->button() == Qt3DRender::QPickEvent::Buttons::LeftButton)
     {
+        e->Select(!e->isSelected());
+    }
+    else if(event->button() == Qt3DRender::QPickEvent::Buttons::MiddleButton)
+    {
+        qDebug() << "Mouse button: MiddleButton";
+    }
+    else if(event->button() == Qt3DRender::QPickEvent::Buttons::RightButton)
+    {
+        qDebug() << "Mouse button: RightButton";
         // test
         auto cm = new Qt3DExtras::QCuboidMesh;
         cm->setXExtent(40);
         cm->setYExtent(40);
         cm->setZExtent(40);
         e->applyGeometry(cm);
-    }
-    else if(event->button() == Qt3DRender::QPickEvent::Buttons::MiddleButton)
-    {
-        e->Select(!e->isSelected());
-    }
-    else if(event->button() == Qt3DRender::QPickEvent::Buttons::RightButton)
-    {
-        delEntity(name);
     }
 }
 

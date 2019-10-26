@@ -26,6 +26,7 @@ public:
                            Qt3DRender::QMaterial *material,
                            const QString &name = "");
     bool delEntity(const QString &name);
+    bool delEntity(SceneEntity* entity);
     QHash<QString, SceneEntity *> Entities() const;
     QHash<QString, Qt3DCore::QEntity *> Lights() const;
     SceneEntity *SelectedEntity() const;

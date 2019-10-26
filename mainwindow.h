@@ -7,6 +7,7 @@
 
 class SceneView;
 class Scene;
+class ControlButton;
 
 class MainWindow : public QMainWindow
 {
@@ -29,6 +30,7 @@ private:
     QLabel* labelSceneStat;
     QLabel* labelSceneFPS;
     QGridLayout* glControls;
+    ControlButton* btnDelEntity;
 
 
 public Q_SLOTS:
