@@ -123,9 +123,7 @@ void MainWindow::slotViewSceneChanged(Scene *scene)
     QObject::connect(scene, &Scene::signalEntitiesCountChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene->FRC(), &FrameRateCalculator::signalFramesPerSecondChanged, [=](auto value)
                      { labelSceneFPS->setText(tr("<b>К/С:</b>%1 | ").arg(QString::number(value, 'f', 1))); });
-
-    QObject::connect(sceneView->getScene(), &Scene::signalEntitySelected, [=](SceneEntity* se)
-                     { btnDelEntity->setEnabled(se); });
+    QObject::connect(scene, &Scene::signalEntitySelected, [=](SceneEntity* se) { btnDelEntity->setEnabled(se); });
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

@@ -16,6 +16,10 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window, const QString &name):
     applyEntityName(this, "scene", name);
     window->setRootEntity(this);
 
+    createEntityBox(QVector3D(-SCENE_WIDTH/2, -SCENE_HEIGHT/2, -SCENE_DEPTH/2) + QVector3D(0.1f, 0.1f, 0.1f),
+                    QVector3D(SCENE_WIDTH/2, SCENE_HEIGHT/2, SCENE_DEPTH/2) - QVector3D(0.1f, 0.1f, 0.1f),
+                    Qt::black, this);
+
     m_FRC = new FrameRateCalculator(FRAME_RATE_COUNT_CALC, this);
 
     m_Camera = window->camera();
