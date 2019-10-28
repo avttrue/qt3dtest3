@@ -2,7 +2,7 @@
 #include "mainwindow.h"
 #include "properties.h"
 #include "helperswidget.h"
-#include "dialogs/dialogsetup.h"
+#include "dialogs/dialogvalueslist.h"
 #include "core/3d/sceneview.h"
 #include "core/3d/scene.h"
 #include "core/3d/sceneentity.h"
@@ -130,7 +130,7 @@ void MainWindow::createScene()
 {
     const QVector<QString> keys =
         {tr("1. Название"),
-         tr("2. Размер ячейки"),
+         tr("2. Сцена: размер ячейки"),
          tr("3. Сцена: ширина"),
          tr("4. Сцена: высота"),
          tr("5. Сцена: глубина")
@@ -142,9 +142,9 @@ void MainWindow::createScene()
          {keys.at(3), {QVariant::Int, SCENE_HEIGHT}},
          {keys.at(4), {QVariant::Int, SCENE_DEPTH}}
         };
-    auto ds = new DialogSetup(tr("Новая карта"), true, &m, this);
+    auto dvl = new DialogValuesList(":/res/icons/matrix.svg", tr("Новая сцена"), true, &m, this);
 
-    if(!ds->exec()) return;
+    if(!dvl->exec()) return;
 
     sceneView->createScene(m.value(keys.at(1)).second.toInt(),
                            m.value(keys.at(2)).second.toInt(),

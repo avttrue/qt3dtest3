@@ -1,4 +1,4 @@
-#include "dialogsetup.h"
+#include "dialogvalueslist.h"
 #include "controls.h"
 #include "properties.h"
 
@@ -10,10 +10,11 @@
 #include <QScrollArea>
 #include <QSpinBox>
 
-DialogSetup::DialogSetup(const QString& caption,
-                         bool modal,
-                         QMap<QString, QPair<QVariant::Type, QVariant>>* values,
-                         QWidget* parent) :
+DialogValuesList::DialogValuesList(const QString& icon,
+                                   const QString& caption,
+                                   bool modal,
+                                   QMap<QString, QPair<QVariant::Type, QVariant>>* values,
+                                   QWidget* parent) :
     QDialog(parent)
 {
     m_Values = values;
@@ -22,7 +23,7 @@ DialogSetup::DialogSetup(const QString& caption,
                    Qt::WindowTitleHint);
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowTitle(caption);
-    setWindowIcon(QIcon(":/res/icons/setup.svg"));
+    setWindowIcon(QIcon(icon));
     setModal(modal);
 
     auto vblForm = new QVBoxLayout();
@@ -63,17 +64,17 @@ DialogSetup::DialogSetup(const QString& caption,
     resize(DIALOG_SIZE);
 }
 
-void DialogSetup::addWidgetContent(QWidget *widget)
+void DialogValuesList::addWidgetContent(QWidget *widget)
 {
     glContent->addWidget(widget, glContent->count(), 0, 1, 1, Qt::AlignTop);
 }
 
-void DialogSetup::addToolbarButton(QAction *action)
+void DialogValuesList::addToolbarButton(QAction *action)
 {
     toolBar->addAction(action);
 }
 
-void DialogSetup::slotLoadContent(QMap<QString, QPair<QVariant::Type, QVariant> > *values)
+void DialogValuesList::slotLoadContent(QMap<QString, QPair<QVariant::Type, QVariant> > *values)
 {
     QLayoutItem *child;
     while ((child = glContent->takeAt(0)) != nullptr) delete child->widget();
@@ -94,7 +95,7 @@ void DialogSetup::slotLoadContent(QMap<QString, QPair<QVariant::Type, QVariant> 
             bl->addWidget(label, 1);
             auto le = new QLineEdit(v.toString(), widget);
             le->setProperty("ValueName", s);
-            connect(le, &QLineEdit::textEdited, this, &DialogSetup::slotStringValueChanged);
+            connect(le, &QLineEdit::textEdited, this, &DialogValuesList::slotStringValueChanged);
             bl->addWidget(le, 1);
             widget->setLayout(bl);
             addWidgetContent(widget);
@@ -104,7 +105,7 @@ void DialogSetup::slotLoadContent(QMap<QString, QPair<QVariant::Type, QVariant> 
             auto cbox = new QCheckBox(s);
             cbox->setChecked(v.toBool());
             cbox->setProperty("ValueName", s);
-            connect(cbox, &QCheckBox::stateChanged, this, &DialogSetup::slotBoolValueChanged);
+            connect(cbox, &QCheckBox::stateChanged, this, &DialogValuesList::slotBoolValueChanged);
             addWidgetContent(cbox);
         }
         else if(t == QVariant::Int || t == QVariant::Double)
@@ -117,7 +118,7 @@ void DialogSetup::slotLoadContent(QMap<QString, QPair<QVariant::Type, QVariant> 
             spinbox->setValue(v.toInt());
             spinbox->setProperty("ValueName", s);
             void (QSpinBox::*Sender)(int) = &QSpinBox::valueChanged;
-            void (DialogSetup::*Receiver)(int) = &DialogSetup::slotIntValueChanged;
+            void (DialogValuesList::*Receiver)(int) = &DialogValuesList::slotIntValueChanged;
             connect(spinbox, Sender, this, Receiver);
             addWidgetContent(spinbox);
         }
@@ -131,7 +132,7 @@ void DialogSetup::slotLoadContent(QMap<QString, QPair<QVariant::Type, QVariant> 
             bl->addWidget(label, 1);
             auto le = new QLineEdit(v.toStringList().join(","), widget);
             le->setProperty("ValueName", s);
-            connect(le, &QLineEdit::textEdited, this, &DialogSetup::slotStringListValueChanged);
+            connect(le, &QLineEdit::textEdited, this, &DialogValuesList::slotStringListValueChanged);
             bl->addWidget(le, 1);
             widget->setLayout(bl);
             addWidgetContent(widget);
@@ -141,14 +142,14 @@ void DialogSetup::slotLoadContent(QMap<QString, QPair<QVariant::Type, QVariant> 
     }
 }
 
-bool DialogSetup::eventFilter(QObject *obj, QEvent *event)
+bool DialogValuesList::eventFilter(QObject *obj, QEvent *event)
 {
     Q_UNUSED(obj)
     if(event->type() == QEvent::Wheel) { return true; }
     return false;
 }
 
-void DialogSetup::slotStringValueChanged(const QString &value)
+void DialogValuesList::slotStringValueChanged(const QString &value)
 {
     auto ledit = qobject_cast<QLineEdit*>(sender());
     if(ledit == nullptr) { qCritical() << __func__ << "Signal sender not found."; return; }
@@ -156,7 +157,7 @@ void DialogSetup::slotStringValueChanged(const QString &value)
     m_Values->insert(key, QPair<QVariant::Type, QVariant>(m_Values->value(key).first, value));
 }
 
-void DialogSetup::slotStringListValueChanged(const QString &value)
+void DialogValuesList::slotStringListValueChanged(const QString &value)
 {
     auto ledit = qobject_cast<QLineEdit*>(sender());
     if(ledit == nullptr) { qCritical() << __func__ << "Signal sender not found."; return; }
@@ -164,7 +165,7 @@ void DialogSetup::slotStringListValueChanged(const QString &value)
     m_Values->insert(key, QPair<QVariant::Type, QVariant>(m_Values->value(key).first, value.split(",")));
 }
 
-void DialogSetup::slotBoolValueChanged(bool value)
+void DialogValuesList::slotBoolValueChanged(bool value)
 {
     auto cbox = qobject_cast<QCheckBox*>(sender());
     if(cbox == nullptr) { qCritical() << __func__ << "Signal sender not found."; return; }
@@ -172,7 +173,7 @@ void DialogSetup::slotBoolValueChanged(bool value)
     m_Values->insert(key, QPair<QVariant::Type, QVariant>(m_Values->value(key).first, value));
 }
 
-void DialogSetup::slotIntValueChanged(int value)
+void DialogValuesList::slotIntValueChanged(int value)
 {
     auto spinbox = qobject_cast<QSpinBox*>(sender());
     if(spinbox == nullptr) { qCritical() << __func__ << "Signal sender not found."; return; }

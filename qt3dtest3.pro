@@ -21,7 +21,7 @@ SOURCES += \
     core/3d/scene.cpp \
     core/3d/sceneentity.cpp \
     core/3d/sceneview.cpp \
-    dialogs/dialogsetup.cpp \
+    dialogs/dialogvalueslist.cpp \
     helpers.cpp \
     helperswidget.cpp \
     main.cpp \
@@ -37,7 +37,7 @@ HEADERS += \
     core/3d/scene.h \
     core/3d/sceneentity.h \
     core/3d/sceneview.h \
-    dialogs/dialogsetup.h \
+    dialogs/dialogvalueslist.h \
     helpers.h \
     helperswidget.h \
     mainwindow.h \
