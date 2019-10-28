@@ -8,23 +8,31 @@
 #include <Qt3DExtras/QCuboidMesh>
 #include <Qt3DCore/QTransform>
 #include <Qt3DRender/QPointLight>
+#include <cmath>
 
-Scene::Scene(Qt3DExtras::Qt3DWindow *window, const QString &name):
+Scene::Scene(Qt3DExtras::Qt3DWindow *window, float cell, float width, float height, float depth, const QString &name):
     Qt3DCore::QEntity(nullptr),
-    m_SelectedEntity(nullptr)
+    m_SelectedEntity(nullptr),
+    m_CellSize(cell),
+    m_Height(height),
+    m_Width(width),
+    m_Depth(depth)
 {
     applyEntityName(this, "scene", name);
     window->setRootEntity(this);
 
-    createEntityBox(QVector3D(-SCENE_WIDTH/2, -SCENE_HEIGHT/2, -SCENE_DEPTH/2) + QVector3D(0.1f, 0.1f, 0.1f),
-                    QVector3D(SCENE_WIDTH/2, SCENE_HEIGHT/2, SCENE_DEPTH/2) - QVector3D(0.1f, 0.1f, 0.1f),
-                    Qt::black, this);
+    auto sizeDelta = QVector3D(0.1f, 0.1f, 0.1f);
+    auto w = cell * width; auto h = cell * height; auto d = cell * depth;
+
+    createEntityBox(QVector3D(0.0, 0.0, 0.0) + sizeDelta, QVector3D(w, h, d) - sizeDelta, COLOR_SCENE_BOX, this);
 
     m_FRC = new FrameRateCalculator(FRAME_RATE_COUNT_CALC, this);
 
+    auto camera_farplane = static_cast<float>(sqrt(pow(static_cast<double>(w), 2) + pow(static_cast<double>(h), 2)+ pow(static_cast<double>(d), 2)));
     m_Camera = window->camera();
-    m_Camera->lens()->setPerspectiveProjection(45.0f, static_cast<float>(window->width()) / window->height(), 0.1f, 1000.0f);
-    m_Camera->setPosition(QVector3D(0.0f, 0.0f, 500.0f));
+    m_Camera->lens()->setPerspectiveProjection(45.0f, static_cast<float>(window->width()) / window->height(), 0.1f, camera_farplane);
+
+    m_Camera->setPosition(QVector3D(w, h, d) - sizeDelta);
     m_Camera->setViewCenter(QVector3D(0.0f, 0.0f, 0.0f));
 
     m_CameraController = new CameraController(this);
@@ -42,7 +50,7 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window, const QString &name):
     */
 
     auto lightTransform = new Qt3DCore::QTransform;
-    lightTransform->setTranslation(QVector3D(0.0f, 0.0f, 500.0f));
+    lightTransform->setTranslation(QVector3D(w, h, d) - sizeDelta);
     auto light = new Qt3DRender::QPointLight;
     addLight(light, lightTransform, "MainLight");
 

@@ -21,10 +21,10 @@ SceneView::SceneView(QScreen *screen):
     renderSettings()->setRenderPolicy(Qt3DRender::QRenderSettings::OnDemand);
 }
 
-void SceneView::createScene()
+void SceneView::createScene(float cell, float width, float height, float depth, const QString& name)
 {
     if(m_Scene) m_Scene->deleteLater();
-    m_Scene = new Scene(this);
+    m_Scene = new Scene(this, cell, width, height, depth, name);
     emit signalSceneChanged(m_Scene);
 }
 

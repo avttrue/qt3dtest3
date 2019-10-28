@@ -11,7 +11,7 @@ class SceneView : public Qt3DExtras::Qt3DWindow
     Q_OBJECT
 public:
     SceneView(QScreen *screen = nullptr);
-    void createScene();
+    void createScene(float cell, float width, float height, float depth, const QString& name = "");
     Scene *getScene() const;
     void createSpheresTest();
 

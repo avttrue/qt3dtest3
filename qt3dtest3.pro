@@ -21,12 +21,13 @@ SOURCES += \
     core/3d/scene.cpp \
     core/3d/sceneentity.cpp \
     core/3d/sceneview.cpp \
+    dialogs/dialogsetup.cpp \
     helpers.cpp \
+    helperswidget.cpp \
     main.cpp \
     mainwindow.cpp \
     properties.cpp \
-    config.cpp \
-    widgettools.cpp
+    config.cpp
 
 HEADERS += \
     controls.h \
@@ -36,11 +37,12 @@ HEADERS += \
     core/3d/scene.h \
     core/3d/sceneentity.h \
     core/3d/sceneview.h \
+    dialogs/dialogsetup.h \
     helpers.h \
+    helperswidget.h \
     mainwindow.h \
     properties.h \
-    config.h \
-    widgettools.h
+    config.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

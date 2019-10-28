@@ -7,5 +7,8 @@
         <file>res/icons/delete.svg</file>
         <file>res/qss/main.css</file>
         <file>res/qss/button.css</file>
+        <file>res/icons/yes.svg</file>
+        <file>res/icons/no.svg</file>
+        <file>res/icons/matrix.svg</file>
     </qresource>
 </RCC>

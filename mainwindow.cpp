@@ -1,7 +1,8 @@
 #include "controls.h"
 #include "mainwindow.h"
 #include "properties.h"
-#include "widgettools.h"
+#include "helperswidget.h"
+#include "dialogs/dialogsetup.h"
 #include "core/3d/sceneview.h"
 #include "core/3d/scene.h"
 #include "core/3d/sceneentity.h"
@@ -10,7 +11,6 @@
 #include <QScrollArea>
 #include <QSplitter>
 #include <QStatusBar>
-
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
@@ -35,7 +35,7 @@ void MainWindow::createGUI()
 {
     // View
     sceneView = new SceneView;
-    auto  viewContainer = QWidget::createWindowContainer(sceneView);
+    viewContainer = QWidget::createWindowContainer(sceneView);
 
     // Controls
     auto saControls = new QScrollArea();
@@ -61,8 +61,8 @@ void MainWindow::createGUI()
 
     // управление
     // новая сцена
-    auto btnNewScene = new ControlButton(QIcon(":/res/icons/cube.svg"), tr("Новая сцена"), this);
-    QObject::connect(btnNewScene, &QPushButton::clicked, [=]() { sceneView->createScene(); viewContainer->setFocus(); });
+    auto btnNewScene = new ControlButton(QIcon(":/res/icons/matrix.svg"), tr("Новая сцена"), this);
+    QObject::connect(btnNewScene, &QPushButton::clicked, this, &MainWindow::createScene);
     addControlWidget(btnNewScene);
 
     // удалить объект
@@ -124,6 +124,34 @@ void MainWindow::slotViewSceneChanged(Scene *scene)
     QObject::connect(scene->FRC(), &FrameRateCalculator::signalFramesPerSecondChanged, [=](auto value)
                      { labelSceneFPS->setText(tr("<b>К/С:</b>%1 | ").arg(QString::number(value, 'f', 1))); });
     QObject::connect(scene, &Scene::signalEntitySelected, [=](SceneEntity* se) { btnDelEntity->setEnabled(se); });
+}
+
+void MainWindow::createScene()
+{
+    QVector<QString> keys =
+        {tr("1. Название"),
+         tr("2. Размер ячейки"),
+         tr("3. Сцена: ширина"),
+         tr("4. Сцена: высота"),
+         tr("5. Сцена: глубина")
+        };
+    QMap<QString, QPair<QVariant::Type, QVariant>> m =
+        {{keys.at(0), {QVariant::String, ""}},
+         {keys.at(1), {QVariant::Int, SCENE_CELL_SIZE}},
+         {keys.at(2), {QVariant::Int, SCENE_WIDTH}},
+         {keys.at(3), {QVariant::Int, SCENE_HEIGHT}},
+         {keys.at(4), {QVariant::Int, SCENE_DEPTH}}
+        };
+    auto ds = new DialogSetup(tr("Новая карта"), true, &m, this);
+
+    if(!ds->exec()) return;
+
+    sceneView->createScene(m.value(keys.at(1)).second.toInt(),
+                           m.value(keys.at(2)).second.toInt(),
+                           m.value(keys.at(3)).second.toInt(),
+                           m.value(keys.at(4)).second.toInt(),
+                           m.value(keys.at(0)).second.toString());
+    viewContainer->setFocus();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

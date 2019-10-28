@@ -24,8 +24,10 @@ protected:
 
     void slotWriteSceneStat();
     void slotViewSceneChanged(Scene* scene);
+    void createScene();
 
 private:
+    QWidget* viewContainer;
     SceneView* sceneView;
     QLabel* labelSceneStat;
     QLabel* labelSceneFPS;
