@@ -12,7 +12,7 @@
 
 DialogSetup::DialogSetup(const QString& caption,
                          bool modal,
-                         QMap<QString, QPair<QVariant::Type, QVariant> > *values,
+                         QMap<QString, QPair<QVariant::Type, QVariant>>* values,
                          QWidget* parent) :
     QDialog(parent)
 {

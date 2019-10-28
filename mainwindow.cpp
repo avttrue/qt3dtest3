@@ -128,7 +128,7 @@ void MainWindow::slotViewSceneChanged(Scene *scene)
 
 void MainWindow::createScene()
 {
-    QVector<QString> keys =
+    const QVector<QString> keys =
         {tr("1. Название"),
          tr("2. Размер ячейки"),
          tr("3. Сцена: ширина"),
