@@ -25,6 +25,7 @@ protected:
     void slotWriteSceneStat();
     void slotViewSceneChanged(Scene* scene);
     void createScene();
+    void createPointLight();
 
 private:
     QWidget* viewContainer;

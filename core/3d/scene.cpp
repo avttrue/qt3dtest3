@@ -6,6 +6,8 @@
 #include "properties.h"
 
 #include <Qt3DExtras/QCuboidMesh>
+#include <Qt3DExtras/QSphereMesh>
+#include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DCore/QTransform>
 #include <Qt3DRender/QPointLight>
 #include <cmath>
@@ -48,12 +50,6 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window, float cell, float width, float heig
     skytrfm->setScale3D(QVector3D(SCENE_WIDTH, SCENE_HEIGHT, SCENE_DEPTH));
     m_SkyBox->addComponent(skytrfm);
     */
-
-    auto lightTransform = new Qt3DCore::QTransform;
-    lightTransform->setTranslation(QVector3D(w, h, d) - sizeDelta);
-    auto light = new Qt3DRender::QPointLight;
-    addLight(light, lightTransform, "MainLight");
-
     m_FrameAction = new Qt3DLogic::QFrameAction(this);
     QObject::connect(m_FrameAction, &Qt3DLogic::QFrameAction::triggered, this, &Scene::frameActionTriggered);
 
@@ -61,16 +57,31 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window, float cell, float width, float heig
     qDebug() << objectName() << ": Scene created";
 }
 
-void Scene::addLight(Qt3DRender::QAbstractLight *light, Qt3DCore::QTransform *transform, const QString &name)
+void Scene::addLight(Qt3DRender::QAbstractLight *light,
+                     Qt3DCore::QTransform *transform,
+                     const QString &name,
+                     Qt3DRender::QGeometryRenderer *geometry)
 {
+    if(!light || !transform) { qCritical() << __func__ << ": Wrong parameters"; return; }
+
     auto e = new Qt3DCore::QEntity(this);
     applyEntityName(e, "light", name);
-
-    transform->setParent(e);
-    light->setParent(e);
-
     e->addComponent(light);
     e->addComponent(transform);
+    if(geometry)
+    {
+        auto material = new Qt3DExtras::QPhongMaterial;
+        material->setAmbient(light->color());
+        material->setShininess(light->intensity());
+        e->addComponent(material);
+        e->addComponent(geometry);
+    }
+
+    geometry->geometry();
+
+    QObject::connect(geometry->geometry(), &Qt3DRender::QGeometry::maxExtentChanged, [=](){
+        createEntityBox(geometry->geometry()->minExtent(), geometry->geometry()->maxExtent(), COLOR_SCENE_BOX, e);
+        geometry->geometry()->disconnect() ;});
 
     delLight(e->objectName());
     m_Lights.insert(e->objectName(), e);
@@ -159,7 +170,6 @@ void Scene::slotEntitySelected(SceneEntity *entity, bool selected)
     if(m_SelectedEntity && m_SelectedEntity->isSelected()) m_SelectedEntity->Select(false);
 
     m_SelectedEntity = nullptr;
-
     if(selected) m_SelectedEntity = entity;
 
     emit signalEntitySelected(m_SelectedEntity);
@@ -175,10 +185,12 @@ SceneEntity *Scene::EntityByName(const QString &name)
 {
     auto e = Entities().value(name);
     if(!e) { qDebug() << ": Entity <" << name << "> not found"; return nullptr; }
-
     return  e;
 }
 
+float Scene::CellSize() const { return m_CellSize; }
+QVector3D Scene::Size() const { return QVector3D(m_Width, m_Height, m_Depth); }
+QVector3D Scene::RealSize() const { return m_CellSize * QVector3D(m_Width, m_Height, m_Depth); }
 FrameRateCalculator *Scene::FRC() const { return m_FRC; }
 SceneEntity *Scene::SelectedEntity() const { return m_SelectedEntity; }
 QHash<QString, SceneEntity *> Scene::Entities() const { return m_Entities; }

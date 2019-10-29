@@ -10,5 +10,6 @@
         <file>res/icons/yes.svg</file>
         <file>res/icons/no.svg</file>
         <file>res/icons/matrix.svg</file>
+        <file>res/icons/lamp.svg</file>
     </qresource>
 </RCC>

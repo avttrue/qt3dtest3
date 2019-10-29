@@ -187,8 +187,7 @@ void applyEntityName(Qt3DCore::QEntity *entity, const QString& prefix, const QSt
 
 void applyEntityGeometry(Qt3DCore::QEntity* e, Qt3DRender::QGeometryRenderer *gr)
 {
-    if(!e) { qCritical() << __func__ << ": Entity is empty"; return; }
-    if(!gr) { qCritical() << __func__ << ": GeometryRenderer is empty"; return; }
+    if(!e || !gr) { qCritical() << __func__ << ": Wrong parameters"; return; }
 
     // searching old geometry and meshes
     QVector<Qt3DCore::QComponent*> vc;
