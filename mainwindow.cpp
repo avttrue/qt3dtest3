@@ -9,7 +9,6 @@
 #include <core/3d/frameratecalculator.h>
 
 #include <Qt3DCore/QTransform>
-#include <Qt3DExtras/QSphereMesh>
 #include <Qt3DRender/QPointLight>
 
 #include <QMessageBox>
@@ -69,6 +68,13 @@ void MainWindow::createGUI()
     auto btnNewScene = new ControlButton(QIcon(":/res/icons/matrix.svg"), tr("Новая сцена"), this);
     QObject::connect(btnNewScene, &QPushButton::clicked, this, &MainWindow::createScene);
     addControlWidget(btnNewScene);
+
+    // отображение контуров
+    cbShowSceneBoxes = new QCheckBox(tr("Отображать сл.объекты"), this);
+    cbShowSceneBoxes->setChecked(config->DrawSceneBoxes());
+    cbShowSceneBoxes->setEnabled(false);
+    QObject::connect(cbShowSceneBoxes, &QCheckBox::stateChanged, [=](int value){ config->setDrawSceneBoxes(value); });
+    addControlWidget(cbShowSceneBoxes);
 
     // новый свет
     auto btnNewLight = new ControlButton(QIcon(":/res/icons/lamp.svg"), tr("Новый свет"), this);
@@ -132,11 +138,14 @@ void MainWindow::slotWriteSceneStat()
 
 void MainWindow::slotViewSceneChanged(Scene *scene)
 {
+    cbShowSceneBoxes->setEnabled(true);
+
     QObject::connect(scene, &Scene::signalLightsCountChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene, &Scene::signalEntitiesCountChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene->FRC(), &FrameRateCalculator::signalFramesPerSecondChanged, [=](auto value)
                      { labelSceneFPS->setText(tr("<b>К/С:</b>%1 | ").arg(QString::number(value, 'f', 1))); });
     QObject::connect(scene, &Scene::signalEntitySelected, [=](SceneEntity* se) { btnDelEntity->setEnabled(se); });
+    QObject::connect(config, &Config::signalDrawSceneBoxes, scene, &Scene::slotShowBoxes);
 }
 
 void MainWindow::createScene()
@@ -196,10 +205,6 @@ void MainWindow::createPointLight()
         return;
     }
 
-    auto lightMesh = new Qt3DExtras::QSphereMesh;
-    lightMesh->setRadius(sceneView->getScene()->CellSize() / 2);
-    lightMesh->setSlices(20);
-    lightMesh->setRings(20);
     auto lightTransform = new Qt3DCore::QTransform;
     lightTransform->setTranslation(sceneView->getScene()->CellSize() *
                                    QVector3D(map.value(keys.at(1)).second.toInt(),
@@ -208,7 +213,7 @@ void MainWindow::createPointLight()
     auto light = new Qt3DRender::QPointLight;
     light->setIntensity(static_cast<float>(map.value(keys.at(4)).second.toInt()) / 100);
     light->setColor(color);
-    sceneView->getScene()->addLight(light, lightTransform, map.value(keys.at(0)).second.toString(), lightMesh);
+    sceneView->getScene()->addLight(light, lightTransform, map.value(keys.at(0)).second.toString());
 
     viewContainer->setFocus();
 }

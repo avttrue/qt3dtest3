@@ -3,6 +3,7 @@
 
 #include <QGridLayout>
 #include <QLabel>
+#include <QCheckBox>
 #include <QMainWindow>
 
 class SceneView;
@@ -34,7 +35,7 @@ private:
     QLabel* labelSceneFPS;
     QGridLayout* glControls;
     ControlButton* btnDelEntity;
-
+    QCheckBox* cbShowSceneBoxes;
 
 public Q_SLOTS:
 

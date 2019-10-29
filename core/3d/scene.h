@@ -13,6 +13,7 @@
 class SceneEntity;
 class CameraController;
 class FrameRateCalculator;
+class Light;
 
 class Scene : public Qt3DCore::QEntity
 {
@@ -20,15 +21,15 @@ class Scene : public Qt3DCore::QEntity
 
 public:
     Scene(Qt3DExtras::Qt3DWindow* window, float cell, float width, float height, float depth, const QString &name = "");
-    void addLight(Qt3DRender::QAbstractLight* light, Qt3DCore::QTransform* transform, const QString &name = "", Qt3DRender::QGeometryRenderer *geometry = nullptr);
+    void addLight(Qt3DRender::QAbstractLight* light, Qt3DCore::QTransform* transform, const QString &name = "");
     bool delLight(const QString& name);
     SceneEntity* addEntity(Qt3DRender::QGeometryRenderer *geometry,
                            Qt3DRender::QMaterial *material,
                            const QString &name = "");
     bool delEntity(const QString &name);
     bool delEntity(SceneEntity* entity);
-    QHash<QString, SceneEntity *> Entities() const;
-    QHash<QString, Qt3DCore::QEntity *> Lights() const;
+    QHash<QString, SceneEntity* > Entities() const;
+    QHash<QString, Light* > Lights() const;
     SceneEntity *SelectedEntity() const;
     FrameRateCalculator *FRC() const;
 
@@ -44,7 +45,8 @@ Q_SIGNALS:
 public Q_SLOTS:
     void slotEntityClicked(Qt3DRender::QPickEvent *event, const QString &name);
     void slotEntitySelected(SceneEntity* entity, bool selected);
-    void frameActionTriggered(float dt);
+    void slotFrameActionTriggered(float dt);
+    void slotShowBoxes(bool value);
 
 protected:
     SceneEntity* EntityByName(const QString& name);
@@ -55,13 +57,13 @@ private:
     Qt3DRender::QCamera* m_Camera;
     SceneEntity* m_SelectedEntity;
     FrameRateCalculator* m_FRC;
-    QHash <QString, Qt3DCore::QEntity*> m_Lights;
+    Qt3DCore::QEntity* m_Box;
+    QHash <QString, Light*> m_Lights;
     QHash <QString, SceneEntity*> m_Entities;
     float m_CellSize;
     float m_Height;
     float m_Width;
     float m_Depth;
-
 };
 
 #endif // SCENE_H

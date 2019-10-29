@@ -1,5 +1,6 @@
 #include "scene.h"
 #include "sceneentity.h"
+#include "light.h"
 #include "helpers3d.h"
 #include "cameracontroller.h"
 #include "frameratecalculator.h"
@@ -15,6 +16,8 @@
 Scene::Scene(Qt3DExtras::Qt3DWindow *window, float cell, float width, float height, float depth, const QString &name):
     Qt3DCore::QEntity(nullptr),
     m_SelectedEntity(nullptr),
+    m_Lights(QHash<QString, Light*>()),
+    m_Entities(QHash<QString, SceneEntity*>()),
     m_CellSize(cell),
     m_Height(height),
     m_Width(width),
@@ -26,7 +29,8 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window, float cell, float width, float heig
     auto sizeDelta = QVector3D(0.1f, 0.1f, 0.1f);
     auto w = cell * width; auto h = cell * height; auto d = cell * depth;
 
-    createEntityBox(QVector3D(0.0, 0.0, 0.0) + sizeDelta, QVector3D(w, h, d) - sizeDelta, COLOR_SCENE_BOX, this);
+    m_Box = createEntityBox(QVector3D(0.0, 0.0, 0.0) + sizeDelta, QVector3D(w, h, d) - sizeDelta, COLOR_SCENE_BOX, this);
+    m_Box->setEnabled(config->DrawSceneBoxes());
 
     m_FRC = new FrameRateCalculator(FRAME_RATE_COUNT_CALC, this);
 
@@ -51,7 +55,7 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window, float cell, float width, float heig
     m_SkyBox->addComponent(skytrfm);
     */
     m_FrameAction = new Qt3DLogic::QFrameAction(this);
-    QObject::connect(m_FrameAction, &Qt3DLogic::QFrameAction::triggered, this, &Scene::frameActionTriggered);
+    QObject::connect(m_FrameAction, &Qt3DLogic::QFrameAction::triggered, this, &Scene::slotFrameActionTriggered);
 
     QObject::connect(this, &QObject::destroyed, [=](QObject* o){ qDebug() << o->objectName() << ": destroyed"; });
     qDebug() << objectName() << ": Scene created";
@@ -59,35 +63,15 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window, float cell, float width, float heig
 
 void Scene::addLight(Qt3DRender::QAbstractLight *light,
                      Qt3DCore::QTransform *transform,
-                     const QString &name,
-                     Qt3DRender::QGeometryRenderer *geometry)
+                     const QString &name)
 {
-    if(!light || !transform) { qCritical() << __func__ << ": Wrong parameters"; return; }
+    auto l = new Light(this, light, transform);
+    applyEntityName(l, "light", name);
 
-    auto e = new Qt3DCore::QEntity(this);
-    applyEntityName(e, "light", name);
-    e->addComponent(light);
-    e->addComponent(transform);
-    if(geometry)
-    {
-        auto material = new Qt3DExtras::QPhongMaterial;
-        material->setAmbient(light->color());
-        material->setShininess(light->intensity());
-        e->addComponent(material);
-        e->addComponent(geometry);
-    }
+    delLight(l->objectName());
+    m_Lights.insert(l->objectName(), l);
 
-    geometry->geometry();
-
-    QObject::connect(geometry->geometry(), &Qt3DRender::QGeometry::maxExtentChanged, [=](){
-        createEntityBox(geometry->geometry()->minExtent(), geometry->geometry()->maxExtent(), COLOR_SCENE_BOX, e);
-        geometry->geometry()->disconnect() ;});
-
-    delLight(e->objectName());
-    m_Lights.insert(e->objectName(), e);
-
-    QObject::connect(e, &QObject::destroyed, [=](QObject* o){ qDebug() << o->objectName() << ": destroyed"; });
-    qDebug() << e->objectName() << ": Light added, count" << m_Lights.count();
+    qDebug() << l->objectName() << ": Light added, count" << m_Lights.count();
     emit signalLightsCountChanged(m_Lights.count());
 }
 
@@ -175,10 +159,16 @@ void Scene::slotEntitySelected(SceneEntity *entity, bool selected)
     emit signalEntitySelected(m_SelectedEntity);
 }
 
-void Scene::frameActionTriggered(float dt)
+void Scene::slotFrameActionTriggered(float dt)
 {
     Q_UNUSED(dt)
     m_FRC->calculate();
+}
+
+void Scene::slotShowBoxes(bool value)
+{
+    for(Light* l: m_Lights) l->slotShowBox(value);
+    m_Box->setEnabled(value);
 }
 
 SceneEntity *Scene::EntityByName(const QString &name)
@@ -193,5 +183,5 @@ QVector3D Scene::Size() const { return QVector3D(m_Width, m_Height, m_Depth); }
 QVector3D Scene::RealSize() const { return m_CellSize * QVector3D(m_Width, m_Height, m_Depth); }
 FrameRateCalculator *Scene::FRC() const { return m_FRC; }
 SceneEntity *Scene::SelectedEntity() const { return m_SelectedEntity; }
-QHash<QString, SceneEntity *> Scene::Entities() const { return m_Entities; }
-QHash<QString, Qt3DCore::QEntity *> Scene::Lights() const { return m_Lights; }
+QHash<QString, SceneEntity* > Scene::Entities() const { return m_Entities; }
+QHash<QString, Light* > Scene::Lights() const { return m_Lights; }

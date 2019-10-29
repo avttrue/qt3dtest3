@@ -6,7 +6,8 @@
 #include <QTextCodec>
 #include <utility>
 
-Config::Config(const QString& in_AppDirectory)
+Config::Config(const QString& in_AppDirectory):
+    m_Settings(nullptr)
 {
     pathAppDir = in_AppDirectory;
     pathAppConfig = pathAppDir + QDir::separator() + CFG_APP;
@@ -17,8 +18,8 @@ Config::Config(const QString& in_AppDirectory)
     qDebug() << "AppLogDir:" << pathAppLogDir;
     qDebug() << "AssetsDir:" << pathAssetsDir;
 
-    settings = new QSettings(pathAppConfig, QSettings::IniFormat);
-    settings->setIniCodec(QTextCodec::codecForName(TEXT_CODEC.toLatin1()));
+    m_Settings = new QSettings(pathAppConfig, QSettings::IniFormat);
+    m_Settings->setIniCodec(QTextCodec::codecForName(TEXT_CODEC.toLatin1()));
 
     load();
 }
@@ -26,90 +27,101 @@ Config::Config(const QString& in_AppDirectory)
 // записываем дефолты в конфиг-файл и формируем параметры
 void Config::load()
 {
-    if(!settings->contains("MainWindow/Height"))
-        settings->setValue("MainWindow/Height", WINDOW_HEIGHT);
+    if(!m_Settings->contains("MainWindow/Height"))
+        m_Settings->setValue("MainWindow/Height", WINDOW_HEIGHT);
 
-    if(!settings->contains("MainWindow/Width"))
-        settings->setValue("MainWindow/Width", WINDOW_WIDTH);
+    if(!m_Settings->contains("MainWindow/Width"))
+        m_Settings->setValue("MainWindow/Width", WINDOW_WIDTH);
 
-    if(!settings->contains("MainWindow/SplashTime"))
-        settings->setValue("MainWindow/SplashTime", SPLASH_TIME);
-    m_SplashTime = settings->value("MainWindow/SplashTime").toInt();
+    if(!m_Settings->contains("MainWindow/SplashTime"))
+        m_Settings->setValue("MainWindow/SplashTime", SPLASH_TIME);
+    m_SplashTime = m_Settings->value("MainWindow/SplashTime").toInt();
 
-    if(!settings->contains("DateTimeFormat"))
-        settings->setValue("DateTimeFormat", DT_FORMAT);
-    m_DateTimeFormat = settings->value("DateTimeFormat").toString();
+    if(!m_Settings->contains("DateTimeFormat"))
+        m_Settings->setValue("DateTimeFormat", DT_FORMAT);
+    m_DateTimeFormat = m_Settings->value("DateTimeFormat").toString();
 
-    if(!settings->contains("Keyboard/ButtonAcceleration"))
-        settings->setValue("Keyboard/ButtonAcceleration", BUTTON_ACCELERATION);
-    m_ButtonAcceleration = settings->value("Keyboard/ButtonAcceleration").toInt();
+    if(!m_Settings->contains("Keyboard/ButtonAcceleration"))
+        m_Settings->setValue("Keyboard/ButtonAcceleration", BUTTON_ACCELERATION);
+    m_ButtonAcceleration = m_Settings->value("Keyboard/ButtonAcceleration").toInt();
 
-    if(!settings->contains("Camera/RotationSpeed"))
-        settings->setValue("Camera/RotationSpeed", ROTATION_SPEED);
-    m_RotationSpeed = settings->value("Camera/RotationSpeed").toInt();
+    if(!m_Settings->contains("Camera/RotationSpeed"))
+        m_Settings->setValue("Camera/RotationSpeed", ROTATION_SPEED);
+    m_RotationSpeed = m_Settings->value("Camera/RotationSpeed").toInt();
 
-    if(!settings->contains("Camera/MoveSpeed"))
-        settings->setValue("Camera/MoveSpeed", MOVE_SPEED);
-    m_MoveSpeed = settings->value("Camera/MoveSpeed").toInt();
+    if(!m_Settings->contains("Camera/MoveSpeed"))
+        m_Settings->setValue("Camera/MoveSpeed", MOVE_SPEED);
+    m_MoveSpeed = m_Settings->value("Camera/MoveSpeed").toInt();
 
-    if(!settings->contains("Camera/RotationAcceleration"))
-        settings->setValue("Camera/RotationAcceleration", ROTATION_ACCELERATION);
-    m_RotationAcceleration = settings->value("Camera/RotationAcceleration").toInt();
+    if(!m_Settings->contains("Camera/RotationAcceleration"))
+        m_Settings->setValue("Camera/RotationAcceleration", ROTATION_ACCELERATION);
+    m_RotationAcceleration = m_Settings->value("Camera/RotationAcceleration").toInt();
 
-    if(!settings->contains("Camera/MoveAcceleration"))
-        settings->setValue("Camera/MoveAcceleration", MOVE_ACCELERATION);
-    m_MoveAcceleration = settings->value("Camera/MoveAcceleration").toInt();
+    if(!m_Settings->contains("Camera/MoveAcceleration"))
+        m_Settings->setValue("Camera/MoveAcceleration", MOVE_ACCELERATION);
+    m_MoveAcceleration = m_Settings->value("Camera/MoveAcceleration").toInt();
+
+    if(!m_Settings->contains("Scene/DrawBoxes"))
+        m_Settings->setValue("Scene/DrawBoxes", SCENE_DRAW_BOXES);
+    m_DrawSceneBoxes = m_Settings->value("Scene/DrawBoxes").toBool();
 }
 
 void Config::setDefaults()
 {
-    settings->setValue("MainWindow/SplashTime", SPLASH_TIME);
+    m_Settings->setValue("MainWindow/SplashTime", SPLASH_TIME);
     m_SplashTime = SPLASH_TIME;
 
-    settings->setValue("DateTimeFormat", DT_FORMAT);
+    m_Settings->setValue("DateTimeFormat", DT_FORMAT);
     m_DateTimeFormat = DT_FORMAT;
 
-    settings->setValue("Keyboard/ButtonAcceleration", BUTTON_ACCELERATION);
-    m_ButtonAcceleration = settings->value("Keyboard/ButtonAcceleration").toInt();
+    m_Settings->setValue("Keyboard/ButtonAcceleration", BUTTON_ACCELERATION);
+    m_ButtonAcceleration = m_Settings->value("Keyboard/ButtonAcceleration").toInt();
 
-    settings->setValue("Camera/RotationSpeed", ROTATION_SPEED);
+    m_Settings->setValue("Camera/RotationSpeed", ROTATION_SPEED);
     m_RotationSpeed = ROTATION_SPEED;
 
-    settings->setValue("Camera/MoveSpeed", MOVE_SPEED);
+    m_Settings->setValue("Camera/MoveSpeed", MOVE_SPEED);
     m_MoveSpeed = MOVE_SPEED;
 
-    settings->setValue("Camera/RotationAcceleration", ROTATION_ACCELERATION);
+    m_Settings->setValue("Camera/RotationAcceleration", ROTATION_ACCELERATION);
     m_RotationAcceleration = ROTATION_ACCELERATION;
 
-    settings->setValue("Camera/MoveAcceleration", MOVE_ACCELERATION);
+    m_Settings->setValue("Camera/MoveAcceleration", MOVE_ACCELERATION);
     m_MoveAcceleration = MOVE_ACCELERATION;
+
+    m_Settings->setValue("Scene/DrawBoxes", SCENE_DRAW_BOXES);
+    m_DrawSceneBoxes = SCENE_DRAW_BOXES;
 }
 
-void Config::setRotationSpeed(int RotationSpeed)
+void Config::setRotationSpeed(int inRotationSpeed)
 {
-    m_RotationSpeed = RotationSpeed;
-    settings->setValue("Camera/RotationSpeed", m_RotationSpeed);
+    if (m_RotationSpeed == inRotationSpeed) return;
+    m_RotationSpeed = inRotationSpeed;
+    m_Settings->setValue("Camera/RotationSpeed", m_RotationSpeed);
     emit signalConfigChanged();
 }
 
-void Config::setMoveSpeed(int MoveSpeed)
+void Config::setMoveSpeed(int inMoveSpeed)
 {
-    m_MoveSpeed = MoveSpeed;
-    settings->setValue("Camera/MoveSpeed", m_MoveSpeed);
+    if (m_MoveSpeed == inMoveSpeed) return;
+    m_MoveSpeed = inMoveSpeed;
+    m_Settings->setValue("Camera/MoveSpeed", m_MoveSpeed);
     emit signalConfigChanged();
 }
 
-void Config::setRotationAcceleration(int RotationAcceleration)
+void Config::setRotationAcceleration(int inRotationAcceleration)
 {
-    m_RotationAcceleration = RotationAcceleration;
-    settings->setValue("Camera/RotationAcceleration", m_RotationAcceleration);
+    if (m_RotationAcceleration == inRotationAcceleration) return;
+    m_RotationAcceleration = inRotationAcceleration;
+    m_Settings->setValue("Camera/RotationAcceleration", m_RotationAcceleration);
     emit signalConfigChanged();
 }
 
-void Config::setMoveAcceleration(int MoveAcceleration)
+void Config::setMoveAcceleration(int inMoveAcceleration)
 {
-    m_MoveAcceleration = MoveAcceleration;
-    settings->setValue("Camera/MoveAcceleration", m_MoveAcceleration);
+    if (m_MoveAcceleration == inMoveAcceleration) return;
+    m_MoveAcceleration = inMoveAcceleration;
+    m_Settings->setValue("Camera/MoveAcceleration", m_MoveAcceleration);
     emit signalConfigChanged();
 }
 
@@ -119,20 +131,31 @@ QString Config::Caption(QString key)
     return result.isEmpty() ? key : result;
 }
 
-void Config::setDateTimeFormat(QString DateTimeFormat)
+void Config::setDateTimeFormat(QString inDateTimeFormat)
 {
-    m_DateTimeFormat = std::move(DateTimeFormat);
-    settings->setValue("DateTimeFormat", m_DateTimeFormat);
+    if (m_DateTimeFormat == inDateTimeFormat) return;
+    m_DateTimeFormat = std::move(inDateTimeFormat);
+    m_Settings->setValue("DateTimeFormat", m_DateTimeFormat);
     emit signalConfigChanged();
 }
 
-void Config::setButtonAcceleration(int ButtonAcceleration)
+void Config::setButtonAcceleration(int inButtonAcceleration)
 {
-    m_ButtonAcceleration = ButtonAcceleration;
-    settings->setValue("Keyboard/ButtonAcceleration", m_ButtonAcceleration);
+    if (m_ButtonAcceleration == inButtonAcceleration) return;
+    m_ButtonAcceleration = inButtonAcceleration;
+    m_Settings->setValue("Keyboard/ButtonAcceleration", m_ButtonAcceleration);
     emit signalConfigChanged();
 }
 
+void Config::setDrawSceneBoxes(bool inDrawSceneBoxes)
+{
+    if (m_DrawSceneBoxes == inDrawSceneBoxes) return;
+    m_DrawSceneBoxes = inDrawSceneBoxes;
+    m_Settings->setValue("Scene/DrawBoxes", m_DrawSceneBoxes);
+    emit signalDrawSceneBoxes(m_DrawSceneBoxes);
+}
+
+bool Config::DrawSceneBoxes() const { return m_DrawSceneBoxes; }
 int Config::SplashTime() const { return m_SplashTime; }
 int Config::ButtonAcceleration() const { return m_ButtonAcceleration; }
 int Config::MoveAcceleration() const { return m_MoveAcceleration; }

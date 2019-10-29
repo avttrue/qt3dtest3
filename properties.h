@@ -20,8 +20,9 @@ const QString TEXT_CODEC = "UTF-8";
 const QString DEF_ASSETS = ":/assets";
 const QString COLOR_SELECT = "#1047c7";     // синий
 const QString COLOR_SCENE_BOX = "#000000";  // чёрный
-const auto DIALOG_SIZE = QSize(400, 400);
 
+const auto DIALOG_SIZE = QSize(400, 400);
+const auto SCENE_DRAW_BOXES = false;
 const auto FRAME_RATE_COUNT_CALC = 50;
 const auto WINDOW_HEIGHT = 700;
 const auto WINDOW_WIDTH = 900;
