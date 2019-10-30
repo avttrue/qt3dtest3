@@ -1,29 +1,27 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-#include <Qt3DCore/QEntity>
-#include <Qt3DCore/QTransform>
-#include <Qt3DExtras/QSphereMesh>
+#include "sceneentity.h"
+
 #include <Qt3DRender/QAbstractLight>
 
-class Scene;
-
-class Light : public Qt3DCore::QEntity
+class Light : public SceneEntity
 {
     Q_OBJECT
 
 public:
     Light(Scene* parent,
-          Qt3DRender::QAbstractLight *light,
-          Qt3DCore::QTransform *transform);
+          Qt3DRender::QGeometryRenderer* geometry,
+          Qt3DRender::QMaterial* material,
+          Qt3DCore::QTransform *transform,
+          Qt3DRender::QAbstractLight *light);
 
 public Q_SLOT:
-        void slotShowBox(bool value);
+        void slotShowGeometry(bool value);
 
 private:
     Scene* m_Scene;
-    Qt3DCore::QEntity* m_Box;
-    Qt3DExtras::QSphereMesh* m_Mesh;
+    Qt3DRender::QAbstractLight *m_Light;
 };
 
 #endif // LIGHT_H

@@ -212,7 +212,7 @@ void MainWindow::createPointLight()
     auto light = new Qt3DRender::QPointLight;
     light->setIntensity(static_cast<float>(map.value(keys.at(4)).second.toInt()) / 100);
     light->setColor(color);
-    sceneView->getScene()->addLight(light, lightTransform, map.value(keys.at(0)).second.toString());
+    sceneView->getScene()->addLight(lightTransform, light, map.value(keys.at(0)).second.toString());
 
     viewContainer->setFocus();
 }

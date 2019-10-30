@@ -16,8 +16,6 @@
 Scene::Scene(Qt3DExtras::Qt3DWindow *window, float cell, float width, float height, float depth, const QString &name):
     Qt3DCore::QEntity(nullptr),
     m_SelectedEntity(nullptr),
-    m_Lights(QHash<QString, Light*>()),
-    m_Entities(QHash<QString, SceneObject*>()),
     m_CellSize(cell),
     m_Height(height),
     m_Width(width),
@@ -61,12 +59,22 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window, float cell, float width, float heig
     qDebug() << objectName() << ": Scene created";
 }
 
-void Scene::addLight(Qt3DRender::QAbstractLight *light,
-                     Qt3DCore::QTransform *transform,
+void Scene::addLight(Qt3DCore::QTransform *transform,
+                     Qt3DRender::QAbstractLight *light,
                      const QString &name)
 {
-    auto l = new Light(this, light, transform);
+    auto mesh = new Qt3DExtras::QSphereMesh;
+    mesh->setRadius(m_CellSize / 2);
+    mesh->setSlices(20);
+    mesh->setRings(20);
+
+    auto material = new Qt3DExtras::QPhongMaterial;
+    material->setAmbient(light->color());
+    material->setShininess(light->intensity());
+
+    auto l = new Light(this,mesh, material, transform, light);
     applyEntityName(l, "light", name);
+    l->slotShowGeometry(config->DrawSceneBoxes());
 
     delLight(l->objectName());
     m_Lights.insert(l->objectName(), l);
@@ -90,31 +98,32 @@ bool Scene::delLight(const QString &name)
 
 SceneObject* Scene::addEntity(Qt3DRender::QGeometryRenderer *geometry,
                               Qt3DRender::QMaterial *material,
+                              Qt3DCore::QTransform *transform,
                               const QString &name)
 {
 
-    auto entity = new SceneObject(this, geometry, material);
-    applyEntityName(entity, "entity", name);
+    auto entity = new SceneObject(this, geometry, material, transform);
+    applyEntityName(entity, "object", name);
 
     delEntity(entity->objectName());
-    m_Entities.insert(entity->objectName(), entity);
+    m_Objects.insert(entity->objectName(), entity);
 
     QObject::connect(entity, &SceneObject::signalClicked, this, &Scene::slotEntityClicked, Qt::DirectConnection);
 
-    qDebug() << objectName() << ": Entity created, count =" << m_Entities.count();
-    emit signalEntitiesCountChanged(m_Entities.count());
+    qDebug() << objectName() << ": Entity created, count =" << m_Objects.count();
+    emit signalEntitiesCountChanged(m_Objects.count());
     return entity;
 }
 
 bool Scene::delEntity(const QString &name)
 {
-    auto entity = m_Entities.take(name);
+    auto entity = m_Objects.take(name);
     if(entity)
     {
         if(m_SelectedEntity == entity) m_SelectedEntity = nullptr;
         entity->deleteLater();
         emit signalSelectedEntityChanged(m_SelectedEntity);
-        emit signalEntitiesCountChanged(m_Entities.count());
+        emit signalEntitiesCountChanged(m_Objects.count());
         return true;
     }
     return false;
@@ -179,7 +188,7 @@ void Scene::slotFrameActionTriggered(float dt)
 
 void Scene::slotShowBoxes(bool value)
 {
-    for(Light* l: m_Lights) l->slotShowBox(value);
+    for(Light* l: m_Lights) l->slotShowGeometry(value);
     m_Box->setEnabled(value);
 }
 
@@ -196,5 +205,5 @@ QVector3D Scene::Size() const { return QVector3D(m_Width, m_Height, m_Depth); }
 QVector3D Scene::RealSize() const { return m_CellSize * QVector3D(m_Width, m_Height, m_Depth); }
 FrameRateCalculator *Scene::FRC() const { return m_FRC; }
 SceneObject *Scene::SelectedEntity() const { return m_SelectedEntity; }
-QHash<QString, SceneObject* > Scene::Entities() const { return m_Entities; }
+QHash<QString, SceneObject* > Scene::Entities() const { return m_Objects; }
 QHash<QString, Light* > Scene::Lights() const { return m_Lights; }

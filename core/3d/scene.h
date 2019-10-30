@@ -21,10 +21,11 @@ class Scene : public Qt3DCore::QEntity
 
 public:
     Scene(Qt3DExtras::Qt3DWindow* window, float cell, float width, float height, float depth, const QString &name = "");
-    void addLight(Qt3DRender::QAbstractLight* light, Qt3DCore::QTransform* transform, const QString &name = "");
+    void addLight(Qt3DCore::QTransform *transform, Qt3DRender::QAbstractLight* light, const QString &name = "");
     bool delLight(const QString& name);
     SceneObject* addEntity(Qt3DRender::QGeometryRenderer *geometry,
                            Qt3DRender::QMaterial *material,
+                           Qt3DCore::QTransform *transform,
                            const QString &name = "");
     bool delEntity(const QString &name);
     bool delEntity(SceneObject* entity);
@@ -60,7 +61,7 @@ private:
     FrameRateCalculator* m_FRC;
     Qt3DCore::QEntity* m_Box;
     QHash <QString, Light*> m_Lights;
-    QHash <QString, SceneObject*> m_Entities;
+    QHash <QString, SceneObject*> m_Objects;
     float m_CellSize;
     float m_Height;
     float m_Width;

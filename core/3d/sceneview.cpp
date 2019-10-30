@@ -56,8 +56,7 @@ void SceneView::createSpheresTest()
                     QRandomGenerator::global()->bounded(0, 256),
                     QRandomGenerator::global()->bounded(0, 256)));
 
-                auto sphere = m_Scene->addEntity(mesh, material);
-                sphere->addComponent(transform);
+                m_Scene->addEntity(mesh, material, transform);
             }
     m_Scene->setEnabled(true);
 }
