@@ -5,7 +5,7 @@
 #include "dialogs/dialogvalueslist.h"
 #include "core/3d/sceneview.h"
 #include "core/3d/scene.h"
-#include "core/3d/sceneentity.h"
+#include "core/3d/sceneobject.h"
 #include <core/3d/frameratecalculator.h>
 
 #include <Qt3DCore/QTransform>
@@ -92,7 +92,6 @@ void MainWindow::createGUI()
                          Scene* s = sceneView->getScene();
                          if(!s || !s->SelectedEntity()) { btnDelEntity->setDisabled(true); return; }
                          s->delEntity(s->SelectedEntity());
-                         btnDelEntity->setDisabled(true);
                          viewContainer->setFocus();
                      });
     addControlWidget(btnDelEntity);
@@ -144,7 +143,7 @@ void MainWindow::slotViewSceneChanged(Scene *scene)
     QObject::connect(scene, &Scene::signalEntitiesCountChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene->FRC(), &FrameRateCalculator::signalFramesPerSecondChanged, [=](auto value)
                      { labelSceneFPS->setText(tr("<b>К/С:</b>%1 | ").arg(QString::number(value, 'f', 1))); });
-    QObject::connect(scene, &Scene::signalEntitySelected, [=](SceneEntity* se) { btnDelEntity->setEnabled(se); });
+    QObject::connect(scene, &Scene::signalSelectedEntityChanged, [=](SceneObject* se) { btnDelEntity->setEnabled(se); });
     QObject::connect(config, &Config::signalDrawSceneBoxes, scene, &Scene::slotShowBoxes);
 }
 

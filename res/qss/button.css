@@ -2,7 +2,7 @@ QAbstractButton {
 text-align: left;
 border: 1px outset grey;
 padding: 2px;
-border-radius: 7px;
+border-radius: 8px;
 margin: 1px;
 font-family: monospace;
 font: bold;

@@ -20,7 +20,7 @@ SOURCES += \
     core/3d/helpers3d.cpp \
     core/3d/light.cpp \
     core/3d/scene.cpp \
-    core/3d/sceneentity.cpp \
+    core/3d/sceneobject.cpp \
     core/3d/sceneview.cpp \
     dialogs/dialogvalueslist.cpp \
     helpers.cpp \
@@ -37,7 +37,7 @@ HEADERS += \
     core/3d/helpers3d.h \
     core/3d/light.h \
     core/3d/scene.h \
-    core/3d/sceneentity.h \
+    core/3d/sceneobject.h \
     core/3d/sceneview.h \
     dialogs/dialogvalueslist.h \
     helpers.h \

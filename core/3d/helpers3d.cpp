@@ -199,7 +199,6 @@ void applyEntityGeometry(Qt3DCore::QEntity* e, Qt3DRender::QGeometryRenderer *gr
 
     // apply new geometry
     e->addComponent(gr);
-    QObject::connect(gr, &QObject::destroyed, [=](){ qDebug() << e->objectName() << ": Geometry destroyed"; });
 
     // delete old geometry and meshes
     for(Qt3DCore::QComponent* c: vc)

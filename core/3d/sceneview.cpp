@@ -2,7 +2,7 @@
 #include "properties.h"
 #include "helpers3d.h"
 #include "scene.h"
-#include "sceneentity.h"
+#include "sceneobject.h"
 
 #include <QDebug>
 #include <QRandomGenerator>

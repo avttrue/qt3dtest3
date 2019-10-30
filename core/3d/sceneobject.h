@@ -1,5 +1,5 @@
-#ifndef SCENEENTITY_H
-#define SCENEENTITY_H
+#ifndef SCENEOBJECT_H
+#define SCENEOBJECT_H
 
 #include <Qt3DCore/QEntity>
 #include <Qt3DRender/QPickEvent>
@@ -8,36 +8,32 @@
 
 class Scene;
 
-class SceneEntity : public Qt3DCore::QEntity
+class SceneObject : public Qt3DCore::QEntity
 {
     Q_OBJECT
 
 public:
-    SceneEntity(Scene* parent,
+    SceneObject(Scene* parent,
                 Qt3DRender::QGeometryRenderer* geometry,
                 Qt3DRender::QMaterial* material);
     Qt3DCore::QEntity *Box() const;
     void applyGeometry(Qt3DRender::QGeometryRenderer* geometry);
-    void Select(bool value);
-    bool isSelected() const;
 
 Q_SIGNALS:
     void signalClicked(Qt3DRender::QPickEvent *event, const QString &name);
-    void signalSelected(SceneEntity* entity, bool selected);
 
 public Q_SLOTS:
     void slotClicked(Qt3DRender::QPickEvent *event);
+    void slotSelect(bool value = true);
 
 protected:
-    void createBox();
+    void createSelectionBox();
 
 private:
     Scene* m_Scene;
     Qt3DRender::QGeometryRenderer* m_Geometry;
     Qt3DRender::QMaterial* m_Material;
-    Qt3DCore::QEntity* m_Box;
-    bool m_Selected;
-
+    Qt3DCore::QEntity* m_SelectionBox;
 };
 
-#endif // SCENEENTITY_H
+#endif // SCENEOBJECT_H
