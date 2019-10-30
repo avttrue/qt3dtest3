@@ -24,10 +24,9 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window, float cell, float width, float heig
     applyEntityName(this, "scene", name);
     window->setRootEntity(this);
 
-    auto sizeDelta = QVector3D(0.1f, 0.1f, 0.1f);
     auto w = cell * width; auto h = cell * height; auto d = cell * depth;
 
-    m_Box = createEntityBox(QVector3D(0.0, 0.0, 0.0) + sizeDelta, QVector3D(w, h, d) - sizeDelta, COLOR_SCENE_BOX, this);
+    m_Box = createEntityBox(QVector3D(0.0, 0.0, 0.0) + BOX_EXCESS, QVector3D(w, h, d) - BOX_EXCESS, COLOR_SCENE_BOX, this);
     m_Box->setEnabled(config->DrawSceneBoxes());
 
     m_FRC = new FrameRateCalculator(FRAME_RATE_COUNT_CALC, this);
@@ -36,7 +35,7 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window, float cell, float width, float heig
     m_Camera = window->camera();
     m_Camera->lens()->setPerspectiveProjection(45.0f, static_cast<float>(window->width()) / window->height(), 0.1f, camera_farplane);
 
-    m_Camera->setPosition(QVector3D(w, h, d) - sizeDelta);
+    m_Camera->setPosition(QVector3D(w, h, d) - BOX_EXCESS);
     m_Camera->setViewCenter(QVector3D(0.0f, 0.0f, 0.0f));
 
     m_CameraController = new CameraController(this);

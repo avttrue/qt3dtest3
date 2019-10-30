@@ -8,6 +8,7 @@
 
 #include <QSize>
 #include <QString>
+#include <QVector3D>
 
 extern Config* config; // интерфейс над QSettings
 
@@ -20,6 +21,7 @@ const QString TEXT_CODEC = "UTF-8";
 const QString DEF_ASSETS = ":/assets";
 const QString COLOR_SELECT = "#1047c7";     // синий
 const QString COLOR_SCENE_BOX = "#000000";  // чёрный
+const QVector3D BOX_EXCESS = QVector3D(0.1f, 0.1f, 0.1f);
 
 const auto DIALOG_SIZE = QSize(400, 400);
 const auto SCENE_DRAW_BOXES = false;
@@ -31,7 +33,6 @@ const auto SCENE_CELL_SIZE = 10;
 const auto SCENE_HEIGHT = 100;
 const auto SCENE_WIDTH = 100;
 const auto SCENE_DEPTH = 100;
-const auto SELECTION_BOX_EXCESS = 0.1f;
 
 const auto BUTTON_ACCELERATION = Qt::Key_Control;
 const auto MOVE_ACCELERATION = 10;

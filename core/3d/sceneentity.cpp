@@ -42,9 +42,8 @@ void SceneEntity::slotClicked(Qt3DRender::QPickEvent *event)
 
 void SceneEntity::createSelectionBox()
 {
-    auto excess = QVector3D(SELECTION_BOX_EXCESS, SELECTION_BOX_EXCESS ,SELECTION_BOX_EXCESS);
-    auto max = m_Geometry->geometry()->maxExtent() + excess;
-    auto min = m_Geometry->geometry()->minExtent() - excess;
+    auto max = m_Geometry->geometry()->maxExtent() + BOX_EXCESS;
+    auto min = m_Geometry->geometry()->minExtent() - BOX_EXCESS;
     if(m_SelectionBox)
     {
         m_SelectionBox->setEnabled(false);
