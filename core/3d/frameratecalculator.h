@@ -20,11 +20,11 @@ public:
     int FrameCount() const;
     void calculate();
 
-signals:
+Q_SIGNALS:
     void signalFramesPerSecondChanged(float FramesPerSecond);
     void signalFrameCountChanged(int FrameCount);
 
-public slots:
+public Q_SLOTS:
     void setFrameCount(int fc);
 };
 

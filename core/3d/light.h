@@ -16,6 +16,8 @@ public:
           Qt3DCore::QTransform *transform,
           Qt3DRender::QAbstractLight *light);
 
+Q_SIGNALS:
+
 public Q_SLOT:
         void slotShowGeometry(bool value);
 

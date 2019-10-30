@@ -92,9 +92,8 @@ bool Scene::delLight(const QString &name)
         if(m_SelectedEntity == l) m_SelectedEntity = nullptr;
         l->deleteLater();
         emit signalSelectedEntityChanged(m_SelectedEntity);
-
-        qDebug() << objectName() << ": Lights count" << m_Lights.count();
         emit signalLightsCountChanged(m_Lights.count());
+        qDebug() << objectName() << ": Lights count" << m_Lights.count();
         return true;
     }
     return false;
@@ -116,7 +115,7 @@ SceneObject* Scene::addObject(Qt3DRender::QGeometryRenderer *geometry,
 
     QObject::connect(entity, &SceneObject::signalClicked, this, &Scene::slotEntityClicked, Qt::DirectConnection);
 
-    qDebug() << objectName() << ": Entity created, count =" << m_Objects.count();
+    qDebug() << objectName() << ": Entity created, count" << m_Objects.count();
     emit signalObjectsCountChanged(m_Objects.count());
     return entity;
 }
@@ -130,6 +129,7 @@ bool Scene::delObject(const QString &name)
         entity->deleteLater();
         emit signalSelectedEntityChanged(m_SelectedEntity);
         emit signalObjectsCountChanged(m_Objects.count());
+        qDebug() << objectName() << ": Objects count" << m_Objects.count();
         return true;
     }
     return false;
@@ -200,13 +200,6 @@ void Scene::slotShowBoxes(bool value)
 {
     for(Light* l: m_Lights) l->slotShowGeometry(value);
     m_Box->setEnabled(value);
-}
-
-SceneObject *Scene::ObjectByName(const QString &name)
-{
-    auto e = Objects().value(name);
-    if(!e) { qDebug() << ": Entity <" << name << "> not found"; return nullptr; }
-    return  e;
 }
 
 float Scene::CellSize() const { return m_CellSize; }

@@ -52,7 +52,6 @@ public Q_SLOTS:
     void slotShowBoxes(bool value);
 
 protected:
-    SceneObject* ObjectByName(const QString& name);
     void SelectEntity(SceneEntity* entity);
 
 private:
