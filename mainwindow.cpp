@@ -156,22 +156,22 @@ void MainWindow::createScene()
          tr("4. Сцена: высота (в клетках)"),
          tr("5. Сцена: глубина (в клетках)")
         };
-    QMap<QString, QPair<QVariant::Type, QVariant>> map =
+    QMap<QString, DialogValue> map =
         {{keys.at(0), {QVariant::String, ""}},
-         {keys.at(1), {QVariant::Int, SCENE_CELL_SIZE}},
-         {keys.at(2), {QVariant::Int, SCENE_WIDTH}},
-         {keys.at(3), {QVariant::Int, SCENE_HEIGHT}},
-         {keys.at(4), {QVariant::Int, SCENE_DEPTH}}
+         {keys.at(1), {QVariant::Int, SCENE_CELL_SIZE, 1, 1000}},
+         {keys.at(2), {QVariant::Int, SCENE_WIDTH, 10, std::numeric_limits<int>::max()}},
+         {keys.at(3), {QVariant::Int, SCENE_HEIGHT, 10, std::numeric_limits<int>::max()}},
+         {keys.at(4), {QVariant::Int, SCENE_DEPTH, 10, std::numeric_limits<int>::max()}}
         };
     auto dvl = new DialogValuesList(":/res/icons/matrix.svg", tr("Новая сцена"), true, &map, this);
 
     if(!dvl->exec()) return;
 
-    sceneView->createScene(map.value(keys.at(1)).second.toInt(),
-                           map.value(keys.at(2)).second.toInt(),
-                           map.value(keys.at(3)).second.toInt(),
-                           map.value(keys.at(4)).second.toInt(),
-                           map.value(keys.at(0)).second.toString());
+    sceneView->createScene(map.value(keys.at(1)).value.toInt(),
+                           map.value(keys.at(2)).value.toInt(),
+                           map.value(keys.at(3)).value.toInt(),
+                           map.value(keys.at(4)).value.toInt(),
+                           map.value(keys.at(0)).value.toString());
     viewContainer->setFocus();
 }
 
@@ -187,34 +187,34 @@ void MainWindow::createPointLight()
          tr("6. Интенсивность (N/100)"),
          tr("7. Цвет (#XXXXXX)"),
         };
-    QMap<QString, QPair<QVariant::Type, QVariant>> map =
+    QMap<QString, DialogValue> map =
         {{keys.at(0), {QVariant::String, ""}},
-         {keys.at(1), {QVariant::Int, s->Size().x() / 2}},
-         {keys.at(2), {QVariant::Int, s->Size().y() / 2}},
-         {keys.at(3), {QVariant::Int, s->Size().z() / 2}},
-         {keys.at(4), {QVariant::Int, 50}},
+         {keys.at(1), {QVariant::Int, s->Size().x() / 2, 0, s->Size().x() - 1}},
+         {keys.at(2), {QVariant::Int, s->Size().y() / 2, 0, s->Size().y() - 1}},
+         {keys.at(3), {QVariant::Int, s->Size().z() / 2, 0, s->Size().z() - 1}},
+         {keys.at(4), {QVariant::Int, 50, 1, 100}},
          {keys.at(5), {QVariant::String, "#FFFFFF"}},
         };
     auto dvl = new DialogValuesList(":/res/icons/lamp.svg", tr("Новый свет"), true, &map, this);
 
     if(!dvl->exec()) return;
 
-    auto color = QColor(map.value(keys.at(5)).second.toString());
+    auto color = QColor(map.value(keys.at(5)).value.toString());
     if(!color.isValid())
     {
-        QMessageBox::critical(this, tr("Ошибка"), tr("Некорректно указан цвет: '%1'.").arg(map.value(keys.at(5)).second.toString()));
+        QMessageBox::critical(this, tr("Ошибка"), tr("Некорректно указан цвет: '%1'.").arg(map.value(keys.at(5)).value.toString()));
         return;
     }
 
     auto lightTransform = new Qt3DCore::QTransform;
     lightTransform->setTranslation(s->CellSize() *
-                                   QVector3D(map.value(keys.at(1)).second.toInt(),
-                                             map.value(keys.at(2)).second.toInt(),
-                                             map.value(keys.at(3)).second.toInt()));
+                                   QVector3D(map.value(keys.at(1)).value.toInt(),
+                                             map.value(keys.at(2)).value.toInt(),
+                                             map.value(keys.at(3)).value.toInt()));
     auto light = new Qt3DRender::QPointLight;
-    light->setIntensity(static_cast<float>(map.value(keys.at(4)).second.toInt()) / 100);
+    light->setIntensity(static_cast<float>(map.value(keys.at(4)).value.toInt()) / 100);
     light->setColor(color);
-    s->addLight(lightTransform, light, map.value(keys.at(0)).second.toString());
+    s->addLight(lightTransform, light, map.value(keys.at(0)).value.toString());
     viewContainer->setFocus();
 }
 

@@ -13,7 +13,7 @@
 DialogValuesList::DialogValuesList(const QString& icon,
                                    const QString& caption,
                                    bool modal,
-                                   QMap<QString, QPair<QVariant::Type, QVariant>>* values,
+                                   QMap<QString, DialogValue> *values,
                                    QWidget* parent) :
     QDialog(parent)
 {
@@ -74,7 +74,7 @@ void DialogValuesList::addToolbarButton(QAction *action)
     toolBar->addAction(action);
 }
 
-void DialogValuesList::slotLoadContent(QMap<QString, QPair<QVariant::Type, QVariant> > *values)
+void DialogValuesList::slotLoadContent(QMap<QString, DialogValue>* values)
 {
     QLayoutItem *child;
     while ((child = glContent->takeAt(0)) != nullptr) delete child->widget();
@@ -83,8 +83,10 @@ void DialogValuesList::slotLoadContent(QMap<QString, QPair<QVariant::Type, QVari
 
     for (auto s: values->keys())
     {
-        QVariant::Type t = values->value(s).first;
-        QVariant v = values->value(s).second;
+        QVariant::Type t = values->value(s).type;
+        QVariant v = values->value(s).value;
+        QVariant minv = values->value(s).minValue;
+        QVariant maxv = values->value(s).maxValue;
         if(t == QVariant::String)
         {
             auto widget = new QWidget();
@@ -112,10 +114,10 @@ void DialogValuesList::slotLoadContent(QMap<QString, QPair<QVariant::Type, QVari
         {
             auto spinbox = new QSpinBox();
             spinbox->setPrefix(QString("%1: ").arg(s));
-            spinbox->setRange(0, std::numeric_limits<int>::max());
-            spinbox->installEventFilter(this);
+            spinbox->setRange(minv.toInt(), maxv.toInt());
             spinbox->setSingleStep(1);
             spinbox->setValue(v.toInt());
+            spinbox->installEventFilter(this);
             spinbox->setProperty("ValueName", s);
             void (QSpinBox::*Sender)(int) = &QSpinBox::valueChanged;
             void (DialogValuesList::*Receiver)(int) = &DialogValuesList::slotIntValueChanged;
@@ -154,7 +156,9 @@ void DialogValuesList::slotStringValueChanged(const QString &value)
     auto ledit = qobject_cast<QLineEdit*>(sender());
     if(ledit == nullptr) { qCritical() << __func__ << "Signal sender not found."; return; }
     auto key = ledit->property("ValueName").toString();
-    m_Values->insert(key, QPair<QVariant::Type, QVariant>(m_Values->value(key).first, value));
+    DialogValue dv = m_Values->value(key);
+    dv.value = value;
+    m_Values->insert(key, dv);
 }
 
 void DialogValuesList::slotStringListValueChanged(const QString &value)
@@ -162,7 +166,9 @@ void DialogValuesList::slotStringListValueChanged(const QString &value)
     auto ledit = qobject_cast<QLineEdit*>(sender());
     if(ledit == nullptr) { qCritical() << __func__ << "Signal sender not found."; return; }
     auto key = ledit->property("ValueName").toString();
-    m_Values->insert(key, QPair<QVariant::Type, QVariant>(m_Values->value(key).first, value.split(",")));
+    DialogValue dv = m_Values->value(key);
+    dv.value = value.split(",");
+    m_Values->insert(key, dv);
 }
 
 void DialogValuesList::slotBoolValueChanged(bool value)
@@ -170,7 +176,9 @@ void DialogValuesList::slotBoolValueChanged(bool value)
     auto cbox = qobject_cast<QCheckBox*>(sender());
     if(cbox == nullptr) { qCritical() << __func__ << "Signal sender not found."; return; }
     auto key = cbox->property("ValueName").toString();
-    m_Values->insert(key, QPair<QVariant::Type, QVariant>(m_Values->value(key).first, value));
+    DialogValue dv = m_Values->value(key);
+    dv.value = value;
+    m_Values->insert(key, dv);
 }
 
 void DialogValuesList::slotIntValueChanged(int value)
@@ -178,5 +186,7 @@ void DialogValuesList::slotIntValueChanged(int value)
     auto spinbox = qobject_cast<QSpinBox*>(sender());
     if(spinbox == nullptr) { qCritical() << __func__ << "Signal sender not found."; return; }
     auto key = spinbox->property("ValueName").toString();
-    m_Values->insert(key, QPair<QVariant::Type, QVariant>(m_Values->value(key).first, value));
+    DialogValue dv = m_Values->value(key);
+    dv.value = value;
+    m_Values->insert(key, dv);
 }

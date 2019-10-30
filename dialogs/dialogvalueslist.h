@@ -5,19 +5,24 @@
 #include <QGridLayout>
 #include <QToolBar>
 
-/*!
- * \brief DialogValuesList - диалог установки значений списка параметров values вида QMap<QString, QPair<QVariant::Type, QVariant>>
- */
+struct DialogValue
+{
+    QVariant::Type type;
+    QVariant value = QVariant();
+    QVariant minValue = QVariant();
+    QVariant maxValue = QVariant();
+};
+
 class DialogValuesList : public QDialog
 {
 public:
     DialogValuesList(const QString &icon,
                      const QString &caption,
                      bool modal,
-                     QMap<QString, QPair<QVariant::Type, QVariant>>* values,
+                     QMap<QString, DialogValue>* values,
                      QWidget* parent = nullptr);
     void addToolbarButton(QAction* action);
-    void slotLoadContent(QMap<QString, QPair<QVariant::Type, QVariant>>* values);
+    void slotLoadContent(QMap<QString, DialogValue> *values);
 
 protected:
     void addWidgetContent(QWidget* widget);
@@ -26,7 +31,7 @@ private:
     bool eventFilter(QObject *obj, QEvent *event);
     QGridLayout* glContent;
     QToolBar* toolBar;
-    QMap<QString, QPair<QVariant::Type, QVariant>>* m_Values;
+    QMap<QString, DialogValue>* m_Values;
 
 private Q_SLOTS:
     void slotStringValueChanged(const QString& value);
