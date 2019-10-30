@@ -3,10 +3,12 @@
 #include "properties.h"
 #include "helperswidget.h"
 #include "dialogs/dialogvalueslist.h"
-#include "core/3d/sceneview.h"
 #include "core/3d/scene.h"
+#include "core/3d/sceneentity.h"
+#include "core/3d/sceneview.h"
 #include "core/3d/sceneobject.h"
-#include <core/3d/frameratecalculator.h>
+#include "core/3d/light.h"
+#include "core/3d/frameratecalculator.h"
 
 #include <Qt3DCore/QTransform>
 #include <Qt3DRender/QPointLight>
@@ -66,7 +68,7 @@ void MainWindow::createGUI()
     // управление
     // новая сцена
     auto btnNewScene = new ControlButton(QIcon(":/res/icons/matrix.svg"), tr("Новая сцена"), this);
-    QObject::connect(btnNewScene, &QPushButton::clicked, this, &MainWindow::createScene);
+    QObject::connect(btnNewScene, &QPushButton::clicked, this, &MainWindow::slotCreateScene);
     addControlWidget(btnNewScene);
 
     // отображение контуров
@@ -78,7 +80,7 @@ void MainWindow::createGUI()
 
     // новый свет
     auto btnNewLight = new ControlButton(QIcon(":/res/icons/lamp.svg"), tr("Новый свет"), this);
-    QObject::connect(btnNewLight, &QPushButton::clicked, this, &MainWindow::createPointLight);
+    QObject::connect(btnNewLight, &QPushButton::clicked, this, &MainWindow::slotCreatePointLight);
     btnNewLight->setDisabled(true);
     addControlWidget(btnNewLight);
 
@@ -87,13 +89,7 @@ void MainWindow::createGUI()
     btnDelEntity->setDisabled(true);
     btnDelEntity->setShortcut(Qt::Key_Delete);
     btnDelEntity->setToolTip("Del");
-    QObject::connect(btnDelEntity, &QPushButton::clicked, [=]()
-                     {
-                         Scene* s = sceneView->getScene();
-                         if(!s || !s->SelectedEntity()) { btnDelEntity->setDisabled(true); return; }
-                         s->delObject(s->SelectedEntity());
-                         viewContainer->setFocus();
-                     });
+    QObject::connect(btnDelEntity, &QPushButton::clicked, this, &MainWindow::slotDeleteSelectedEntity);
     addControlWidget(btnDelEntity);
 
     // тест
@@ -147,7 +143,7 @@ void MainWindow::slotViewSceneChanged(Scene *scene)
     QObject::connect(config, &Config::signalDrawSceneBoxes, scene, &Scene::slotShowBoxes);
 }
 
-void MainWindow::createScene()
+void MainWindow::slotCreateScene()
 {
     const QVector<QString> keys =
         {tr("1. Название"),
@@ -175,18 +171,18 @@ void MainWindow::createScene()
     viewContainer->setFocus();
 }
 
-void MainWindow::createPointLight()
+    void MainWindow::slotCreatePointLight()
 {
     auto s = sceneView->getScene();
 
-    const QVector<QString> keys =
-        {tr("1. Название"),
-         tr("3. Положение: X (в клетках)"),
-         tr("4. Положение: Y (в клетках)"),
-         tr("5. Положение: Z (в клетках)"),
-         tr("6. Интенсивность (N/100)"),
-         tr("7. Цвет (#XXXXXX)"),
-        };
+        const QVector<QString> keys =
+            {tr("1. Название"),
+                tr("3. Положение: X (в клетках)"),
+                tr("4. Положение: Y (в клетках)"),
+                tr("5. Положение: Z (в клетках)"),
+                tr("6. Интенсивность (N/100)"),
+                tr("7. Цвет (#XXXXXX)"),
+                };
     QMap<QString, DialogValue> map =
         {{keys.at(0), {QVariant::String, ""}},
          {keys.at(1), {QVariant::Int, s->Size().x() / 2, 0, s->Size().x() - 1}},
@@ -194,7 +190,7 @@ void MainWindow::createPointLight()
          {keys.at(3), {QVariant::Int, s->Size().z() / 2, 0, s->Size().z() - 1}},
          {keys.at(4), {QVariant::Int, 50, 1, 100}},
          {keys.at(5), {QVariant::String, "#FFFFFF"}},
-        };
+         };
     auto dvl = new DialogValuesList(":/res/icons/lamp.svg", tr("Новый свет"), true, &map, this);
 
     if(!dvl->exec()) return;
@@ -215,6 +211,19 @@ void MainWindow::createPointLight()
     light->setIntensity(static_cast<float>(map.value(keys.at(4)).value.toInt()) / 100);
     light->setColor(color);
     s->addLight(lightTransform, light, map.value(keys.at(0)).value.toString());
+    viewContainer->setFocus();
+}
+
+void MainWindow::slotDeleteSelectedEntity()
+{
+    auto s = sceneView->getScene();
+    auto e = sceneView->getScene()->SelectedEntity();
+
+    if(!s || !e) { btnDelEntity->setDisabled(true); return; }
+
+    if(qobject_cast<SceneObject*>(e)) { s->delObject(e); return; }
+    if(qobject_cast<Light*>(e)) { s->delLight(e); return; }
+
     viewContainer->setFocus();
 }
 

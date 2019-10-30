@@ -22,8 +22,11 @@ class Scene : public Qt3DCore::QEntity
 
 public:
     Scene(Qt3DExtras::Qt3DWindow* window, float cell, float width, float height, float depth, const QString &name = "");
-    void addLight(Qt3DCore::QTransform *transform, Qt3DRender::QAbstractLight* light, const QString &name = "");
+    void addLight(Qt3DCore::QTransform *transform,
+                  Qt3DRender::QAbstractLight* light,
+                  const QString &name = "");
     bool delLight(const QString& name);
+    bool delLight(SceneEntity *entity);
     SceneObject* addObject(Qt3DRender::QGeometryRenderer *geometry,
                            Qt3DRender::QMaterial *material,
                            Qt3DCore::QTransform *transform,
@@ -34,7 +37,6 @@ public:
     QHash<QString, Light* > Lights() const;
     SceneEntity *SelectedEntity() const;
     FrameRateCalculator *FRC() const;
-
     float CellSize() const;
     QVector3D Size() const;
     QVector3D RealSize() const;
@@ -45,7 +47,7 @@ Q_SIGNALS:
     void signalLightsCountChanged(int count);
 
 public Q_SLOTS:
-    void slotEntityClicked(Qt3DRender::QPickEvent *event, const QString &name);
+    void slotEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity* entity);
     void slotFrameActionTriggered(float dt);
     void slotShowBoxes(bool value);
 

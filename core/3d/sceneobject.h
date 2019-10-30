@@ -6,6 +6,7 @@
 class SceneObject : public SceneEntity
 {
     Q_OBJECT
+
 public:
     SceneObject(Scene* parent,
                 Qt3DRender::QGeometryRenderer* geometry,

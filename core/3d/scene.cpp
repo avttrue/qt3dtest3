@@ -78,6 +78,8 @@ void Scene::addLight(Qt3DCore::QTransform *transform,
     delLight(l->objectName());
     m_Lights.insert(l->objectName(), l);
 
+    QObject::connect(l, &SceneObject::signalClicked, this, &Scene::slotEntityClicked, Qt::DirectConnection);
+
     qDebug() << l->objectName() << ": Light added, count" << m_Lights.count();
     emit signalLightsCountChanged(m_Lights.count());
 }
@@ -87,13 +89,18 @@ bool Scene::delLight(const QString &name)
     auto l = m_Lights.take(name);
     if(l)
     {
+        if(m_SelectedEntity == l) m_SelectedEntity = nullptr;
         l->deleteLater();
+        emit signalSelectedEntityChanged(m_SelectedEntity);
+
         qDebug() << objectName() << ": Lights count" << m_Lights.count();
         emit signalLightsCountChanged(m_Lights.count());
         return true;
     }
     return false;
 }
+
+bool Scene::delLight(SceneEntity *entity) { return delLight(entity->objectName()); }
 
 SceneObject* Scene::addObject(Qt3DRender::QGeometryRenderer *geometry,
                               Qt3DRender::QMaterial *material,
@@ -128,19 +135,15 @@ bool Scene::delObject(const QString &name)
     return false;
 }
 
-bool Scene::delObject(SceneEntity *entity)
-{
-    return delObject(entity->objectName());
-}
+bool Scene::delObject(SceneEntity *entity) { return delObject(entity->objectName()); }
 
-void Scene::slotEntityClicked(Qt3DRender::QPickEvent *event, const QString &name)
+void Scene::slotEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity *entity)
 {
-    auto e = ObjectByName(name);
-    if(!e) { qCritical() << objectName() << "(" << __func__ << "): Entity is empty"; return; }
+    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Entity is empty"; return; }
 
     if(event->button() == Qt3DRender::QPickEvent::Buttons::LeftButton)
     {
-        SelectEntity(e);
+        SelectEntity(entity);
     }
     else if(event->button() == Qt3DRender::QPickEvent::Buttons::MiddleButton)
     {
@@ -150,11 +153,14 @@ void Scene::slotEntityClicked(Qt3DRender::QPickEvent *event, const QString &name
     {
         qDebug() << "Mouse button: RightButton";
         // test
-        auto cm = new Qt3DExtras::QCuboidMesh;
-        cm->setXExtent(20);
-        cm->setYExtent(20);
-        cm->setZExtent(40);
-        e->applyGeometry(cm);
+        if(qobject_cast<SceneObject*>(entity))
+        {
+            auto cm = new Qt3DExtras::QCuboidMesh;
+            cm->setXExtent(20);
+            cm->setYExtent(20);
+            cm->setZExtent(40);
+            entity->applyGeometry(cm);
+        }
     }
 }
 

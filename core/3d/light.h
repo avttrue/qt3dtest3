@@ -20,7 +20,6 @@ public Q_SLOT:
         void slotShowGeometry(bool value);
 
 private:
-    Scene* m_Scene;
     Qt3DRender::QAbstractLight *m_Light;
 };
 

@@ -24,9 +24,8 @@ public:
     void Interactive(bool value);
 
 
-
 Q_SIGNALS:
-    void signalClicked(Qt3DRender::QPickEvent *event, const QString &name);
+    void signalClicked(Qt3DRender::QPickEvent *event, SceneEntity* entity);
 
 public Q_SLOTS:
     void slotClicked(Qt3DRender::QPickEvent *event);

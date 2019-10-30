@@ -8,6 +8,7 @@
 
 class SceneView;
 class Scene;
+class SceneEntity;
 class ControlButton;
 
 class MainWindow : public QMainWindow
@@ -23,11 +24,6 @@ protected:
     void addControlWidget(QWidget* widget);
     void closeEvent(QCloseEvent* event);
 
-    void slotWriteSceneStat();
-    void slotViewSceneChanged(Scene* scene);
-    void createScene();
-    void createPointLight();
-
 private:
     QWidget* viewContainer;
     SceneView* sceneView;
@@ -38,7 +34,11 @@ private:
     QCheckBox* cbShowSceneBoxes;
 
 public Q_SLOTS:
-
+    void slotWriteSceneStat();
+    void slotViewSceneChanged(Scene* scene);
+    void slotCreateScene();
+    void slotCreatePointLight();
+    void slotDeleteSelectedEntity();
 
 };
 
