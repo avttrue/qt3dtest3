@@ -95,7 +95,7 @@ bool Scene::delLight(const QString &name)
     return false;
 }
 
-SceneObject* Scene::addEntity(Qt3DRender::QGeometryRenderer *geometry,
+SceneObject* Scene::addObject(Qt3DRender::QGeometryRenderer *geometry,
                               Qt3DRender::QMaterial *material,
                               Qt3DCore::QTransform *transform,
                               const QString &name)
@@ -104,17 +104,17 @@ SceneObject* Scene::addEntity(Qt3DRender::QGeometryRenderer *geometry,
     auto entity = new SceneObject(this, geometry, material, transform);
     applyEntityName(entity, "object", name);
 
-    delEntity(entity->objectName());
+    delObject(entity->objectName());
     m_Objects.insert(entity->objectName(), entity);
 
     QObject::connect(entity, &SceneObject::signalClicked, this, &Scene::slotEntityClicked, Qt::DirectConnection);
 
     qDebug() << objectName() << ": Entity created, count =" << m_Objects.count();
-    emit signalEntitiesCountChanged(m_Objects.count());
+    emit signalObjectsCountChanged(m_Objects.count());
     return entity;
 }
 
-bool Scene::delEntity(const QString &name)
+bool Scene::delObject(const QString &name)
 {
     auto entity = m_Objects.take(name);
     if(entity)
@@ -122,15 +122,20 @@ bool Scene::delEntity(const QString &name)
         if(m_SelectedEntity == entity) m_SelectedEntity = nullptr;
         entity->deleteLater();
         emit signalSelectedEntityChanged(m_SelectedEntity);
-        emit signalEntitiesCountChanged(m_Objects.count());
+        emit signalObjectsCountChanged(m_Objects.count());
         return true;
     }
     return false;
 }
 
+bool Scene::delObject(SceneEntity *entity)
+{
+    return delObject(entity->objectName());
+}
+
 void Scene::slotEntityClicked(Qt3DRender::QPickEvent *event, const QString &name)
 {
-    auto e = EntityByName(name);
+    auto e = ObjectByName(name);
     if(!e) { qCritical() << objectName() << "(" << __func__ << "): Entity is empty"; return; }
 
     if(event->button() == Qt3DRender::QPickEvent::Buttons::LeftButton)
@@ -153,7 +158,7 @@ void Scene::slotEntityClicked(Qt3DRender::QPickEvent *event, const QString &name
     }
 }
 
-void Scene::SelectEntity(SceneObject *entity)
+void Scene::SelectEntity(SceneEntity *entity)
 {
     if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Entity is empty"; return; }
 
@@ -191,18 +196,17 @@ void Scene::slotShowBoxes(bool value)
     m_Box->setEnabled(value);
 }
 
-SceneObject *Scene::EntityByName(const QString &name)
+SceneObject *Scene::ObjectByName(const QString &name)
 {
-    auto e = Entities().value(name);
+    auto e = Objects().value(name);
     if(!e) { qDebug() << ": Entity <" << name << "> not found"; return nullptr; }
     return  e;
 }
 
-bool Scene::delEntity(SceneObject *entity) { return delEntity(entity->objectName()); }
 float Scene::CellSize() const { return m_CellSize; }
 QVector3D Scene::Size() const { return QVector3D(m_Width, m_Height, m_Depth); }
 QVector3D Scene::RealSize() const { return m_CellSize * QVector3D(m_Width, m_Height, m_Depth); }
 FrameRateCalculator *Scene::FRC() const { return m_FRC; }
-SceneObject *Scene::SelectedEntity() const { return m_SelectedEntity; }
-QHash<QString, SceneObject* > Scene::Entities() const { return m_Objects; }
+SceneEntity *Scene::SelectedEntity() const { return m_SelectedEntity; }
+QHash<QString, SceneObject* > Scene::Objects() const { return m_Objects; }
 QHash<QString, Light* > Scene::Lights() const { return m_Lights; }

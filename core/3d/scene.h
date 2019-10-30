@@ -10,6 +10,7 @@
 #include <Qt3DRender/QCamera>
 #include <Qt3DRender/QAbstractLight>
 
+class SceneEntity;
 class SceneObject;
 class CameraController;
 class FrameRateCalculator;
@@ -23,15 +24,15 @@ public:
     Scene(Qt3DExtras::Qt3DWindow* window, float cell, float width, float height, float depth, const QString &name = "");
     void addLight(Qt3DCore::QTransform *transform, Qt3DRender::QAbstractLight* light, const QString &name = "");
     bool delLight(const QString& name);
-    SceneObject* addEntity(Qt3DRender::QGeometryRenderer *geometry,
+    SceneObject* addObject(Qt3DRender::QGeometryRenderer *geometry,
                            Qt3DRender::QMaterial *material,
                            Qt3DCore::QTransform *transform,
                            const QString &name = "");
-    bool delEntity(const QString &name);
-    bool delEntity(SceneObject* entity);
-    QHash<QString, SceneObject* > Entities() const;
+    bool delObject(const QString &name);
+    bool delObject(SceneEntity *entity);
+    QHash<QString, SceneObject* > Objects() const;
     QHash<QString, Light* > Lights() const;
-    SceneObject *SelectedEntity() const;
+    SceneEntity *SelectedEntity() const;
     FrameRateCalculator *FRC() const;
 
     float CellSize() const;
@@ -39,25 +40,24 @@ public:
     QVector3D RealSize() const;
 
 Q_SIGNALS:
-    void signalSelectedEntityChanged(SceneObject* entity);
-    void signalEntitiesCountChanged(int count);
+    void signalSelectedEntityChanged(SceneEntity* entity);
+    void signalObjectsCountChanged(int count);
     void signalLightsCountChanged(int count);
 
 public Q_SLOTS:
     void slotEntityClicked(Qt3DRender::QPickEvent *event, const QString &name);
-
     void slotFrameActionTriggered(float dt);
     void slotShowBoxes(bool value);
 
 protected:
-    SceneObject* EntityByName(const QString& name);
-    void SelectEntity(SceneObject* entity);
+    SceneObject* ObjectByName(const QString& name);
+    void SelectEntity(SceneEntity* entity);
 
 private:
     Qt3DLogic::QFrameAction* m_FrameAction;
     CameraController* m_CameraController;
     Qt3DRender::QCamera* m_Camera;
-    SceneObject* m_SelectedEntity;
+    SceneEntity* m_SelectedEntity;
     FrameRateCalculator* m_FRC;
     Qt3DCore::QEntity* m_Box;
     QHash <QString, Light*> m_Lights;

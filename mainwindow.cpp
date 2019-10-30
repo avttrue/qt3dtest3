@@ -91,7 +91,7 @@ void MainWindow::createGUI()
                      {
                          Scene* s = sceneView->getScene();
                          if(!s || !s->SelectedEntity()) { btnDelEntity->setDisabled(true); return; }
-                         s->delEntity(s->SelectedEntity());
+                         s->delObject(s->SelectedEntity());
                          viewContainer->setFocus();
                      });
     addControlWidget(btnDelEntity);
@@ -132,7 +132,7 @@ void MainWindow::slotWriteSceneStat()
 {
     labelSceneStat->setText(tr("<b>Свет:</b>%1 | <b>Сущности:</b>%2").
                             arg(QString::number(sceneView->getScene()->Lights().count()),
-                                QString::number(sceneView->getScene()->Entities().count())));
+                                QString::number(sceneView->getScene()->Objects().count())));
 }
 
 void MainWindow::slotViewSceneChanged(Scene *scene)
@@ -140,10 +140,10 @@ void MainWindow::slotViewSceneChanged(Scene *scene)
     cbShowSceneBoxes->setEnabled(true);
 
     QObject::connect(scene, &Scene::signalLightsCountChanged, this, &MainWindow::slotWriteSceneStat);
-    QObject::connect(scene, &Scene::signalEntitiesCountChanged, this, &MainWindow::slotWriteSceneStat);
+    QObject::connect(scene, &Scene::signalObjectsCountChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene->FRC(), &FrameRateCalculator::signalFramesPerSecondChanged, [=](auto value)
                      { labelSceneFPS->setText(tr("<b>К/С:</b>%1 | ").arg(QString::number(value, 'f', 1))); });
-    QObject::connect(scene, &Scene::signalSelectedEntityChanged, [=](SceneObject* se) { btnDelEntity->setEnabled(se); });
+    QObject::connect(scene, &Scene::signalSelectedEntityChanged, [=](SceneEntity* se) { btnDelEntity->setEnabled(se); });
     QObject::connect(config, &Config::signalDrawSceneBoxes, scene, &Scene::slotShowBoxes);
 }
 
@@ -177,6 +177,8 @@ void MainWindow::createScene()
 
 void MainWindow::createPointLight()
 {
+    auto s = sceneView->getScene();
+
     const QVector<QString> keys =
         {tr("1. Название"),
          tr("3. Положение: X (в клетках)"),
@@ -187,9 +189,9 @@ void MainWindow::createPointLight()
         };
     QMap<QString, QPair<QVariant::Type, QVariant>> map =
         {{keys.at(0), {QVariant::String, ""}},
-         {keys.at(1), {QVariant::Int, sceneView->getScene()->Size().x() / 2}},
-         {keys.at(2), {QVariant::Int, sceneView->getScene()->Size().y() / 2}},
-         {keys.at(3), {QVariant::Int, sceneView->getScene()->Size().z() / 2}},
+         {keys.at(1), {QVariant::Int, s->Size().x() / 2}},
+         {keys.at(2), {QVariant::Int, s->Size().y() / 2}},
+         {keys.at(3), {QVariant::Int, s->Size().z() / 2}},
          {keys.at(4), {QVariant::Int, 50}},
          {keys.at(5), {QVariant::String, "#FFFFFF"}},
         };
@@ -205,15 +207,14 @@ void MainWindow::createPointLight()
     }
 
     auto lightTransform = new Qt3DCore::QTransform;
-    lightTransform->setTranslation(sceneView->getScene()->CellSize() *
+    lightTransform->setTranslation(s->CellSize() *
                                    QVector3D(map.value(keys.at(1)).second.toInt(),
                                              map.value(keys.at(2)).second.toInt(),
                                              map.value(keys.at(3)).second.toInt()));
     auto light = new Qt3DRender::QPointLight;
     light->setIntensity(static_cast<float>(map.value(keys.at(4)).second.toInt()) / 100);
     light->setColor(color);
-    sceneView->getScene()->addLight(lightTransform, light, map.value(keys.at(0)).second.toString());
-
+    s->addLight(lightTransform, light, map.value(keys.at(0)).second.toString());
     viewContainer->setFocus();
 }
 
