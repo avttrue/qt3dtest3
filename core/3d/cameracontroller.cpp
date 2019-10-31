@@ -3,23 +3,18 @@
 
 
 CameraController::CameraController(Qt3DCore::QNode *parent):
-    Qt3DCore::QEntity(parent)
+    Qt3DCore::QEntity(parent),
+    m_Camera(nullptr),
+    m_dx(0.0f),
+    m_dy(0.0f),
+    m_dz(0.0f),
+    m_LeftButtonPressed(false),
+    m_ButtonAccelerationPressed(false)
 {
-    m_Camera = nullptr;
-
     m_FrameAction = new Qt3DLogic::QFrameAction(this);
 
     /// Mouse
-    m_dx = 0.0f;
-    m_dy = 0.0f;
-    m_dz = 0.0f;
-    m_LeftButtonPressed = false;
     m_MouseDevice = new Qt3DInput::QMouseDevice(this);
-
-    // Keyboard
-    m_ButtonAccelerationPressed = false;
-    m_KeyboardDevice = new Qt3DInput::QKeyboardDevice(this);
-
     // MouseLeftButton
     m_LeftButtonInput = new Qt3DInput::QActionInput(this);
     m_LeftButtonInput->setButtons(QVector<int>() << Qt::LeftButton);
@@ -28,6 +23,8 @@ CameraController::CameraController(Qt3DCore::QNode *parent):
     m_LeftButtonAction->addInput(m_LeftButtonInput);
     m_LeftButtonAction->setObjectName("LeftButton");
 
+    // Keyboard
+    m_KeyboardDevice = new Qt3DInput::QKeyboardDevice(this);
     // KeyboardButtonAcceleration
     m_ButtonAccelerationInput = new Qt3DInput::QActionInput(this);
     m_ButtonAccelerationInput->setButtons(QVector<int>() << config->ButtonAcceleration());
@@ -103,7 +100,7 @@ void CameraController::frameActionTriggered(float dt)
 
     if(m_LeftButtonPressed)
     {
-        m_Camera->pan(-m_dx * la * dt);
+        m_Camera->pan(-m_dx * la * dt, QVector3D(0.0, 1.0, 0.0));
         m_Camera->tilt(-m_dy * la * dt);
     }
 

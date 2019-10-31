@@ -35,6 +35,7 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window, float cell, float width, float heig
     m_Camera = window->camera();
     m_Camera->lens()->setPerspectiveProjection(45.0f, static_cast<float>(window->width()) / window->height(), 0.1f, camera_farplane);
 
+    m_Camera->setUpVector(QVector3D(0, 1, 0));
     m_Camera->setPosition(QVector3D(w, h, d) - BOX_EXCESS);
     m_Camera->setViewCenter(QVector3D(0.0f, 0.0f, 0.0f));
 
@@ -51,6 +52,7 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window, float cell, float width, float heig
     skytrfm->setScale3D(QVector3D(SCENE_WIDTH, SCENE_HEIGHT, SCENE_DEPTH));
     m_SkyBox->addComponent(skytrfm);
     */
+
     m_FrameAction = new Qt3DLogic::QFrameAction(this);
     QObject::connect(m_FrameAction, &Qt3DLogic::QFrameAction::triggered, this, &Scene::slotFrameActionTriggered);
 
@@ -117,6 +119,7 @@ SceneObject* Scene::addObject(Qt3DRender::QGeometryRenderer *geometry,
 
     qDebug() << objectName() << ": Entity created, count" << m_Objects.count();
     emit signalObjectsCountChanged(m_Objects.count());
+
     return entity;
 }
 
