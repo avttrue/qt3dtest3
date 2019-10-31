@@ -7,7 +7,7 @@
 
 struct DialogValue
 {
-    QVariant::Type type;
+    QVariant::Type type = QVariant::Invalid;
     QVariant value = QVariant();
     QVariant minValue = QVariant();
     QVariant maxValue = QVariant();
