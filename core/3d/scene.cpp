@@ -6,10 +6,10 @@
 #include "frameratecalculator.h"
 #include "properties.h"
 
+#include <Qt3DCore/QTransform>
 #include <Qt3DExtras/QCuboidMesh>
 #include <Qt3DExtras/QSphereMesh>
 #include <Qt3DExtras/QPhongMaterial>
-#include <Qt3DCore/QTransform>
 #include <Qt3DRender/QPointLight>
 #include <cmath>
 
