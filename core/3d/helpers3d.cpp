@@ -73,14 +73,14 @@ Qt3DCore::QEntity *createEntityLine(const QVector3D& start,
 
 Qt3DCore::QEntity *createEntityHGrid(const QVector3D& start,
                                     const QVector3D& end,
-                                    const float cell,
+                                    float cell,
                                     const QColor& color,
                                     Qt3DCore::QEntity* parent)
 {
     auto lineEntity = new Qt3DCore::QEntity(parent);
     QObject::connect(lineEntity, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityHGrid destroyed"; });
 
-    unsigned int width = static_cast<unsigned int>(abs(end.x() - start.x()) / cell);
+    auto width = static_cast<unsigned int>(abs(end.x() - start.x()) / cell);
     unsigned int depth = static_cast<unsigned int>(abs(end.z() - start.z()) / cell);
     if(width <= 0 || depth <= 0)
     {
