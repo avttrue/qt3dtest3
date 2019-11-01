@@ -6,6 +6,7 @@
 
 #include <QDebug>
 #include <QRandomGenerator>
+#include <Qt3DExtras/QForwardRenderer>
 #include <Qt3DExtras/QFirstPersonCameraController>
 #include <Qt3DExtras/QSphereMesh>
 #include <Qt3DExtras/QPhongMaterial>
@@ -13,10 +14,12 @@
 #include <Qt3DRender/QPointLight>
 #include <Qt3DRender/QRenderSettings>
 
+
 SceneView::SceneView(QScreen *screen):
     Qt3DExtras::Qt3DWindow(screen),
     m_Scene(nullptr)
 {
+    defaultFrameGraph()->setClearColor(QColor(COLOR_SCENE_BG));
     renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
     renderSettings()->setRenderPolicy(Qt3DRender::QRenderSettings::OnDemand);
 }
@@ -25,6 +28,9 @@ void SceneView::createScene(float cell, float width, float height, float depth, 
 {
     if(m_Scene) m_Scene->deleteLater();
     m_Scene = new Scene(this, cell, width, height, depth, name);
+
+    m_Scene->slotShowBoxes(config->DrawSceneBoxes());
+
     emit signalSceneChanged(m_Scene);
 }
 

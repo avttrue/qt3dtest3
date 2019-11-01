@@ -19,8 +19,10 @@ const QString ASSETS_DIR = "assets";
 const QString DT_FORMAT = "hh:mm:ss.zzz";
 const QString TEXT_CODEC = "UTF-8";
 const QString DEF_ASSETS = ":/assets";
-const QString COLOR_SELECT = "#1047c7";     // синий
+const QString COLOR_SELECT = "#1047C7";     // синий
 const QString COLOR_SCENE_BOX = "#000000";  // чёрный
+const QString COLOR_SCENE_BG = "#DCDCDC";   // светлосерый
+const QString COLOR_SCENE_GREED = "#FFFFFF";// белый
 const QVector3D BOX_EXCESS = QVector3D(0.1f, 0.1f, 0.1f);
 
 const auto DIALOG_SIZE = QSize(400, 400);
@@ -38,6 +40,6 @@ const auto BUTTON_ACCELERATION = Qt::Key_Control;
 const auto MOVE_ACCELERATION = 10;
 const auto ROTATION_ACCELERATION = 5;
 const auto ROTATION_SPEED = 20;
-const auto MOVE_SPEED = 50;
+const auto MOVE_SPEED = 80;
 
 #endif // PROPERTIES_H

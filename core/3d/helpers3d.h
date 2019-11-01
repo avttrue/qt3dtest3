@@ -10,17 +10,23 @@
 /*!
  * \brief addEntityLine - нарисовать линию от точки start до end
  */
-Qt3DCore::QEntity* addEntityLine(const QVector3D& start,
-                                 const QVector3D& end,
-                                 const QColor& color,
-                                 Qt3DCore::QEntity* parent);
-/*!
+Qt3DCore::QEntity* createEntityLine(const QVector3D& start,
+                                    const QVector3D& end,
+                                    const QColor& color,
+                                    Qt3DCore::QEntity* parent);
+
+Qt3DCore::QEntity* createEntityGrid(const QVector3D& start, const QVector3D& end,
+                                     const float cell,
+                                     const QColor& color,
+                                    Qt3DCore::QEntity* parent);
+
+    /*!
  * \brief addEntityBox - нарисовать каркас из линий в рамках самых удалённых точек min и max
  */
-Qt3DCore::QEntity* createEntityBox(const QVector3D& min,
-                                   const QVector3D& max,
-                                   const QColor& color,
-                                   Qt3DCore::QEntity* parent);
+    Qt3DCore::QEntity* createEntityBox(const QVector3D& min,
+                                       const QVector3D& max,
+                                       const QColor& color,
+                                       Qt3DCore::QEntity* parent);
 
 Qt3DCore::QEntity* addText(Qt3DCore::QEntity* parent, const QString& text = "");
 

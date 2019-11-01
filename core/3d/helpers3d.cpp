@@ -10,23 +10,18 @@
 #include <Qt3DCore/QTransform>
 
 
-Qt3DCore::QEntity *addEntityLine(const QVector3D& start,
-                                 const QVector3D& end,
-                                 const QColor& color,
-                                 Qt3DCore::QEntity* parent)
+Qt3DCore::QEntity *createEntityLine(const QVector3D& start,
+                                    const QVector3D& end,
+                                    const QColor& color,
+                                    Qt3DCore::QEntity* parent)
 {
-    auto geometry = new Qt3DRender::QGeometry( parent);
+    auto geometry = new Qt3DRender::QGeometry;
 
-    // position vertices (start and end)
     QByteArray bufferBytes;
     bufferBytes.resize(3 * 2 * sizeof(float));
     float *positions = reinterpret_cast<float*>(bufferBytes.data());
-    *positions++ = start.x();
-    *positions++ = start.y();
-    *positions++ = start.z();
-    *positions++ = end.x();
-    *positions++ = end.y();
-    *positions++ = end.z();
+    *positions++ = start.x(); *positions++ = start.y(); *positions++ = start.z();
+    *positions++ = end.x(); *positions++ = end.y(); *positions++ = end.z();
 
     auto vertexBuffer = new Qt3DRender::QBuffer(geometry);
     vertexBuffer->setData(bufferBytes);
@@ -74,7 +69,84 @@ Qt3DCore::QEntity *addEntityLine(const QVector3D& start,
 
     QObject::connect(lineEntity, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityLine destroyed"; });
     qDebug() << parent->objectName() << ": EntityLine created";
+    return lineEntity;
+}
 
+Qt3DCore::QEntity *createEntityGrid(const QVector3D& start,
+                                     const QVector3D& end,
+                                     const float cell,
+                                     const QColor& color,
+                                     Qt3DCore::QEntity* parent)
+{
+    unsigned int width = static_cast<unsigned int>(abs(end.x() - start.x()) / cell);
+    unsigned int depth = static_cast<unsigned int>(abs(end.z() - start.z()) / cell);
+    if(width <= 0 || depth <= 0) return nullptr;
+
+    auto geometry = new Qt3DRender::QGeometry;
+
+    QByteArray bufferBytes;
+    bufferBytes.resize(static_cast<int>(3 * 2 * (width + depth) * sizeof(float)));
+    float *positions = reinterpret_cast<float*>(bufferBytes.data());
+
+    for(unsigned int w = 0; w < width; w++)
+    {
+        *positions++ = start.x() + w * cell; *positions++ = start.y(); *positions++ = start.z();
+        *positions++ = start.x() + w * cell; *positions++ = start.y(); *positions++ = end.z();
+    }
+    for(unsigned int d = 0; d < depth; d++)
+    {
+        *positions++ = start.x(); *positions++ = start.y(); *positions++ = start.z() + d * cell;
+        *positions++ = end.x(); *positions++ = start.y(); *positions++ = start.z() + d * cell;
+    }
+
+    auto vertexBuffer = new Qt3DRender::QBuffer(geometry);
+    vertexBuffer->setData(bufferBytes);
+
+    auto positionAttribute = new Qt3DRender::QAttribute(geometry);
+    positionAttribute->setName(Qt3DRender::QAttribute::defaultPositionAttributeName());
+    positionAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
+    positionAttribute->setVertexSize(3);
+    positionAttribute->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
+    positionAttribute->setBuffer(vertexBuffer);
+    positionAttribute->setByteStride(3 * sizeof(float));
+    positionAttribute->setCount(2 * (width + depth));
+    geometry->addAttribute(positionAttribute);
+
+    // connectivity between vertices
+    QByteArray indexBytes;
+    indexBytes.resize(static_cast<int>(2 * (width + depth) * sizeof(unsigned int)));
+    unsigned int *indices = reinterpret_cast<unsigned int*>(indexBytes.data());
+
+    for(unsigned int i = 0; i < width + depth; i++)
+    { *indices++ = i * 2; *indices++ = i * 2 + 1; }
+
+    auto indexBuffer = new Qt3DRender::QBuffer(geometry);
+    indexBuffer->setData(indexBytes);
+
+    auto indexAttribute = new Qt3DRender::QAttribute(geometry);
+    indexAttribute->setVertexBaseType(Qt3DRender::QAttribute::UnsignedInt);
+    indexAttribute->setAttributeType(Qt3DRender::QAttribute::IndexAttribute);
+    indexAttribute->setBuffer(indexBuffer);
+    indexAttribute->setCount(2 * (width + depth));
+    geometry->addAttribute(indexAttribute);
+
+    // entity
+    auto lineEntity = new Qt3DCore::QEntity(parent);
+
+    // mesh
+    auto line = new Qt3DRender::QGeometryRenderer(lineEntity);
+    line->setGeometry(geometry);
+    line->setPrimitiveType(Qt3DRender::QGeometryRenderer::Lines);
+
+    // material
+    auto material = new Qt3DExtras:: QDiffuseSpecularMaterial(lineEntity);
+    material->setAmbient(color);
+
+    lineEntity->addComponent(line);
+    lineEntity->addComponent(material);
+
+    QObject::connect(lineEntity, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityGrid destroyed"; });
+    qDebug() << parent->objectName() << ": EntityGrid created";
     return lineEntity;
 }
 
@@ -138,8 +210,6 @@ Qt3DCore::QEntity *createEntityBox(const QVector3D &min,
     indexAttribute->setBuffer(indexBuffer);
     indexAttribute->setCount(24);
     geometry->addAttribute(indexAttribute);
-
-    geometry->setParent(parent);
 
     // entity
     auto lineEntity = new Qt3DCore::QEntity(parent);

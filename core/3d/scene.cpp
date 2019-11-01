@@ -13,9 +13,13 @@
 #include <Qt3DRender/QPointLight>
 #include <cmath>
 
-Scene::Scene(Qt3DExtras::Qt3DWindow *window, float cell, float width, float height, float depth, const QString &name):
+Scene::Scene(Qt3DExtras::Qt3DWindow *window,
+             float cell,
+             float width, float height, float depth,
+             const QString &name):
     Qt3DCore::QEntity(nullptr),
     m_SelectedEntity(nullptr),
+    m_Box(nullptr),
     m_CellSize(cell),
     m_Height(height),
     m_Width(width),
@@ -25,9 +29,6 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window, float cell, float width, float heig
     window->setRootEntity(this);
 
     auto w = cell * width; auto h = cell * height; auto d = cell * depth;
-
-    m_Box = createEntityBox(QVector3D(0.0, 0.0, 0.0) + BOX_EXCESS, QVector3D(w, h, d) - BOX_EXCESS, COLOR_SCENE_BOX, this);
-    m_Box->setEnabled(config->DrawSceneBoxes());
 
     m_FRC = new FrameRateCalculator(FRAME_RATE_COUNT_CALC, this);
 
@@ -202,7 +203,19 @@ void Scene::slotFrameActionTriggered(float dt)
 void Scene::slotShowBoxes(bool value)
 {
     for(Light* l: m_Lights) l->slotShowGeometry(value);
-    m_Box->setEnabled(value);
+
+    if(m_Box)
+    {
+        m_Box->setEnabled(false);
+        m_Box->deleteLater();
+        m_Box = nullptr;
+    }
+
+    if(!value) return;
+
+    m_Box = createEntityBox(QVector3D(0.0, 0.0, 0.0) + BOX_EXCESS, RealSize() - BOX_EXCESS, COLOR_SCENE_BOX, this);
+    applyEntityName(m_Box, "box", "scene_box");
+    createEntityGrid(QVector3D(0.0, 0.0, 0.0), QVector3D(RealSize().x(), 0.0, RealSize().z()), m_CellSize, COLOR_SCENE_GREED, m_Box);
 }
 
 float Scene::CellSize() const { return m_CellSize; }
