@@ -215,7 +215,7 @@ void Scene::slotShowBoxes(bool value)
 
     m_Box = createEntityBox(QVector3D(0.0, 0.0, 0.0) + BOX_EXCESS, RealSize() - BOX_EXCESS, COLOR_SCENE_BOX, this);
     applyEntityName(m_Box, "box", "scene_box");
-    createEntityGrid(QVector3D(0.0, 0.0, 0.0), QVector3D(RealSize().x(), 0.0, RealSize().z()), m_CellSize, COLOR_SCENE_GREED, m_Box);
+    createEntityHGrid(QVector3D(0.0, 0.0, 0.0), QVector3D(RealSize().x(), 0.0, RealSize().z()), m_CellSize, COLOR_SCENE_GREED, m_Box);
 }
 
 float Scene::CellSize() const { return m_CellSize; }

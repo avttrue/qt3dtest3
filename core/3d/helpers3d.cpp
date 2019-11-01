@@ -15,7 +15,10 @@ Qt3DCore::QEntity *createEntityLine(const QVector3D& start,
                                     const QColor& color,
                                     Qt3DCore::QEntity* parent)
 {
-    auto geometry = new Qt3DRender::QGeometry;
+    auto lineEntity = new Qt3DCore::QEntity(parent);
+    QObject::connect(lineEntity, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityLine destroyed"; });
+
+    auto geometry = new Qt3DRender::QGeometry(lineEntity);
 
     QByteArray bufferBytes;
     bufferBytes.resize(3 * 2 * sizeof(float));
@@ -52,9 +55,6 @@ Qt3DCore::QEntity *createEntityLine(const QVector3D& start,
     indexAttribute->setCount(2);
     geometry->addAttribute(indexAttribute);
 
-    // entity
-    auto lineEntity = new Qt3DCore::QEntity(parent);
-
     // mesh
     auto line = new Qt3DRender::QGeometryRenderer(lineEntity);
     line->setGeometry(geometry);
@@ -67,22 +67,27 @@ Qt3DCore::QEntity *createEntityLine(const QVector3D& start,
     lineEntity->addComponent(line);
     lineEntity->addComponent(material);
 
-    QObject::connect(lineEntity, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityLine destroyed"; });
     qDebug() << parent->objectName() << ": EntityLine created";
     return lineEntity;
 }
 
-Qt3DCore::QEntity *createEntityGrid(const QVector3D& start,
-                                     const QVector3D& end,
-                                     const float cell,
-                                     const QColor& color,
-                                     Qt3DCore::QEntity* parent)
+Qt3DCore::QEntity *createEntityHGrid(const QVector3D& start,
+                                    const QVector3D& end,
+                                    const float cell,
+                                    const QColor& color,
+                                    Qt3DCore::QEntity* parent)
 {
+    auto lineEntity = new Qt3DCore::QEntity(parent);
+    QObject::connect(lineEntity, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityHGrid destroyed"; });
+
     unsigned int width = static_cast<unsigned int>(abs(end.x() - start.x()) / cell);
     unsigned int depth = static_cast<unsigned int>(abs(end.z() - start.z()) / cell);
-    if(width <= 0 || depth <= 0) return nullptr;
-
-    auto geometry = new Qt3DRender::QGeometry;
+    if(width <= 0 || depth <= 0)
+    {
+        qDebug() << parent->objectName() << ": EntityHGrid created EMPTY";
+        return lineEntity;
+    }
+    auto geometry = new Qt3DRender::QGeometry(lineEntity);
 
     QByteArray bufferBytes;
     bufferBytes.resize(static_cast<int>(3 * 2 * (width + depth) * sizeof(float)));
@@ -130,9 +135,6 @@ Qt3DCore::QEntity *createEntityGrid(const QVector3D& start,
     indexAttribute->setCount(2 * (width + depth));
     geometry->addAttribute(indexAttribute);
 
-    // entity
-    auto lineEntity = new Qt3DCore::QEntity(parent);
-
     // mesh
     auto line = new Qt3DRender::QGeometryRenderer(lineEntity);
     line->setGeometry(geometry);
@@ -145,8 +147,7 @@ Qt3DCore::QEntity *createEntityGrid(const QVector3D& start,
     lineEntity->addComponent(line);
     lineEntity->addComponent(material);
 
-    QObject::connect(lineEntity, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityGrid destroyed"; });
-    qDebug() << parent->objectName() << ": EntityGrid created";
+    qDebug() << parent->objectName() << ": EntityHGrid created";
     return lineEntity;
 }
 
@@ -155,7 +156,10 @@ Qt3DCore::QEntity *createEntityBox(const QVector3D &min,
                                    const QColor &color,
                                    Qt3DCore::QEntity *parent)
 {
-    auto geometry = new Qt3DRender::QGeometry;
+    auto lineEntity = new Qt3DCore::QEntity(parent);
+    QObject::connect(lineEntity, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityBox destroyed"; });
+
+    auto geometry = new Qt3DRender::QGeometry(lineEntity);
 
     // position vertices
     QByteArray bufferBytes;
@@ -211,9 +215,6 @@ Qt3DCore::QEntity *createEntityBox(const QVector3D &min,
     indexAttribute->setCount(24);
     geometry->addAttribute(indexAttribute);
 
-    // entity
-    auto lineEntity = new Qt3DCore::QEntity(parent);
-
     // mesh
     auto line = new Qt3DRender::QGeometryRenderer(lineEntity);
     line->setGeometry(geometry);
@@ -226,7 +227,6 @@ Qt3DCore::QEntity *createEntityBox(const QVector3D &min,
     lineEntity->addComponent(line);
     lineEntity->addComponent(material);
 
-    QObject::connect(lineEntity, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityBox destroyed"; });
     qDebug() << parent->objectName() << ": EntityBox created";
     return lineEntity;
 }

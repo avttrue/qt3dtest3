@@ -15,7 +15,7 @@ Qt3DCore::QEntity* createEntityLine(const QVector3D& start,
                                     const QColor& color,
                                     Qt3DCore::QEntity* parent);
 
-Qt3DCore::QEntity* createEntityGrid(const QVector3D& start, const QVector3D& end,
+Qt3DCore::QEntity* createEntityHGrid(const QVector3D& start, const QVector3D& end,
                                      const float cell,
                                      const QColor& color,
                                     Qt3DCore::QEntity* parent);
