@@ -56,12 +56,12 @@ Qt3DCore::QEntity *createEntityLine(const QVector3D& start,
     geometry->addAttribute(indexAttribute);
 
     // mesh
-    auto line = new Qt3DRender::QGeometryRenderer(lineEntity);
+    auto line = new Qt3DRender::QGeometryRenderer;
     line->setGeometry(geometry);
     line->setPrimitiveType(Qt3DRender::QGeometryRenderer::Lines);
 
     // material
-    auto material = new Qt3DExtras:: QDiffuseSpecularMaterial(lineEntity);
+    auto material = new Qt3DExtras:: QDiffuseSpecularMaterial;
     material->setAmbient(color);
 
     lineEntity->addComponent(line);
@@ -117,7 +117,6 @@ Qt3DCore::QEntity *createEntityHGrid(const QVector3D& start,
     positionAttribute->setCount(2 * (width + depth));
     geometry->addAttribute(positionAttribute);
 
-    // connectivity between vertices
     QByteArray indexBytes;
     indexBytes.resize(static_cast<int>(2 * (width + depth) * sizeof(unsigned int)));
     unsigned int *indices = reinterpret_cast<unsigned int*>(indexBytes.data());
@@ -136,12 +135,12 @@ Qt3DCore::QEntity *createEntityHGrid(const QVector3D& start,
     geometry->addAttribute(indexAttribute);
 
     // mesh
-    auto line = new Qt3DRender::QGeometryRenderer(lineEntity);
+    auto line = new Qt3DRender::QGeometryRenderer;
     line->setGeometry(geometry);
     line->setPrimitiveType(Qt3DRender::QGeometryRenderer::Lines);
 
     // material
-    auto material = new Qt3DExtras:: QDiffuseSpecularMaterial(lineEntity);
+    auto material = new Qt3DExtras:: QDiffuseSpecularMaterial;
     material->setAmbient(color);
 
     lineEntity->addComponent(line);
@@ -216,12 +215,12 @@ Qt3DCore::QEntity *createEntityBox(const QVector3D &min,
     geometry->addAttribute(indexAttribute);
 
     // mesh
-    auto line = new Qt3DRender::QGeometryRenderer(lineEntity);
+    auto line = new Qt3DRender::QGeometryRenderer;
     line->setGeometry(geometry);
     line->setPrimitiveType(Qt3DRender::QGeometryRenderer::Lines);
 
     // material
-    auto material = new Qt3DExtras::QDiffuseSpecularMaterial(lineEntity);
+    auto material = new Qt3DExtras::QDiffuseSpecularMaterial;
     material->setAmbient(color);
 
     lineEntity->addComponent(line);
@@ -231,21 +230,23 @@ Qt3DCore::QEntity *createEntityBox(const QVector3D &min,
     return lineEntity;
 }
 
-Qt3DCore::QEntity* addText(Qt3DCore::QEntity* parent, const QString& text)
+Qt3DCore::QEntity* createEntityText(Qt3DCore::QEntity* parent,
+                                    float height,
+                                    float width,
+                                    const QColor &color,
+                                    const QString& text)
 {
-    auto textEntity = new Qt3DCore::QEntity(parent);
-    auto text2D = new Qt3DExtras::QText2DEntity(textEntity);
+    auto text2D = new Qt3DExtras::QText2DEntity(parent);
+    QObject::connect(text2D, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityText destroyed"; });
+
     text2D->setFont(QFont("monospace"));
-    text2D->setHeight(20.0);
-    text2D->setWidth(50.0);
+    text2D->setHeight(height);
+    text2D->setWidth(width);
     text2D->setText(text);
-    text2D->setColor(Qt::yellow);
+    text2D->setColor(color);
 
-    auto text2dTransform = new Qt3DCore::QTransform;
-    text2dTransform->setTranslation(QVector3D(0, 0, 0));
-
-    textEntity->addComponent(text2dTransform);
-    return textEntity;
+    qDebug() << parent->objectName() << ": EntityText created";
+    return text2D;
 }
 
 void applyEntityName(Qt3DCore::QEntity *entity, const QString& prefix, const QString &name)

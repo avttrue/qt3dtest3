@@ -11,6 +11,7 @@
 #include <Qt3DExtras/QSphereMesh>
 #include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DRender/QPointLight>
+#include <QText2DEntity>
 #include <cmath>
 
 Scene::Scene(Qt3DExtras::Qt3DWindow *window,

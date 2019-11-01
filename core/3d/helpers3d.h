@@ -32,7 +32,11 @@ Qt3DCore::QEntity* createEntityBox(const QVector3D& min,
                                    const QColor& color,
                                    Qt3DCore::QEntity* parent);
 
-Qt3DCore::QEntity* addText(Qt3DCore::QEntity* parent, const QString& text = "");
+Qt3DCore::QEntity* createEntityText(Qt3DCore::QEntity* parent,
+                                    float height,
+                                    float width,
+                                    const QColor &color,
+                                    const QString& text = "");
 
 void applyEntityName(Qt3DCore::QEntity* entity, const QString &prefix, const QString& name = "");
 
