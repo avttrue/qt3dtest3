@@ -9,7 +9,6 @@
 #include <Qt3DExtras/QText2DEntity>
 #include <Qt3DCore/QTransform>
 
-
 Qt3DCore::QEntity *createEntityLine(const QVector3D& start,
                                     const QVector3D& end,
                                     const QColor& color,
@@ -71,11 +70,11 @@ Qt3DCore::QEntity *createEntityLine(const QVector3D& start,
     return lineEntity;
 }
 
-Qt3DCore::QEntity *createEntityHGrid(const QVector3D& start,
-                                    const QVector3D& end,
-                                    float cell,
-                                    const QColor& color,
-                                    Qt3DCore::QEntity* parent)
+Qt3DCore::QEntity *createEntityBottomGrid(const QVector3D& start,
+                                          const QVector3D& end,
+                                          float cell,
+                                          const QColor& color,
+                                          Qt3DCore::QEntity* parent)
 {
     auto lineEntity = new Qt3DCore::QEntity(parent);
     QObject::connect(lineEntity, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityHGrid destroyed"; });
@@ -231,17 +230,20 @@ Qt3DCore::QEntity *createEntityBox(const QVector3D &min,
 }
 
 Qt3DCore::QEntity* createEntityText(Qt3DCore::QEntity* parent,
-                                    float height,
-                                    float width,
+                                    int size,
+                                    const QString& text,
                                     const QColor &color,
-                                    const QString& text)
+                                    const QString& family)
 {
     auto text2D = new Qt3DExtras::QText2DEntity(parent);
     QObject::connect(text2D, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityText destroyed"; });
 
-    text2D->setFont(QFont("monospace"));
-    text2D->setHeight(height);
-    text2D->setWidth(width);
+    QFont font;
+    font.setFamily(family);
+    font.setPointSize(size);
+    text2D->setFont(font);
+    text2D->setHeight(font.pointSize() * 4);
+    text2D->setWidth(text.length() * font.pointSize() * 2);
     text2D->setText(text);
     text2D->setColor(color);
 

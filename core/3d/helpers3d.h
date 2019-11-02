@@ -3,6 +3,7 @@
 
 #include <Qt3DCore/QEntity>
 #include <Qt3DRender/QGeometryRenderer>
+#include <QColor>
 #include <QVector3D>
 
 // https://forum.qt.io/topic/66808/qt3d-draw-grid-axis-lines
@@ -16,9 +17,10 @@ Qt3DCore::QEntity* createEntityLine(const QVector3D& start,
                                     Qt3DCore::QEntity* parent);
 
 /*!
- * \brief createEntityHGrid - нарисовать горизонтальную сетку из линий в рамках точек start и end
+ * \brief createEntityHGrid - нарисовать горизонтальную сетку из линий в рамках
+ * точек start и end с квадратным шагом cell
  */
-Qt3DCore::QEntity* createEntityHGrid(const QVector3D& start,
+Qt3DCore::QEntity* createEntityBottomGrid(const QVector3D& start,
                                      const QVector3D& end,
                                      float cell,
                                      const QColor& color,
@@ -33,10 +35,10 @@ Qt3DCore::QEntity* createEntityBox(const QVector3D& min,
                                    Qt3DCore::QEntity* parent);
 
 Qt3DCore::QEntity* createEntityText(Qt3DCore::QEntity* parent,
-                                    float height,
-                                    float width,
-                                    const QColor &color,
-                                    const QString& text = "");
+                                    int size,
+                                    const QString& text,
+                                    const QColor &color =Qt::white,
+                                    const QString &family = "monospace");
 
 void applyEntityName(Qt3DCore::QEntity* entity, const QString &prefix, const QString& name = "");
 
