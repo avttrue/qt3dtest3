@@ -17,14 +17,14 @@ Qt3DCore::QEntity* createEntityLine(const QVector3D& start,
                                     Qt3DCore::QEntity* parent);
 
 /*!
- * \brief createEntityHGrid - нарисовать горизонтальную сетку из линий в рамках
- * точек start и end с квадратным шагом cell
+ * \brief createEntityBottomGrid - нарисовать горизонтальную сетку из линий в рамках
+ * точек start и end с квадратным шагом cell на уровне start.y
  */
 Qt3DCore::QEntity* createEntityBottomGrid(const QVector3D& start,
-                                     const QVector3D& end,
-                                     float cell,
-                                     const QColor& color,
-                                     Qt3DCore::QEntity* parent);
+                                          const QVector3D& end,
+                                          float cell,
+                                          const QColor& color,
+                                          Qt3DCore::QEntity* parent);
 
 /*!
  * \brief addEntityBox - нарисовать каркас из линий в рамках самых удалённых точек min и max

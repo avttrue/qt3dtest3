@@ -80,7 +80,7 @@ Qt3DCore::QEntity *createEntityBottomGrid(const QVector3D& start,
     QObject::connect(lineEntity, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityHGrid destroyed"; });
 
     auto width = static_cast<unsigned int>(abs(end.x() - start.x()) / cell);
-    unsigned int depth = static_cast<unsigned int>(abs(end.z() - start.z()) / cell);
+    auto depth = static_cast<unsigned int>(abs(end.z() - start.z()) / cell);
     if(width <= 0 || depth <= 0)
     {
         qDebug() << parent->objectName() << ": EntityHGrid created EMPTY";
