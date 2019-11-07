@@ -68,25 +68,25 @@ void MainWindow::createGUI()
 
     // управление
     // новая сцена
-    auto btnNewScene = new ControlButton(QIcon(":/res/icons/matrix.svg"), tr("Новая сцена"), this);
+    auto btnNewScene = new ControlButton(QIcon(":/res/icons/matrix.svg"), tr("New scene"), this);
     QObject::connect(btnNewScene, &QPushButton::clicked, this, &MainWindow::slotCreateScene);
     addControlWidget(btnNewScene);
 
     // отображение контуров
-    cbShowSceneBoxes = new QCheckBox(tr("Отображать сл.объекты"), this);
+    cbShowSceneBoxes = new QCheckBox(tr("Show grid, lights, etc."), this);
     cbShowSceneBoxes->setChecked(config->DrawSceneBoxes());
     cbShowSceneBoxes->setEnabled(false);
     QObject::connect(cbShowSceneBoxes, &QCheckBox::stateChanged, [=](int value){ config->setDrawSceneBoxes(value); });
     addControlWidget(cbShowSceneBoxes);
 
     // новый свет
-    auto btnNewLight = new ControlButton(QIcon(":/res/icons/lamp.svg"), tr("Новый свет"), this);
+    auto btnNewLight = new ControlButton(QIcon(":/res/icons/lamp.svg"), tr("Add light"), this);
     QObject::connect(btnNewLight, &QPushButton::clicked, this, &MainWindow::slotCreatePointLight);
     btnNewLight->setDisabled(true);
     addControlWidget(btnNewLight);
 
     // удалить объект
-    btnDelEntity = new ControlButton(QIcon(":/res/icons/delete.svg"), tr("Удалить объект"), this);
+    btnDelEntity = new ControlButton(QIcon(":/res/icons/delete.svg"), tr("delete"), this);
     btnDelEntity->setDisabled(true);
     btnDelEntity->setShortcut(Qt::Key_Delete);
     btnDelEntity->setToolTip("Del");
@@ -94,7 +94,7 @@ void MainWindow::createGUI()
     addControlWidget(btnDelEntity);
 
     // тест
-    auto btnTest = new ControlButton(tr("   тест"), this);
+    auto btnTest = new ControlButton(tr("   test entities"), this);
     QObject::connect(btnTest, &QPushButton::clicked, [=]() { sceneView->createSpheresTest(); viewContainer->setFocus(); });
     addControlWidget(btnTest);
 
@@ -125,7 +125,7 @@ void MainWindow::addControlWidget(QWidget *widget)
 
 void MainWindow::slotWriteSceneStat()
 {
-    labelSceneStat->setText(tr("<b>Свет:</b>%1 | <b>Сущности:</b>%2").
+    labelSceneStat->setText(tr("<b>Lights:</b>%1 | <b>Entities:</b>%2").
                             arg(QString::number(sceneView->getScene()->Lights().count()),
                                 QString::number(sceneView->getScene()->Objects().count())));
 }
@@ -137,7 +137,7 @@ void MainWindow::slotViewSceneChanged(Scene *scene)
     QObject::connect(scene, &Scene::signalLightsCountChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene, &Scene::signalObjectsCountChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene->FRC(), &FrameRateCalculator::signalFramesPerSecondChanged, [=](auto value)
-                     { labelSceneFPS->setText(tr("<b>К/С:</b>%1 | ").arg(QString::number(value, 'f', 1))); });
+                     { labelSceneFPS->setText(tr("<b>FPS:</b>%1 | ").arg(QString::number(value, 'f', 1))); });
     QObject::connect(scene, &Scene::signalSelectedEntityChanged, [=](SceneEntity* se) { btnDelEntity->setEnabled(se); });
     QObject::connect(config, &Config::signalDrawSceneBoxes, scene, &Scene::slotShowBoxes);
 }
@@ -145,11 +145,11 @@ void MainWindow::slotViewSceneChanged(Scene *scene)
 void MainWindow::slotCreateScene()
 {
     const QVector<QString> keys =
-        {tr("1. Название"),
-         tr("2. Сцена: размер клетки"),
-         tr("3. Сцена: ширина (в клетках)"),
-         tr("4. Сцена: высота (в клетках)"),
-         tr("5. Сцена: глубина (в клетках)")
+        {tr("1. Name (m.b. empty)"),
+         tr("2. Scene: cell size"),
+         tr("3. Scene: width (in cells)"),
+         tr("4. Scene: height (in cells)"),
+         tr("5. Scene: depth (in cells)")
         };
     QMap<QString, DialogValue> map =
         {{keys.at(0), {QVariant::String, ""}},
@@ -158,7 +158,7 @@ void MainWindow::slotCreateScene()
          {keys.at(3), {QVariant::Int, SCENE_HEIGHT, 10, std::numeric_limits<int>::max()}},
          {keys.at(4), {QVariant::Int, SCENE_DEPTH, 10, std::numeric_limits<int>::max()}}
         };
-    auto dvl = new DialogValuesList(":/res/icons/matrix.svg", tr("Новая сцена"), true, &map, this);
+    auto dvl = new DialogValuesList(":/res/icons/matrix.svg", tr("New scene"), true, &map, this);
 
     if(!dvl->exec()) return;
 
@@ -175,12 +175,12 @@ void MainWindow::slotCreateScene()
     auto s = sceneView->getScene();
 
         const QVector<QString> keys =
-            {tr("1. Название"),
-                tr("3. Положение: X (в клетках)"),
-                tr("4. Положение: Y (в клетках)"),
-                tr("5. Положение: Z (в клетках)"),
-                tr("6. Интенсивность (N/100)"),
-                tr("7. Цвет (#XXXXXX)"),
+            {tr("1. Name (m.b. empty)"),
+                tr("3. Position: X (in cells)"),
+                tr("4. Position: Y (in cells)"),
+                tr("5. Position: Z (in cells)"),
+                tr("6. Intensity (N/100)"),
+                tr("7. Color (#XXXXXX)"),
                 };
     QMap<QString, DialogValue> map =
         {{keys.at(0), {QVariant::String, ""}},
@@ -190,14 +190,14 @@ void MainWindow::slotCreateScene()
          {keys.at(4), {QVariant::Int, 50, 1, 100}},
          {keys.at(5), {QVariant::String, "#FFFFFF"}},
          };
-    auto dvl = new DialogValuesList(":/res/icons/lamp.svg", tr("Новый свет"), true, &map, this);
+    auto dvl = new DialogValuesList(":/res/icons/lamp.svg", tr("New light"), true, &map, this);
 
     if(!dvl->exec()) return;
 
     auto color = QColor(map.value(keys.at(5)).value.toString());
     if(!color.isValid())
     {
-        QMessageBox::critical(this, tr("Ошибка"), tr("Некорректно указан цвет: '%1'.").arg(map.value(keys.at(5)).value.toString()));
+        QMessageBox::critical(this, tr("Error"), tr("Wrong color: '%1'.").arg(map.value(keys.at(5)).value.toString()));
         return;
     }
 
@@ -229,7 +229,7 @@ void MainWindow::slotDeleteSelectedEntity()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, tr("Внимание"), tr("Закончить работу с '%1'?").arg(APP_NAME),
+    reply = QMessageBox::question(this, tr("Confirm"), tr("Close application '%1'?").arg(APP_NAME),
                                   QMessageBox::Yes | QMessageBox::No);
 
     if (reply == QMessageBox::No) { event->ignore(); return; }
