@@ -37,7 +37,7 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window,
     m_Camera = window->camera();
     m_Camera->lens()->setPerspectiveProjection(45.0f, static_cast<float>(window->width()) / window->height(), 0.1f, camera_farplane);
 
-    m_Camera->setUpVector(QVector3D(0, 1, 0));
+    m_Camera->setUpVector(QVector3D(0.0f, 1.0f, 0.0f));
     m_Camera->setPosition(QVector3D(w, h, d) - BOX_EXCESS);
     m_Camera->setViewCenter(QVector3D(0.0f, 0.0f, 0.0f));
 

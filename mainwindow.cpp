@@ -42,6 +42,7 @@ void MainWindow::createGUI()
     // View
     sceneView = new SceneView;
     viewContainer = QWidget::createWindowContainer(sceneView);
+    viewContainer->setFocusPolicy(Qt::StrongFocus);
 
     // Controls
     auto saControls = new QScrollArea();
@@ -115,8 +116,6 @@ void MainWindow::createGUI()
     QObject::connect(sceneView, &SceneView::signalSceneChanged, [=](Scene* scene){ btnNewLight->setEnabled(scene); });
     QObject::connect(sceneView, &SceneView::signalSceneChanged, this, &MainWindow::slotViewSceneChanged);
     QObject::connect(sceneView, &SceneView::signalSceneChanged, this, &MainWindow::slotWriteSceneStat);
-
-    viewContainer->setFocus();
 }
 
 void MainWindow::addControlWidget(QWidget *widget)
