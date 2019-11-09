@@ -247,14 +247,15 @@ void Scene::loadGeometry(const QString &path)
     }
 
     Qt3DRender::QMesh* mesh = new Qt3DRender::QMesh(this);
-    QObject::connect(mesh, &QObject::destroyed, [=](){ qDebug() << objectName() << ":Geometry destroyed"; });
+    mesh->setObjectName(name);
+    QObject::connect(mesh, &QObject::destroyed, [=](QObject* o){ qDebug() << objectName() << ": Geometry" << o->objectName() << "destroyed"; });
     auto func = [=](Qt3DRender::QMesh::Status s)
     {
         qDebug() << objectName() << "Geometry" << name << "loading status:" << s;
         if(s == Qt3DRender::QMesh::Status::Ready)
         {
-            m_Geometries.insert(name, mesh);
             QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
+            m_Geometries.insert(name, mesh);
             emit signalGeometryLoaded(name);
             emit signalGeometriesCountChanged(m_Geometries.count());
             qDebug() << objectName() << ": Geometry loaded" << name << "count" << m_Geometries.count();
