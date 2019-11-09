@@ -2,12 +2,11 @@
 
 #include <QUuid>
 #include <Qt3DRender/QGeometry>
+#include <Qt3DRender/QMesh>
 #include <Qt3DRender/QBuffer>
 #include <Qt3DRender/QAttribute>
-#include <Qt3DRender/QMesh>
 #include <Qt3DExtras/QDiffuseSpecularMaterial>
 #include <Qt3DExtras/QText2DEntity>
-#include <Qt3DCore/QTransform>
 
 Qt3DCore::QEntity *createEntityLine(const QVector3D& start,
                                     const QVector3D& end,
@@ -258,27 +257,34 @@ void applyEntityName(Qt3DCore::QEntity *entity, const QString& prefix, const QSt
     entity->setObjectName(newname);
 }
 
-void applyEntityGeometry(Qt3DCore::QEntity* e, Qt3DRender::QGeometryRenderer *gr)
+void applyEntityGeometry(Qt3DCore::QEntity* entity, Qt3DRender::QGeometryRenderer *gr)
 {
-    if(!e || !gr) { qCritical() << __func__ << ": Wrong parameters"; return; }
+    if(!entity || !gr) { qCritical() << __func__ << ": Wrong parameters"; return; }
 
     // searching old geometry and meshes
     QVector<Qt3DCore::QComponent*> vc;
-    for(Qt3DCore::QComponent* c: e->components())
+    for(Qt3DCore::QComponent* c: entity->components())
     {
         if(qobject_cast<Qt3DRender::QGeometryRenderer*>(c) || qobject_cast<Qt3DRender::QMesh*>(c))
             vc.append(c);
     }
 
     // apply new geometry
-    e->addComponent(gr);
+    entity->addComponent(gr);
 
     // delete old geometry and meshes
     for(Qt3DCore::QComponent* c: vc)
     {
         c->setEnabled(false);
-        e->removeComponent(c);
+        entity->removeComponent(c);
         c->deleteLater();
     }
-    qDebug() << e->objectName() << ": Geometry applied";
+    qDebug() << entity->objectName() << ": Geometry applied";
+}
+
+float getGeometryDiagonal(Qt3DRender::QGeometry* geometry)
+{
+    if(!geometry) { qCritical() << __func__ << ": Wrong parameter"; return 0.0f; }
+
+    return geometry->maxExtent().distanceToPoint(geometry->minExtent());
 }

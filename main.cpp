@@ -16,36 +16,12 @@ bool prepare()
         return false;
     }
 
-    // каталог ресурсов
-    if(!QDir().exists(config->PathAssetsDir()) && !QDir().mkpath(config->PathAssetsDir()))
-    {
-        qCritical() << "Directory not exist and cannot be created:" << config->PathAssetsDir();
-        return false;
-    }
+    // копируются дефолтные текстуры
+    if(!copyResources(DEF_TEXTURES, config->PathAssetsDir())) return false;
 
-    // копируются дефолтные ресурсы
-    if(QDir().exists(config->PathAssetsDir()))
-    {
-        QDir resdir(DEF_ASSETS);
-        QStringList filesList = resdir.entryList(QDir::Files);
-        for(QString f: filesList)
-        {
-            QFile file(resdir.path() + "/" + f);
-            QString newfilename = config->PathAssetsDir() + QDir::separator() + f;
+    // копируются дефолтные модели
+    if(!copyResources(DEF_MODELS, config->PathAssetsDir())) return false;
 
-            if(!QFile::exists(newfilename) && !file.copy(newfilename))
-            {
-                qCritical() << "Unable to write file" << newfilename << "from" << file.fileName();
-                return false;
-            }
-            else
-            {
-                QFileDevice::Permissions p = QFile(newfilename).permissions();
-                QFile::setPermissions(newfilename, p | QFileDevice::WriteOwner | QFileDevice::ReadOwner);
-                qDebug() << "Resource" << newfilename << "ready";
-            }
-        }
-    }
     return  true;
 }
 

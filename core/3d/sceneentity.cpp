@@ -4,6 +4,9 @@
 #include "helpers3d.h"
 
 #include <Qt3DRender/QObjectPicker>
+#include <Qt3DRender/QMesh>
+
+#include <QFile>
 
 SceneEntity::SceneEntity(Scene *parent,
                          Qt3DRender::QGeometryRenderer *geometry,
@@ -13,6 +16,7 @@ SceneEntity::SceneEntity(Scene *parent,
     m_Scene(parent),
     m_Geometry(geometry),
     m_Material(material),
+    m_Transform(transform),
     m_SelectionBox(nullptr)
 {
     if(!geometry || !material || !transform) { qCritical() << __func__ << ": SceneEntity init error"; return; }
@@ -52,14 +56,41 @@ void SceneEntity::createSelectionBox()
     m_SelectionBox = createEntityBox(min, max, QColor(COLOR_SELECT), this);
 }
 
-void SceneEntity::applyGeometry(Qt3DRender::QGeometryRenderer* geometry)
+void SceneEntity::applyGeometry(Qt3DRender::QGeometryRenderer* geometry, float size)
 {
-    if(!geometry) { qCritical()<< objectName() << "(" << __func__ << "): Geometry is empty"; }
+    if(!geometry) { qCritical() << objectName() << "(" << __func__ << "): Geometry is empty";  return; }
+
     applyEntityGeometry(this, geometry);
     m_Geometry = geometry;
-    QObject::connect(m_Geometry->geometry(), &Qt3DRender::QGeometry::maxExtentChanged, [=](){
-        if (m_SelectionBox) createSelectionBox();
-        QObject::disconnect(m_Geometry->geometry(), &Qt3DRender::QGeometry::maxExtentChanged, nullptr, nullptr); });
+
+    QObject::connect(m_Geometry->geometry(), &Qt3DRender::QGeometry::maxExtentChanged, [=]()
+                     {
+                         if(size > 0.0f)
+                         {
+                             auto diagonal = getGeometryDiagonal(m_Geometry->geometry());
+                             m_Transform->setScale(size * m_Transform->scale() / diagonal);
+                         }
+                         if (m_SelectionBox) createSelectionBox();
+                         QObject::disconnect(m_Geometry->geometry(), &Qt3DRender::QGeometry::maxExtentChanged, nullptr, nullptr);
+                     });
+}
+
+void SceneEntity::applyGeometry(const QString &path)
+{
+    if(!QFile::exists(path)){ qCritical() << objectName() << "(" << __func__ << "): Wrong path:" << path;  return; }
+
+    auto diagonal = getGeometryDiagonal(m_Geometry->geometry());
+    Qt3DRender::QMesh* mesh = new Qt3DRender::QMesh(this);
+    QObject::connect(mesh, &Qt3DRender::QMesh::statusChanged, [=](Qt3DRender::QMesh::Status s)
+                     {
+                         qDebug() << objectName() << "Mesh loading status:" << s;
+                         if(s == Qt3DRender::QMesh::Status::Ready)
+                         {
+                             applyGeometry(mesh, diagonal);
+                             QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
+                         }
+                     });
+    mesh->setSource(QUrl::fromLocalFile(path));
 }
 
 void SceneEntity::slotSelect(bool value)

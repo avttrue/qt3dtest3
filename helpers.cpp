@@ -5,6 +5,7 @@
 #include <QtMath>
 #include <sys/utsname.h>
 #include <QDebug>
+#include <QDir>
 
 QString getTextFromRes(const QString& path)
 {
@@ -92,3 +93,42 @@ QString fileToText(const QString& path)
     return text;
 }
 
+bool copyResources(const QString& outPath, const QString& inPath)
+{
+    // каталог ресурсов
+    if(!QDir().exists(inPath) && !QDir().mkpath(inPath))
+    {
+        qCritical() << "Directory not exist and cannot be created:" << inPath;
+        return false;
+    }
+
+    // копируются ресурсы
+    if(QDir().exists(inPath))
+    {
+        QDir resdir(outPath);
+        if(!QDir().exists(outPath))
+        {
+            qCritical() << "Path not exist:" << outPath;
+            return false;
+        }
+        QStringList filesList = resdir.entryList(QDir::Files);
+        for(QString f: filesList)
+        {
+            QFile file(resdir.path() + "/" + f);
+            QString newfilename = inPath + QDir::separator() + f;
+
+            if(!QFile::exists(newfilename) && !file.copy(newfilename))
+            {
+                qCritical() << "Unable to write file" << newfilename << "from" << file.fileName();
+                return false;
+            }
+            else
+            {
+                QFileDevice::Permissions p = QFile(newfilename).permissions();
+                QFile::setPermissions(newfilename, p | QFileDevice::WriteOwner | QFileDevice::ReadOwner);
+                qDebug() << "Resource" << newfilename << "ready";
+            }
+        }
+    }
+    return  true;
+}

@@ -2,7 +2,9 @@
 #define HELPERS_H
 
 #include <Qt3DCore/QEntity>
+#include <Qt3DCore/QTransform>
 #include <Qt3DRender/QGeometryRenderer>
+
 #include <QColor>
 #include <QVector3D>
 
@@ -42,6 +44,8 @@ Qt3DCore::QEntity* createEntityText(Qt3DCore::QEntity* parent,
 
 void applyEntityName(Qt3DCore::QEntity* entity, const QString &prefix, const QString& name = "");
 
-void applyEntityGeometry(Qt3DCore::QEntity* e, Qt3DRender::QGeometryRenderer *gr);
+void applyEntityGeometry(Qt3DCore::QEntity* entity, Qt3DRender::QGeometryRenderer *gr);
+
+float getGeometryDiagonal(Qt3DRender::QGeometry* geometry);
 
 #endif // HELPERS_H

@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>textures/default_sky_posz.png</file>
+        <file>textures/default_sky_posy.png</file>
+        <file>textures/default_sky_posx.png</file>
+        <file>textures/default_sky_negz.png</file>
+        <file>textures/default_sky_negy.png</file>
+        <file>textures/default_sky_negx.png</file>
+    </qresource>
+</RCC>

@@ -160,11 +160,7 @@ void Scene::slotEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity *entity
         // test
         if(qobject_cast<SceneObject*>(entity))
         {
-            auto cm = new Qt3DExtras::QCuboidMesh;
-            cm->setXExtent(20);
-            cm->setYExtent(20);
-            cm->setZExtent(40);
-            entity->applyGeometry(cm);
+            entity->applyGeometry(":/models/pyramid.obj");
         }
     }
 }

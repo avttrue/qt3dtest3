@@ -20,7 +20,8 @@ public:
                 Qt3DRender::QMaterial* material,
                 Qt3DCore::QTransform *transform);
     Qt3DCore::QEntity *SelectionBox() const;
-    void applyGeometry(Qt3DRender::QGeometryRenderer* geometry);
+    void applyGeometry(Qt3DRender::QGeometryRenderer* geometry, float size = 0.0f);
+    void applyGeometry(const QString& path);
     void Interactive(bool value);
 
 
@@ -39,6 +40,7 @@ private:
     Scene* m_Scene;
     Qt3DRender::QGeometryRenderer* m_Geometry;
     Qt3DRender::QMaterial* m_Material;
+    Qt3DCore::QTransform *m_Transform;
     Qt3DRender::QObjectPicker* m_Picker;
     Qt3DCore::QEntity* m_SelectionBox;
 };
