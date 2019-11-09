@@ -11,6 +11,9 @@
 #include <Qt3DExtras/QSphereMesh>
 #include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DRender/QPointLight>
+#include <Qt3DRender/QMesh>
+#include <QDir>
+#include <QFileInfo>
 #include <QText2DEntity>
 #include <cmath>
 
@@ -54,6 +57,8 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window,
     skytrfm->setScale3D(QVector3D(SCENE_WIDTH, SCENE_HEIGHT, SCENE_DEPTH));
     m_SkyBox->addComponent(skytrfm);
     */
+
+    loadGeometries();
 
     m_FrameAction = new Qt3DLogic::QFrameAction(this);
     QObject::connect(m_FrameAction, &Qt3DLogic::QFrameAction::triggered, this, &Scene::slotFrameActionTriggered);
@@ -125,6 +130,16 @@ SceneObject* Scene::addObject(Qt3DRender::QGeometryRenderer *geometry,
     return entity;
 }
 
+SceneObject *Scene::addObject(const QString &geometry,
+                              Qt3DRender::QMaterial *material,
+                              Qt3DCore::QTransform *transform,
+                              const QString &name)
+{
+    Qt3DRender::QGeometryRenderer* gr = m_Geometries.value(geometry);
+    if(!gr) { qCritical() << objectName() << "Geonetry not exist:" << geometry; return nullptr; }
+    return addObject(gr, material, transform, name);
+}
+
 bool Scene::delObject(const QString &name)
 {
     auto entity = m_Objects.take(name);
@@ -160,7 +175,7 @@ void Scene::slotEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity *entity
         // test
         if(qobject_cast<SceneObject*>(entity))
         {
-            entity->applyGeometry(":/models/pyramid.obj");
+            entity->applyGeometry("pyramid");
         }
     }
 }
@@ -215,6 +230,49 @@ void Scene::slotShowBoxes(bool value)
     createEntityBottomGrid(QVector3D(0.0, 0.0, 0.0), QVector3D(RealSize().x(), 0.0, RealSize().z()), m_CellSize, COLOR_SCENE_GREED, m_Box);
 }
 
+void Scene::loadGeometry(const QString &path)
+{
+    QFile file(path);
+    if(!file.exists()){ qCritical() << objectName() << "(" << __func__ << "): Wrong path:" << path;  return; }
+
+    QFileInfo fileinfo(file);
+    auto name = fileinfo.baseName();
+
+    auto geometry = m_Geometries.take(name);
+    if(geometry)
+    {
+        geometry->deleteLater();
+        emit signalGeometriesCountChanged(m_Geometries.count());
+        qDebug() << objectName() << ": Geometries count" << m_Geometries.count();
+    }
+
+    Qt3DRender::QMesh* mesh = new Qt3DRender::QMesh(this);
+    QObject::connect(mesh, &QObject::destroyed, [=](){ qDebug() << objectName() << ":Geometry destroyed"; });
+    auto func = [=](Qt3DRender::QMesh::Status s)
+    {
+        qDebug() << objectName() << "Geometry" << name << "loading status:" << s;
+        if(s == Qt3DRender::QMesh::Status::Ready)
+        {
+            m_Geometries.insert(name, mesh);
+            QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
+            emit signalGeometryLoaded(name);
+            emit signalGeometriesCountChanged(m_Geometries.count());
+            qDebug() << objectName() << ": Geometry loaded" << name << "count" << m_Geometries.count();
+        }
+    };
+    QObject::connect(mesh, &Qt3DRender::QMesh::statusChanged, func);
+    mesh->setSource(QUrl::fromLocalFile(path));
+}
+
+void Scene::loadGeometries()
+{
+    QDir resdir(config->PathAssetsDir());
+    if(!resdir.exists()) { qCritical() << "Path not exist:" << config->PathAssetsDir(); return; }
+
+    for(QString f: resdir.entryList({"*.obj"}, QDir::Files))
+        loadGeometry(config->PathAssetsDir() + QDir::separator() + f);
+}
+
 float Scene::CellSize() const { return m_CellSize; }
 QVector3D Scene::Size() const { return QVector3D(m_Width, m_Height, m_Depth); }
 QVector3D Scene::RealSize() const { return m_CellSize * QVector3D(m_Width, m_Height, m_Depth); }
@@ -222,3 +280,4 @@ FrameRateCalculator *Scene::FRC() const { return m_FRC; }
 SceneEntity *Scene::SelectedEntity() const { return m_SelectedEntity; }
 QHash<QString, SceneObject* > Scene::Objects() const { return m_Objects; }
 QHash<QString, Light* > Scene::Lights() const { return m_Lights; }
+QHash<QString, Qt3DRender::QGeometryRenderer *> Scene::Geometries() const { return m_Geometries; }

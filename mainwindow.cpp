@@ -125,9 +125,10 @@ void MainWindow::addControlWidget(QWidget *widget)
 
 void MainWindow::slotWriteSceneStat()
 {
-    labelSceneStat->setText(tr("<b>Lights:</b>%1 | <b>Entities:</b>%2").
+    labelSceneStat->setText(tr("<b>Lights:</b>%1 | <b>Entities:</b>%2 | <b>Geometries:</b>%3").
                             arg(QString::number(sceneView->getScene()->Lights().count()),
-                                QString::number(sceneView->getScene()->Objects().count())));
+                                QString::number(sceneView->getScene()->Objects().count()),
+                                QString::number(sceneView->getScene()->Geometries().count())));
 }
 
 void MainWindow::slotViewSceneChanged(Scene *scene)
@@ -136,6 +137,7 @@ void MainWindow::slotViewSceneChanged(Scene *scene)
 
     QObject::connect(scene, &Scene::signalLightsCountChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene, &Scene::signalObjectsCountChanged, this, &MainWindow::slotWriteSceneStat);
+    QObject::connect(scene, &Scene::signalGeometriesCountChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene->FRC(), &FrameRateCalculator::signalFramesPerSecondChanged, [=](auto value)
                      { labelSceneFPS->setText(tr("<b>FPS:</b>%1 | ").arg(QString::number(value, 'f', 1))); });
     QObject::connect(scene, &Scene::signalSelectedEntityChanged, [=](SceneEntity* se) { btnDelEntity->setEnabled(se); });

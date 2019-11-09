@@ -27,9 +27,9 @@ QString getSystemInfo()
     if (uname(&buf) == 0)
     {
         result.append(buf.sysname).append(" ").
-                append(buf.version).append(" ").
-                append(buf.release).append(" ").
-                append(buf.machine);
+            append(buf.version).append(" ").
+            append(buf.release).append(" ").
+            append(buf.machine);
         return result;
     }
     return "unknown";
@@ -44,9 +44,9 @@ QString readableByteCount(qint64 bytes, bool si)
     QString pre = si ? "kMGTPE" : "KMGTPE";
 
     return QString("%1%2%3B").
-            arg(bytes / qPow(unit, exp), 0, 'f', 1, '0').
-            arg(pre[exp - 1]).
-            arg(si ? "" : "i");
+        arg(bytes / qPow(unit, exp), 0, 'f', 1, '0').
+        arg(pre[exp - 1]).
+        arg(si ? "" : "i");
 }
 
 bool textToFile(const QString& text, const QString& path)
@@ -103,31 +103,28 @@ bool copyResources(const QString& outPath, const QString& inPath)
     }
 
     // копируются ресурсы
-    if(QDir().exists(inPath))
+    QDir resdir(outPath);
+    if(!resdir.exists())
     {
-        QDir resdir(outPath);
-        if(!QDir().exists(outPath))
+        qCritical() << "Path not exist:" << outPath;
+        return false;
+    }
+
+    for(QString f: resdir.entryList(QDir::Files))
+    {
+        QFile file(resdir.path() + "/" + f);
+        QString newfilename = inPath + QDir::separator() + f;
+
+        if(!QFile::exists(newfilename) && !file.copy(newfilename))
         {
-            qCritical() << "Path not exist:" << outPath;
+            qCritical() << "Unable to write file" << newfilename << "from" << file.fileName();
             return false;
         }
-        QStringList filesList = resdir.entryList(QDir::Files);
-        for(QString f: filesList)
+        else
         {
-            QFile file(resdir.path() + "/" + f);
-            QString newfilename = inPath + QDir::separator() + f;
-
-            if(!QFile::exists(newfilename) && !file.copy(newfilename))
-            {
-                qCritical() << "Unable to write file" << newfilename << "from" << file.fileName();
-                return false;
-            }
-            else
-            {
-                QFileDevice::Permissions p = QFile(newfilename).permissions();
-                QFile::setPermissions(newfilename, p | QFileDevice::WriteOwner | QFileDevice::ReadOwner);
-                qDebug() << "Resource" << newfilename << "ready";
-            }
+            QFileDevice::Permissions p = QFile(newfilename).permissions();
+            QFile::setPermissions(newfilename, p | QFileDevice::WriteOwner | QFileDevice::ReadOwner);
+            qDebug() << "Resource" << newfilename << "ready";
         }
     }
     return  true;

@@ -53,6 +53,7 @@ void SceneView::createSpheresTest()
                 mesh->setRings(32);
 
                 auto transform = new Qt3DCore::QTransform;
+                transform->setScale(m_Scene->CellSize());
                 transform->setTranslation(QVector3D(i*40.0f, j*40.0f, k*40.0f));
 
                 auto material = new Qt3DExtras::QPhongMaterial;
@@ -61,7 +62,7 @@ void SceneView::createSpheresTest()
                     QRandomGenerator::global()->bounded(0, 256),
                     QRandomGenerator::global()->bounded(0, 256)));
 
-                m_Scene->addObject(mesh, material, transform);
+                m_Scene->addObject("sphere", material, transform);
             }
     m_Scene->setEnabled(true);
 }

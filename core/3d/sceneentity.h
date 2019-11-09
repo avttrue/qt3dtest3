@@ -21,7 +21,7 @@ public:
                 Qt3DCore::QTransform *transform);
     Qt3DCore::QEntity *SelectionBox() const;
     void applyGeometry(Qt3DRender::QGeometryRenderer* geometry, float size = 0.0f);
-    void applyGeometry(const QString& path);
+    void applyGeometry(const QString& name);
     void Interactive(bool value);
 
 

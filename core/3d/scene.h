@@ -1,4 +1,4 @@
-#ifndef SCENE_H
+﻿#ifndef SCENE_H
 #define SCENE_H
 
 #include <Qt3DCore/QEntity>
@@ -31,20 +31,30 @@ public:
                            Qt3DRender::QMaterial *material,
                            Qt3DCore::QTransform *transform,
                            const QString &name = "");
+    SceneObject* addObject(const QString& geometry,
+                           Qt3DRender::QMaterial *material,
+                           Qt3DCore::QTransform *transform,
+                           const QString &name = "");
+
     bool delObject(const QString &name);
     bool delObject(SceneEntity *entity);
     QHash<QString, SceneObject* > Objects() const;
     QHash<QString, Light* > Lights() const;
+    QHash<QString, Qt3DRender::QGeometryRenderer *> Geometries() const;
     SceneEntity *SelectedEntity() const;
     FrameRateCalculator *FRC() const;
     float CellSize() const;
     QVector3D Size() const;
     QVector3D RealSize() const;
+    void loadGeometry(const QString& path);
+    void loadGeometries();
 
 Q_SIGNALS:
     void signalSelectedEntityChanged(SceneEntity* entity);
     void signalObjectsCountChanged(int count);
     void signalLightsCountChanged(int count);
+    void signalGeometriesCountChanged(int count);
+    void signalGeometryLoaded(const QString& name);
 
 public Q_SLOTS:
     void slotEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity* entity);
@@ -63,6 +73,7 @@ private:
     Qt3DCore::QEntity* m_Box;
     QHash <QString, Light*> m_Lights;
     QHash <QString, SceneObject*> m_Objects;
+    QHash <QString, Qt3DRender::QGeometryRenderer*> m_Geometries;
     float m_CellSize;
     float m_Height;
     float m_Width;

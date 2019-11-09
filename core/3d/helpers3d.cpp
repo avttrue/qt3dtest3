@@ -266,7 +266,7 @@ void applyEntityGeometry(Qt3DCore::QEntity* entity, Qt3DRender::QGeometryRendere
     for(Qt3DCore::QComponent* c: entity->components())
     {
         if(qobject_cast<Qt3DRender::QGeometryRenderer*>(c) || qobject_cast<Qt3DRender::QMesh*>(c))
-            vc.append(c);
+            if(c->parent() == entity) vc.append(c);
     }
 
     // apply new geometry
