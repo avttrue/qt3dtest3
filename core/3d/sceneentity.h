@@ -24,7 +24,6 @@ public:
     void applyGeometry(const QString& name);
     void Interactive(bool value);
 
-
 Q_SIGNALS:
     void signalClicked(Qt3DRender::QPickEvent *event, SceneEntity* entity);
 
