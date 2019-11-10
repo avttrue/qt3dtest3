@@ -24,6 +24,7 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window,
     Qt3DCore::QEntity(nullptr),
     m_SelectedEntity(nullptr),
     m_Box(nullptr),
+    m_LightMesh(new Qt3DExtras::QSphereMesh(this)),
     m_CellSize(cell),
     m_Height(height),
     m_Width(width),
@@ -35,6 +36,10 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window,
     auto w = cell * width; auto h = cell * height; auto d = cell * depth;
 
     m_FRC = new FrameRateCalculator(FRAME_RATE_COUNT_CALC, this);
+
+    m_LightMesh->setRadius(m_CellSize / 2);
+    m_LightMesh->setSlices(64);
+    m_LightMesh->setRings(64);
 
     auto camera_farplane = static_cast<float>(sqrt(pow(static_cast<double>(w), 2) + pow(static_cast<double>(h), 2)+ pow(static_cast<double>(d), 2)));
     m_Camera = window->camera();
@@ -71,16 +76,13 @@ void Scene::addLight(Qt3DCore::QTransform *transform,
                      Qt3DRender::QAbstractLight *light,
                      const QString &name)
 {
-    auto mesh = new Qt3DExtras::QSphereMesh;
-    mesh->setRadius(m_CellSize / 2);
-    mesh->setSlices(20);
-    mesh->setRings(20);
 
     auto material = new Qt3DExtras::QPhongMaterial;
     material->setAmbient(light->color());
+    material->setDiffuse(light->color());
     material->setShininess(light->intensity());
 
-    auto l = new Light(this,mesh, material, transform, light);
+    auto l = new Light(this, m_LightMesh, material, transform, light);
     applyEntityName(l, "light", name);
     l->slotShowGeometry(config->DrawSceneBoxes());
 

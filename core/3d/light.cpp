@@ -5,7 +5,8 @@
 
 Light::Light(Scene *parent,
              Qt3DRender::QGeometryRenderer *geometry,
-             Qt3DRender::QMaterial *material, Qt3DCore::QTransform *transform,
+             Qt3DRender::QMaterial *material,
+             Qt3DCore::QTransform *transform,
              Qt3DRender::QAbstractLight *light)
     :SceneEntity(parent, geometry, material, transform),
     m_Light(light)

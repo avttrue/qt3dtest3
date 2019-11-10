@@ -61,6 +61,7 @@ void SceneView::createSpheresTest()
                     QRandomGenerator::global()->bounded(0, 256),
                     QRandomGenerator::global()->bounded(0, 256),
                     QRandomGenerator::global()->bounded(0, 256)));
+                material->setDiffuse(material->ambient());
 
                 m_Scene->addObject("sphere", material, transform);
             }
