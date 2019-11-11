@@ -163,20 +163,16 @@ void Scene::slotEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity *entity
 {
     if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Entity is empty"; return; }
 
-    if(event->button() == Qt3DRender::QPickEvent::Buttons::LeftButton)
-    {
+    if(event->button() == Qt3DRender::QPickEvent::Buttons::LeftButton) {
         SelectEntity(entity);
     }
-    else if(event->button() == Qt3DRender::QPickEvent::Buttons::MiddleButton)
-    {
+    else if(event->button() == Qt3DRender::QPickEvent::Buttons::MiddleButton) {
         qDebug() << "Mouse button: MiddleButton";
     }
-    else if(event->button() == Qt3DRender::QPickEvent::Buttons::RightButton)
-    {
+    else if(event->button() == Qt3DRender::QPickEvent::Buttons::RightButton) {
         qDebug() << "Mouse button: RightButton";
         // test
-        if(qobject_cast<SceneObject*>(entity))
-        {
+        if(qobject_cast<SceneObject*>(entity)) {
             entity->applyGeometry("pyramid");
         }
     }
@@ -253,14 +249,21 @@ void Scene::loadGeometry(const QString &path)
     QObject::connect(mesh, &QObject::destroyed, [=](QObject* o){ qDebug() << objectName() << ": Geometry" << o->objectName() << "destroyed"; });
     auto func = [=](Qt3DRender::QMesh::Status s)
     {
-        qDebug() << objectName() << "Geometry" << name << "loading status:" << s;
         if(s == Qt3DRender::QMesh::Status::Ready)
         {
             QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
             m_Geometries.insert(name, mesh);
-            emit signalGeometryLoaded(name);
-            emit signalGeometriesCountChanged(m_Geometries.count());
             qDebug() << objectName() << ": Geometry loaded" << name << "count" << m_Geometries.count();
+            emit signalGeometryLoaded(name);
+            emit signalGeometriesCountChanged(m_Geometries.count());  
+        }
+        else if(s == Qt3DRender::QMesh::Status::Error)
+        {
+            qDebug() << objectName() << "Error at geometry loading" << name;
+        }
+        else
+        {
+            qDebug() << objectName() << "Geometry" << name << "loading status:" << s;
         }
     };
     QObject::connect(mesh, &Qt3DRender::QMesh::statusChanged, func);
@@ -272,8 +275,22 @@ void Scene::loadGeometries()
     QDir resdir(config->PathAssetsDir());
     if(!resdir.exists()) { qCritical() << "Path not exist:" << config->PathAssetsDir(); return; }
 
-    for(QString f: resdir.entryList({"*.obj"}, QDir::Files))
-        loadGeometry(config->PathAssetsDir() + QDir::separator() + f);
+    auto fileList = resdir.entryList({"*.obj"}, QDir::Files);
+    if(fileList.count() <= 0) return;
+
+    auto func = [=]()
+    {
+        if(m_Geometries.count() == fileList.count())
+        {
+            QObject::disconnect(this, &Scene::signalGeometryLoaded, nullptr, nullptr);
+            qDebug() << objectName() << "All geometries loaded";
+            // TODO: do next
+        }
+    };
+    QObject::connect(this, &Scene::signalGeometryLoaded, func);
+
+    for(QString f: fileList)
+        loadGeometry(config->PathAssetsDir() + QDir::separator() + f);    
 }
 
 float Scene::CellSize() const { return m_CellSize; }
