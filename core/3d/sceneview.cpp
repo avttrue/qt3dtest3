@@ -38,6 +38,14 @@ void SceneView::keyPressEvent(QKeyEvent *e)
     qDebug() << "Button:" << e->key();
 }
 
+void SceneView::resizeEvent(QResizeEvent *e)
+{
+    if(!getScene()) return;
+
+    auto camera_aspect = static_cast<float>(e->size().width()) / e->size().height();
+    camera()->lens()->setPerspectiveProjection(45.0f, camera_aspect, 0.1f, getScene()->CameraFarPlane());
+}
+
 void SceneView::createSpheresTest()
 {
     if(!m_Scene) {qWarning() << "Scene is absent"; return; }

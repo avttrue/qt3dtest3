@@ -41,9 +41,12 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window,
     m_LightMesh->setSlices(64);
     m_LightMesh->setRings(64);
 
-    auto camera_farplane = static_cast<float>(sqrt(pow(static_cast<double>(w), 2) + pow(static_cast<double>(h), 2)+ pow(static_cast<double>(d), 2)));
     m_Camera = window->camera();
-    m_Camera->lens()->setPerspectiveProjection(45.0f, static_cast<float>(window->width()) / window->height(), 0.1f, camera_farplane);
+    m_CameraFarPlane = static_cast<float>(sqrt(pow(static_cast<double>(w), 2) +
+                                                   pow(static_cast<double>(h), 2)+
+                                                   pow(static_cast<double>(d), 2)));
+    auto camera_aspect = static_cast<float>(window->width()) / window->height();
+    m_Camera->lens()->setPerspectiveProjection(45.0f, camera_aspect, 0.1f, m_CameraFarPlane);
 
     m_Camera->setUpVector(QVector3D(0.0f, 1.0f, 0.0f));
     m_Camera->setPosition(QVector3D(w, h, d) - BOX_EXCESS);
@@ -228,7 +231,7 @@ void Scene::slotShowBoxes(bool value)
     createEntityBottomGrid(QVector3D(0.0, 0.0, 0.0), QVector3D(RealSize().x(), 0.0, RealSize().z()), m_CellSize, COLOR_SCENE_GREED, m_Box);
 }
 
-void Scene::loadGeometry(const QString &path)
+void Scene::slotLoadGeometry(const QString &path)
 {
     QFile file(path);
     if(!file.exists()){ qCritical() << objectName() << "(" << __func__ << "): Wrong path:" << path;  return; }
@@ -259,6 +262,7 @@ void Scene::loadGeometry(const QString &path)
         }
         else if(s == Qt3DRender::QMesh::Status::Error)
         {
+            QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
             qDebug() << objectName() << "Error at geometry loading" << name;
         }
         else
@@ -290,7 +294,12 @@ void Scene::loadGeometries()
     QObject::connect(this, &Scene::signalGeometryLoaded, func);
 
     for(QString f: fileList)
-        loadGeometry(config->PathAssetsDir() + QDir::separator() + f);    
+        slotLoadGeometry(config->PathAssetsDir() + QDir::separator() + f);
+}
+
+float Scene::CameraFarPlane() const
+{
+    return m_CameraFarPlane;
 }
 
 float Scene::CellSize() const { return m_CellSize; }
