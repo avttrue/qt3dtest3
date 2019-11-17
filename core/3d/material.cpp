@@ -42,8 +42,7 @@ void Material::loadCFG(const QString &cfg_path)
 
     if(!fi.exists() || !fi.isFile()) { qCritical() << __func__ << ": Wrong path" << cfg_path; return; }
 
-    auto cfgdir = fi.path();
-    auto assetsdir = cfgdir + QDir::separator();
+    auto assetsdir = fi.path() + QDir::separator();
     auto cfg = new QSettings(cfg_path, QSettings::IniFormat);
 
     setObjectName(cfg->value("Name", "material").toString());
