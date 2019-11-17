@@ -5,16 +5,17 @@
 #include <Qt3DRender/QTexture>
 
 const QString AMBIENT_COLOR = "#FFFFFF";
-const QString SPECULAR_COLOR = "#DCDCDC";
-const float SHININESS = 0.9f;
+const float SHININESS = 150.0f;
 const float TEXTURE_SCALE = 1.0f;
+
+class Scene;
 
 class Material : public Qt3DExtras::QDiffuseSpecularMaterial
 {
     Q_OBJECT
 
 public:
-    Material(QNode *parent = nullptr);
+    Material(Scene *parent);
     void load(const QString& cfg_path);
 
 protected:

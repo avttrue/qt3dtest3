@@ -1,7 +1,7 @@
 AmbientColor=#FFFFFF
-Shininess=0.9
+Shininess=150.0
 TextureScale=1.0
-SpecularColor=#DCDCDC
+SpecularColor=#FFFFFF
 SpecularMap=
 DiffuseMap=cube5.png
 NormalMap=

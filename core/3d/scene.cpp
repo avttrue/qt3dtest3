@@ -123,7 +123,6 @@ SceneObject* Scene::addObject(Qt3DRender::QGeometryRenderer *geometry,
                               Qt3DCore::QTransform *transform,
                               const QString &name)
 {
-
     auto entity = new SceneObject(this, geometry, material, transform);
     applyEntityName(entity, "object", name);
 
@@ -289,7 +288,7 @@ void Scene::loadGeometries()
     QDir resdir(config->PathAssetsDir());
     if(!resdir.exists()) { qCritical() << "Path not exist:" << config->PathAssetsDir(); return; }
 
-    auto fileList = resdir.entryList({"*.obj"}, QDir::Files);
+    auto fileList = resdir.entryList({GEOMETRY_EXTENSION}, QDir::Files);
     if(fileList.count() <= 0) return;
 
     auto func = [=]()
@@ -331,7 +330,7 @@ void Scene::loadMaterials()
     QDir resdir(config->PathAssetsDir());
     if(!resdir.exists()) { qCritical() << "Path not exist:" << config->PathAssetsDir(); return; }
 
-    auto fileList = resdir.entryList({"*.material"}, QDir::Files);
+    auto fileList = resdir.entryList({MATERIAL_EXTENSION}, QDir::Files);
     if(fileList.count() <= 0) return;
 
     auto func = [=]()

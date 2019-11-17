@@ -1,10 +1,12 @@
 #include "material.h"
+#include "properties.h"
+#include "scene.h"
 
 #include <QDir>
 #include <QFileInfo>
 #include <QSettings>
 
-Material::Material(QNode *parent) :
+Material::Material(Scene *parent) :
     Qt3DExtras::QDiffuseSpecularMaterial(parent)
 {
     setAmbient(QColor(AMBIENT_COLOR));
@@ -25,7 +27,7 @@ Qt3DRender::QTexture2D* Material::setTexture(const QString &path)
     else
     {
         qCritical() << __func__ << ": Wrong texture path" << path;
-        textureImage->setSource(QUrl::fromLocalFile(":/models/default_texture.png"));
+        textureImage->setSource(QUrl::fromLocalFile(DEFAULT_TEXTURE));
     }
 
     textureImage->setMirrored(false);
@@ -41,6 +43,7 @@ void Material::load(const QString &cfg_path)
     if(!fi.exists() || !fi.isFile()) { qCritical() << __func__ << ": Wrong path" << cfg_path; return; }
 
     auto cfgdir = fi.path();
+    auto assetsdir = cfgdir + QDir::separator();
     auto cfg = new QSettings(cfg_path, QSettings::IniFormat);
 
     setObjectName(cfg->value("Name", "material").toString());
@@ -52,20 +55,19 @@ void Material::load(const QString &cfg_path)
     setShininess(cfg->value("Shininess", SHININESS).toFloat());
     setShininess(cfg->value("TextureScale", TEXTURE_SCALE).toFloat());
 
-    auto diffuse = cfgdir + QDir::separator() + cfg->value("DiffuseMap", "default_texture.png").toString();
-    setDiffuse(QVariant::fromValue<Qt3DRender::QAbstractTexture*>(setTexture(diffuse)));
+    auto diffuse = cfg->value("DiffuseMap", "").toString();
+    setDiffuse(QVariant::fromValue<Qt3DRender::QAbstractTexture*>(setTexture(assetsdir + diffuse)));
 
     auto specular = cfg->value("SpecularMap", "").toString();
     if(!specular.isEmpty())
-        setSpecular(QVariant::fromValue<Qt3DRender::QAbstractTexture*>(setTexture(cfgdir + QDir::separator() + specular)));
+        setSpecular(QVariant::fromValue<Qt3DRender::QAbstractTexture*>(setTexture(assetsdir + specular)));
     else
     {
-        auto specularColor = QColor(cfg->value("SpecularColor", SPECULAR_COLOR).toString());
-        if(!specularColor.isValid()) specularColor = QColor(SPECULAR_COLOR);
-        setSpecular(QVariant::fromValue<QColor>(specularColor));
+        auto specularColor = QColor(cfg->value("SpecularColor", QColor::Invalid).toString());
+        if(specularColor.isValid()) setSpecular(QVariant::fromValue<QColor>(specularColor));
     }
 
     auto normal = cfg->value("NormalMap", "").toString();
     if(!normal.isEmpty())
-        setNormal(QVariant::fromValue<Qt3DRender::QAbstractTexture*>(setTexture(cfgdir + QDir::separator() + normal)));
+        setNormal(QVariant::fromValue<Qt3DRender::QAbstractTexture*>(setTexture(assetsdir + normal)));
 }

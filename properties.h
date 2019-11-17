@@ -20,11 +20,15 @@ const QString DT_FORMAT = "hh:mm:ss.zzz";
 const QString TEXT_CODEC = "UTF-8";
 const QString DEF_TEXTURES = ":/textures";
 const QString DEF_MODELS = ":/models";
+const QString MATERIAL_EXTENSION = "*.material";
+const QString GEOMETRY_EXTENSION = "*.obj";
+const QString DEFAULT_TEXTURE = ":/models/default_texture.png";
 const QString COLOR_SELECT = "#1047C7";     // синий
 const QString COLOR_SCENE_BOX = "#000000";  // чёрный
 const QString COLOR_SCENE_BG = "#DCDCDC";   // светлосерый
 const QString COLOR_SCENE_GREED = "#FFFAFA";// тёмнобелый
-const QVector3D BOX_EXCESS = QVector3D(0.1f, 0.1f, 0.1f);
+const QVector3D BOX_EXCESS = QVector3D(0.01f, 0.01f, 0.01f);
+
 
 const auto DIALOG_SIZE = QSize(400, 400);
 const auto SCENE_DRAW_BOXES = false;
