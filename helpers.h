@@ -34,7 +34,7 @@ QString fileToText(const QString& path);
 /*!
  * \brief copyResources - скопировать файлы из outPath (qrc) в inPath
  */
-bool copyResources(const QString& outPath, const QString& inPath);
+bool copyResources(const QString& outPath, const QString& inPath, bool rewrite = false);
 
 /*!
  * \brief numDigits - получить количество знаков в числе.

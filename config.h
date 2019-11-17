@@ -44,6 +44,8 @@ public:
     void setMoveSpeed(int inMoveSpeed);
     int RotationSpeed() const;
     void setRotationSpeed(int inRotationSpeed);
+    bool RewriteResources() const;
+    void setRewriteResources(bool inRewriteResources);
 
 protected:
     void load();
@@ -56,6 +58,7 @@ private:
     QString pathAppLogDir;              // путь до логов приложения
     QString pathAssetsDir;              // путь до ресурсов
 
+    bool m_RewriteResources;            // переписывать при копировании файлы ресурсов
     bool m_DrawSceneBoxes;              // отображать контуры сцены и служебных объектов
     int m_SplashTime;                   // время отображения сплеш-заставки
     int m_ButtonAcceleration;           // кнопка ускорения перемещения

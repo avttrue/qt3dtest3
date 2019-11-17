@@ -228,6 +228,7 @@ Qt3DCore::QEntity *createEntityBox(const QVector3D &min,
     return lineEntity;
 }
 
+// TODO: createEntityText не работает
 Qt3DCore::QEntity* createEntityText(Qt3DCore::QEntity* parent,
                                     int size,
                                     const QString& text,

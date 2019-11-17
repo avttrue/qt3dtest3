@@ -23,7 +23,10 @@ class Scene : public Qt3DCore::QEntity
     Q_OBJECT
 
 public:
-    Scene(Qt3DExtras::Qt3DWindow* window, float cell, float width, float height, float depth, const QString &name = "");
+    Scene(Qt3DExtras::Qt3DWindow* window,
+          float cell,
+          float width, float height, float depth,
+          const QString &name = "");
     void addLight(Qt3DCore::QTransform *transform,
                   Qt3DRender::QAbstractLight* light,
                   const QString &name = "");

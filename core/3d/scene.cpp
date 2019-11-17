@@ -298,7 +298,7 @@ void Scene::loadGeometries()
             // TODO: do next
         }
     };
-    QObject::connect(this, &Scene::signalGeometryLoaded, func);
+    QObject::connect(this, &Scene::signalGeometryLoaded, this, func, Qt::DirectConnection);
 
     for(QString f: fileList)
         loadGeometry(config->PathAssetsDir() + QDir::separator() + f);
@@ -340,7 +340,7 @@ void Scene::loadMaterials()
             // TODO: do next
         }
     };
-    QObject::connect(this, &Scene::signalMaterialLoaded, func);
+    QObject::connect(this, &Scene::signalMaterialLoaded, this, func, Qt::DirectConnection);
 
     for(QString f: fileList)
         loadMaterial(config->PathAssetsDir() + QDir::separator() + f);

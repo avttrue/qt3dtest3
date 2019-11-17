@@ -17,10 +17,10 @@ bool prepare()
     }
 
     // копируются дефолтные текстуры
-    if(!copyResources(DEF_TEXTURES, config->PathAssetsDir())) return false;
+    if(!copyResources(DEF_TEXTURES, config->PathAssetsDir(), config->RewriteResources())) return false;
 
     // копируются дефолтные модели
-    if(!copyResources(DEF_MODELS, config->PathAssetsDir())) return false;
+    if(!copyResources(DEF_MODELS, config->PathAssetsDir(), config->RewriteResources())) return false;
 
     return  true;
 }

@@ -41,6 +41,10 @@ void Config::load()
         m_Settings->setValue("DateTimeFormat", DT_FORMAT);
     m_DateTimeFormat = m_Settings->value("DateTimeFormat").toString();
 
+    if(!m_Settings->contains("Resources/RewriteResources"))
+        m_Settings->setValue("Resources/RewriteResources", REWRITE_RESOURCES);
+    m_RewriteResources = m_Settings->value("Resources/RewriteResources").toBool();
+
     if(!m_Settings->contains("Keyboard/ButtonAcceleration"))
         m_Settings->setValue("Keyboard/ButtonAcceleration", BUTTON_ACCELERATION);
     m_ButtonAcceleration = m_Settings->value("Keyboard/ButtonAcceleration").toInt();
@@ -74,6 +78,9 @@ void Config::setDefaults()
     m_Settings->setValue("DateTimeFormat", DT_FORMAT);
     m_DateTimeFormat = DT_FORMAT;
 
+    m_Settings->setValue("Resources/RewriteResources", REWRITE_RESOURCES);
+    m_RewriteResources = m_Settings->value("Resources/RewriteResources").toBool();
+
     m_Settings->setValue("Keyboard/ButtonAcceleration", BUTTON_ACCELERATION);
     m_ButtonAcceleration = m_Settings->value("Keyboard/ButtonAcceleration").toInt();
 
@@ -91,6 +98,14 @@ void Config::setDefaults()
 
     m_Settings->setValue("Scene/DrawBoxes", SCENE_DRAW_BOXES);
     m_DrawSceneBoxes = SCENE_DRAW_BOXES;
+}
+
+void Config::setRewriteResources(bool inRewriteResources)
+{
+    if (m_RewriteResources == inRewriteResources) return;
+    m_RewriteResources = inRewriteResources;
+    m_Settings->setValue("Resources/RewriteResources", m_RewriteResources);
+    emit signalConfigChanged();
 }
 
 void Config::setRotationSpeed(int inRotationSpeed)
@@ -155,6 +170,7 @@ void Config::setDrawSceneBoxes(bool inDrawSceneBoxes)
     emit signalDrawSceneBoxes(m_DrawSceneBoxes);
 }
 
+bool Config::RewriteResources() const { return m_RewriteResources; }
 bool Config::DrawSceneBoxes() const { return m_DrawSceneBoxes; }
 int Config::SplashTime() const { return m_SplashTime; }
 int Config::ButtonAcceleration() const { return m_ButtonAcceleration; }

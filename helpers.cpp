@@ -93,7 +93,7 @@ QString fileToText(const QString& path)
     return text;
 }
 
-bool copyResources(const QString& outPath, const QString& inPath)
+bool copyResources(const QString& outPath, const QString& inPath, bool rewrite)
 {
     // каталог ресурсов
     if(!QDir().exists(inPath) && !QDir().mkpath(inPath))
@@ -103,17 +103,23 @@ bool copyResources(const QString& outPath, const QString& inPath)
     }
 
     // копируются ресурсы
-    QDir resdir(outPath);
-    if(!resdir.exists())
+    QDir outdir(outPath);
+    if(!outdir.exists())
     {
         qCritical() << "Path not exist:" << outPath;
         return false;
     }
 
-    for(QString f: resdir.entryList(QDir::Files))
+    for(QString f: outdir.entryList(QDir::Files))
     {
-        QFile file(resdir.path() + "/" + f);
+        QFile file(outdir.path() + "/" + f);
         QString newfilename = inPath + QDir::separator() + f;
+
+        if(rewrite && QFile::exists(newfilename))
+        {
+            if(!QFile::remove(newfilename)) qCritical() << "Unable to remove file" << newfilename;
+            //else qDebug() << "File removed" << newfilename;
+        }
 
         if(!QFile::exists(newfilename) && !file.copy(newfilename))
         {

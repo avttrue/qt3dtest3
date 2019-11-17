@@ -32,6 +32,7 @@ const QVector3D BOX_EXCESS = QVector3D(0.01f, 0.01f, 0.01f);
 
 const auto DIALOG_SIZE = QSize(400, 400);
 const auto SCENE_DRAW_BOXES = false;
+const auto REWRITE_RESOURCES = false;
 const auto FRAME_RATE_COUNT_CALC = 50;
 const auto WINDOW_HEIGHT = 700;
 const auto WINDOW_WIDTH = 900;
