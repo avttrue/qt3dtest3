@@ -95,7 +95,7 @@ void MainWindow::createGUI()
 
     // тест
     auto btnTest = new ControlButton(tr("   test entities"), this);
-    QObject::connect(btnTest, &QPushButton::clicked, [=]() { sceneView->createSpheresTest(); viewContainer->setFocus(); });
+    QObject::connect(btnTest, &QPushButton::clicked, [=]() { sceneView->test(); viewContainer->setFocus(); });
     addControlWidget(btnTest);
 
     // статусбар

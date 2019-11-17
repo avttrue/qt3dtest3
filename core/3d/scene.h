@@ -64,13 +64,14 @@ public Q_SLOTS:
     void slotEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity* entity);
     void slotFrameActionTriggered(float dt);
     void slotShowBoxes(bool value);
-    void slotLoadGeometry(const QString& path);
-    void slotLoadMaterial(const QString& path);
+
 
 protected:
     void SelectEntity(SceneEntity* entity);
     void loadGeometries();
     void loadMaterials();
+    void loadGeometry(const QString& path);
+    void loadMaterial(const QString& path);
 
 private:
     Qt3DLogic::QFrameAction* m_FrameAction;

@@ -13,7 +13,7 @@ public:
     SceneView(QScreen *screen = nullptr);
     void createScene(float cell, float width, float height, float depth, const QString& name = "");
     Scene *getScene() const;
-    void createSpheresTest();
+    void test();
 
 Q_SIGNALS:
     void signalSceneChanged(Scene* scene);

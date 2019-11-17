@@ -7,16 +7,14 @@
 #include "frameratecalculator.h"
 #include "properties.h"
 
+#include <QDir>
+#include <QFileInfo>
+#include <cmath>
+
 #include <Qt3DCore/QTransform>
-#include <Qt3DExtras/QCuboidMesh>
-#include <Qt3DExtras/QSphereMesh>
 #include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DRender/QPointLight>
 #include <Qt3DRender/QMesh>
-#include <QDir>
-#include <QFileInfo>
-#include <QText2DEntity>
-#include <cmath>
 
 Scene::Scene(Qt3DExtras::Qt3DWindow *window,
              float cell,
@@ -237,7 +235,7 @@ void Scene::slotShowBoxes(bool value)
     createEntityBottomGrid(QVector3D(0.0, 0.0, 0.0), QVector3D(RealSize().x(), 0.0, RealSize().z()), m_CellSize, COLOR_SCENE_GREED, m_Box);
 }
 
-void Scene::slotLoadGeometry(const QString &path)
+void Scene::loadGeometry(const QString &path)
 {
     QFileInfo fi(path);
     if(!fi.exists()){ qCritical() << objectName() << "(" << __func__ << "): Wrong path:" << path;  return; }
@@ -303,10 +301,10 @@ void Scene::loadGeometries()
     QObject::connect(this, &Scene::signalGeometryLoaded, func);
 
     for(QString f: fileList)
-        slotLoadGeometry(config->PathAssetsDir() + QDir::separator() + f);
+        loadGeometry(config->PathAssetsDir() + QDir::separator() + f);
 }
 
-void Scene::slotLoadMaterial(const QString& path)
+void Scene::loadMaterial(const QString& path)
 {
     auto material = new Material(this);
     material->loadCFG(path);
@@ -345,7 +343,7 @@ void Scene::loadMaterials()
     QObject::connect(this, &Scene::signalMaterialLoaded, func);
 
     for(QString f: fileList)
-        slotLoadMaterial(config->PathAssetsDir() + QDir::separator() + f);
+        loadMaterial(config->PathAssetsDir() + QDir::separator() + f);
 }
 
 float Scene::CameraFarPlane() const { return m_CameraFarPlane; }

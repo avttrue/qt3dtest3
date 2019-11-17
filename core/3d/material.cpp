@@ -47,7 +47,7 @@ void Material::loadCFG(const QString &cfg_path)
 
     setObjectName(cfg->value("Name", "material").toString());
 
-    auto ambientColor = QColor(cfg->value("AmbientColor", AMBIENT_COLOR).toString());
+    auto ambientColor = QColor(cfg->value("AmbientColor", QColor::Invalid).toString());
     if(!ambientColor.isValid()) ambientColor = QColor(AMBIENT_COLOR);
     setAmbient(ambientColor);
 
@@ -63,7 +63,7 @@ void Material::loadCFG(const QString &cfg_path)
     else
     {
         auto specularColor = QColor(cfg->value("SpecularColor", QColor::Invalid).toString());
-        if(specularColor.isValid()) setSpecular(QVariant::fromValue<QColor>(specularColor));
+        if(specularColor.isValid()) setSpecular(QVariant::fromValue<QColor>(specularColor.darker()));
     }
 
     auto normal = cfg->value("NormalMap", "").toString();

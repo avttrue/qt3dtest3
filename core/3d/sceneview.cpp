@@ -6,14 +6,11 @@
 
 #include <QDebug>
 #include <QRandomGenerator>
+
 #include <Qt3DExtras/QForwardRenderer>
-#include <Qt3DExtras/QFirstPersonCameraController>
-#include <Qt3DExtras/QSphereMesh>
-#include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DCore/QTransform>
 #include <Qt3DRender/QPointLight>
 #include <Qt3DRender/QRenderSettings>
-
 
 SceneView::SceneView(QScreen *screen):
     Qt3DExtras::Qt3DWindow(screen),
@@ -40,13 +37,13 @@ void SceneView::keyPressEvent(QKeyEvent *e)
 
 void SceneView::resizeEvent(QResizeEvent *e)
 {
-    if(!getScene()) return;
+    if(!m_Scene) return;
 
     auto camera_aspect = static_cast<float>(e->size().width()) / e->size().height();
     camera()->lens()->setPerspectiveProjection(45.0f, camera_aspect, 0.1f, getScene()->CameraFarPlane());
 }
 
-void SceneView::createSpheresTest()
+void SceneView::test()
 {
     if(!m_Scene) {qWarning() << "Scene is absent"; return; }
 
