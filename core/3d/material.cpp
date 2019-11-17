@@ -17,7 +17,7 @@ Material::Material(Scene *parent) :
     QObject::connect(this, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": Material" << objectName() << " destroyed"; });
 }
 
-Qt3DRender::QTexture2D* Material::setTexture(const QString &path)
+Qt3DRender::QTexture2D* Material::createTexture(const QString &path)
 {
     auto fi = QFileInfo(path);
     auto texture2d = new Qt3DRender::QTexture2D(this);
@@ -36,7 +36,7 @@ Qt3DRender::QTexture2D* Material::setTexture(const QString &path)
     return texture2d;
 }
 
-void Material::load(const QString &cfg_path)
+void Material::loadCFG(const QString &cfg_path)
 {
     auto fi = QFileInfo(cfg_path);
 
@@ -56,11 +56,11 @@ void Material::load(const QString &cfg_path)
     setShininess(cfg->value("TextureScale", TEXTURE_SCALE).toFloat());
 
     auto diffuse = cfg->value("DiffuseMap", "").toString();
-    setDiffuse(QVariant::fromValue<Qt3DRender::QAbstractTexture*>(setTexture(assetsdir + diffuse)));
+    setDiffuse(QVariant::fromValue<Qt3DRender::QAbstractTexture*>(createTexture(assetsdir + diffuse)));
 
     auto specular = cfg->value("SpecularMap", "").toString();
     if(!specular.isEmpty())
-        setSpecular(QVariant::fromValue<Qt3DRender::QAbstractTexture*>(setTexture(assetsdir + specular)));
+        setSpecular(QVariant::fromValue<Qt3DRender::QAbstractTexture*>(createTexture(assetsdir + specular)));
     else
     {
         auto specularColor = QColor(cfg->value("SpecularColor", QColor::Invalid).toString());
@@ -69,5 +69,5 @@ void Material::load(const QString &cfg_path)
 
     auto normal = cfg->value("NormalMap", "").toString();
     if(!normal.isEmpty())
-        setNormal(QVariant::fromValue<Qt3DRender::QAbstractTexture*>(setTexture(assetsdir + normal)));
+        setNormal(QVariant::fromValue<Qt3DRender::QAbstractTexture*>(createTexture(assetsdir + normal)));
 }

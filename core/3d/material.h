@@ -16,10 +16,10 @@ class Material : public Qt3DExtras::QDiffuseSpecularMaterial
 
 public:
     Material(Scene *parent);
-    void load(const QString& cfg_path);
+    void loadCFG(const QString& cfg_path);
 
 protected:
-    Qt3DRender::QTexture2D *setTexture(const QString& path);
+    Qt3DRender::QTexture2D *createTexture(const QString& path);
 
 private:
 

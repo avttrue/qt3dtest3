@@ -309,7 +309,7 @@ void Scene::loadGeometries()
 void Scene::slotLoadMaterial(const QString& path)
 {
     auto material = new Material(this);
-    material->load(path);
+    material->loadCFG(path);
 
     auto m = m_Materials.take(material->objectName());
     if(m)
