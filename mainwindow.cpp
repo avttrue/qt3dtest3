@@ -125,10 +125,11 @@ void MainWindow::addControlWidget(QWidget *widget)
 
 void MainWindow::slotWriteSceneStat()
 {
-    labelSceneStat->setText(tr("<b>Lights:</b>%1 | <b>Entities:</b>%2 | <b>Geometries:</b>%3").
+    labelSceneStat->setText(tr("<b>Lights:</b>%1 | <b>Entities:</b>%2 | <b>Geometries:</b>%3 | <b>Materials:</b>%4").
                             arg(QString::number(sceneView->getScene()->Lights().count()),
                                 QString::number(sceneView->getScene()->Objects().count()),
-                                QString::number(sceneView->getScene()->Geometries().count())));
+                                QString::number(sceneView->getScene()->Geometries().count()),
+                                QString::number(sceneView->getScene()->Materials().count())));
 }
 
 void MainWindow::slotViewSceneChanged(Scene *scene)
@@ -138,6 +139,7 @@ void MainWindow::slotViewSceneChanged(Scene *scene)
     QObject::connect(scene, &Scene::signalLightsCountChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene, &Scene::signalObjectsCountChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene, &Scene::signalGeometriesCountChanged, this, &MainWindow::slotWriteSceneStat);
+    QObject::connect(scene, &Scene::signalMaterialsCountChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene->FRC(), &FrameRateCalculator::signalFramesPerSecondChanged, [=](auto value)
                      { labelSceneFPS->setText(tr("<b>FPS:</b>%1 | ").arg(QString::number(value, 'f', 1))); });
     QObject::connect(scene, &Scene::signalSelectedEntityChanged, [=](SceneEntity* se) { btnDelEntity->setEnabled(se); });
@@ -172,7 +174,7 @@ void MainWindow::slotCreateScene()
     viewContainer->setFocus();
 }
 
-    void MainWindow::slotCreatePointLight()
+void MainWindow::slotCreatePointLight()
 {
     auto s = sceneView->getScene();
 
@@ -189,7 +191,7 @@ void MainWindow::slotCreateScene()
          {keys.at(1), {QVariant::Int, s->Size().x() / 2, 0, s->Size().x() - 1}},
          {keys.at(2), {QVariant::Int, s->Size().y() / 2, 0, s->Size().y() - 1}},
          {keys.at(3), {QVariant::Int, s->Size().z() / 2, 0, s->Size().z() - 1}},
-         {keys.at(4), {QVariant::Int, 50, 1, 100}},
+         {keys.at(4), {QVariant::Int, 10, 1, 100}},
          {keys.at(5), {QVariant::String, "#FFFFFF"}},
          };
     auto dvl = new DialogValuesList(":/res/icons/lamp.svg", tr("New light"), true, &map, this);

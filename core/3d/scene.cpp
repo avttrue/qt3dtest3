@@ -1,6 +1,7 @@
 #include "scene.h"
 #include "sceneobject.h"
 #include "light.h"
+#include "material.h"
 #include "helpers3d.h"
 #include "cameracontroller.h"
 #include "frameratecalculator.h"
@@ -43,8 +44,8 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window,
 
     m_Camera = window->camera();
     m_CameraFarPlane = static_cast<float>(sqrt(pow(static_cast<double>(w), 2) +
-                                                   pow(static_cast<double>(h), 2)+
-                                                   pow(static_cast<double>(d), 2)));
+                                               pow(static_cast<double>(h), 2)+
+                                               pow(static_cast<double>(d), 2)));
     auto camera_aspect = static_cast<float>(window->width()) / window->height();
     m_Camera->lens()->setPerspectiveProjection(45.0f, camera_aspect, 0.1f, m_CameraFarPlane);
 
@@ -66,6 +67,7 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window,
     m_SkyBox->addComponent(skytrfm);
     */
 
+    loadMaterials();
     loadGeometries();
 
     m_FrameAction = new Qt3DLogic::QFrameAction(this);
@@ -83,7 +85,8 @@ void Scene::addLight(Qt3DCore::QTransform *transform,
     auto material = new Qt3DExtras::QPhongMaterial;
     material->setAmbient(light->color());
     material->setDiffuse(light->color());
-    material->setShininess(light->intensity());
+    material->setSpecular(light->color());
+    material->setShininess(light->intensity() * 100);
 
     auto l = new Light(this, m_LightMesh, material, transform, light);
     applyEntityName(l, "light", name);
@@ -136,13 +139,17 @@ SceneObject* Scene::addObject(Qt3DRender::QGeometryRenderer *geometry,
 }
 
 SceneObject *Scene::addObject(const QString &geometry,
-                              Qt3DRender::QMaterial *material,
+                              const QString &material,
                               Qt3DCore::QTransform *transform,
                               const QString &name)
 {
-    Qt3DRender::QGeometryRenderer* gr = m_Geometries.value(geometry);
-    if(!gr) { qCritical() << objectName() << "Geonetry not exist:" << geometry; return nullptr; }
-    return addObject(gr, material, transform, name);
+    auto gr = m_Geometries.value(geometry);
+    if(!gr) { qCritical() << objectName() << "Geonetry not exists:" << geometry; return nullptr; }
+
+    auto mat = m_Materials.value(material);
+    if(!mat) { qCritical() << objectName() << "Material not exists:" << material; return nullptr; }
+
+    return addObject(gr, mat, transform, name);
 }
 
 bool Scene::delObject(const QString &name)
@@ -233,11 +240,10 @@ void Scene::slotShowBoxes(bool value)
 
 void Scene::slotLoadGeometry(const QString &path)
 {
-    QFile file(path);
-    if(!file.exists()){ qCritical() << objectName() << "(" << __func__ << "): Wrong path:" << path;  return; }
+    QFileInfo fi(path);
+    if(!fi.exists()){ qCritical() << objectName() << "(" << __func__ << "): Wrong path:" << path;  return; }
 
-    QFileInfo fileinfo(file);
-    auto name = fileinfo.baseName();
+    auto name = fi.baseName();
 
     auto geometry = m_Geometries.take(name);
     if(geometry)
@@ -250,7 +256,7 @@ void Scene::slotLoadGeometry(const QString &path)
     Qt3DRender::QMesh* mesh = new Qt3DRender::QMesh(this);
     mesh->setObjectName(name);
     QObject::connect(mesh, &QObject::destroyed, [=](QObject* o){ qDebug() << objectName() << ": Geometry" << o->objectName() << "destroyed"; });
-    auto func = [=](Qt3DRender::QMesh::Status s)
+    /* auto func = [=](Qt3DRender::QMesh::Status s)
     {
         if(s == Qt3DRender::QMesh::Status::Ready)
         {
@@ -258,7 +264,7 @@ void Scene::slotLoadGeometry(const QString &path)
             m_Geometries.insert(name, mesh);
             qDebug() << objectName() << ": Geometry loaded" << name << "count" << m_Geometries.count();
             emit signalGeometryLoaded(name);
-            emit signalGeometriesCountChanged(m_Geometries.count());  
+            emit signalGeometriesCountChanged(m_Geometries.count());
         }
         else if(s == Qt3DRender::QMesh::Status::Error)
         {
@@ -270,8 +276,12 @@ void Scene::slotLoadGeometry(const QString &path)
             qDebug() << objectName() << "Geometry" << name << "loading status:" << s;
         }
     };
-    QObject::connect(mesh, &Qt3DRender::QMesh::statusChanged, func);
+    QObject::connect(mesh, &Qt3DRender::QMesh::statusChanged, func); */
     mesh->setSource(QUrl::fromLocalFile(path));
+    m_Geometries.insert(name, mesh);
+    qDebug() << objectName() << ": Geometry loaded" << name << "count" << m_Geometries.count();
+    emit signalGeometryLoaded(name);
+    emit signalGeometriesCountChanged(m_Geometries.count());
 }
 
 void Scene::loadGeometries()
@@ -297,11 +307,49 @@ void Scene::loadGeometries()
         slotLoadGeometry(config->PathAssetsDir() + QDir::separator() + f);
 }
 
-float Scene::CameraFarPlane() const
+void Scene::slotLoadMaterial(const QString& path)
 {
-    return m_CameraFarPlane;
+    auto material = new Material(this);
+    material->load(path);
+
+    auto m = m_Materials.take(material->objectName());
+    if(m)
+    {
+        m->deleteLater();
+        emit signalMaterialsCountChanged(m_Materials.count());
+        qDebug() << objectName() << ": Materials count" << m_Materials.count();
+    }
+
+    m_Materials.insert(material->objectName(), material);
+    qDebug() << objectName() << ": Material loaded" << material->objectName() << "count" << m_Materials.count();
+    emit signalMaterialLoaded(material->objectName());
+    emit signalMaterialsCountChanged(m_Materials.count());
 }
 
+void Scene::loadMaterials()
+{
+    QDir resdir(config->PathAssetsDir());
+    if(!resdir.exists()) { qCritical() << "Path not exist:" << config->PathAssetsDir(); return; }
+
+    auto fileList = resdir.entryList({"*.material"}, QDir::Files);
+    if(fileList.count() <= 0) return;
+
+    auto func = [=]()
+    {
+        if(m_Materials.count() == fileList.count())
+        {
+            QObject::disconnect(this, &Scene::signalMaterialLoaded, nullptr, nullptr);
+            qDebug() << objectName() << "All materials loaded";
+            // TODO: do next
+        }
+    };
+    QObject::connect(this, &Scene::signalMaterialLoaded, func);
+
+    for(QString f: fileList)
+        slotLoadMaterial(config->PathAssetsDir() + QDir::separator() + f);
+}
+
+float Scene::CameraFarPlane() const { return m_CameraFarPlane; }
 float Scene::CellSize() const { return m_CellSize; }
 QVector3D Scene::Size() const { return QVector3D(m_Width, m_Height, m_Depth); }
 QVector3D Scene::RealSize() const { return m_CellSize * QVector3D(m_Width, m_Height, m_Depth); }
@@ -310,3 +358,4 @@ SceneEntity *Scene::SelectedEntity() const { return m_SelectedEntity; }
 QHash<QString, SceneObject* > Scene::Objects() const { return m_Objects; }
 QHash<QString, Light* > Scene::Lights() const { return m_Lights; }
 QHash<QString, Qt3DRender::QGeometryRenderer *> Scene::Geometries() const { return m_Geometries; }
+QHash<QString, Material *> Scene::Materials() const { return m_Materials; }

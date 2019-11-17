@@ -18,14 +18,15 @@ void FrameRateCalculator::calculate()
     if(m_CurrentFrameCount >= m_FrameCount)
     {
         auto time = QDateTime::currentDateTime().toMSecsSinceEpoch();
-        auto fps = 1000 * static_cast<float>(m_CurrentFrameCount) / (time - m_Time);
-
-        if(abs(m_FramesPerSecond - fps) > 0.09f)
+        if(time > m_Time)
         {
-            m_FramesPerSecond = fps;
-            emit signalFramesPerSecondChanged(m_FramesPerSecond);
+            auto fps = 1000 * static_cast<float>(m_CurrentFrameCount) / (time - m_Time);
+            if(abs(m_FramesPerSecond - fps) > 0.09f)
+            {
+                m_FramesPerSecond = fps;
+                emit signalFramesPerSecondChanged(m_FramesPerSecond);
+            }
         }
-
         m_Time = time;
         m_CurrentFrameCount = 0;
     }

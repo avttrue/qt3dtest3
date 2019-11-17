@@ -1,22 +1,23 @@
 <RCC>
     <qresource prefix="/">
         <file>models/sphere.obj</file>
-        <file>models/sphere.mtl</file>
         <file>models/pyramid.obj</file>
-        <file>models/pyramid.mtl</file>
-        <file>models/cube7.png</file>
-        <file>models/cube7_n.png</file>
         <file>models/cube5.png</file>
         <file>models/cube4.png</file>
         <file>models/cube4_n.png</file>
         <file>models/cube2.png</file>
-        <file>models/cube2.obj</file>
         <file>models/any_n.png</file>
-        <file>models/cube.mtl</file>
         <file>models/cube.obj</file>
         <file>models/cube1_n.png</file>
         <file>models/cube1.png</file>
         <file>models/cube2_n.png</file>
-        <file>models/cube2.mtl</file>
+        <file>models/default_texture.png</file>
+        <file>models/cube1.material</file>
+        <file>models/cube2.material</file>
+        <file>models/cube3_n.png</file>
+        <file>models/cube3.material</file>
+        <file>models/cube3.png</file>
+        <file>models/cube4.material</file>
+        <file>models/cube5.material</file>
     </qresource>
 </RCC>

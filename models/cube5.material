@@ -1,0 +1,8 @@
+AmbientColor=#FFFFFF
+Shininess=0.9
+TextureScale=1.0
+SpecularColor=#DCDCDC
+SpecularMap=
+DiffuseMap=cube5.png
+NormalMap=
+Name=cube5

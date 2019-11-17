@@ -64,14 +64,9 @@ void SceneView::createSpheresTest()
                 transform->setScale(m_Scene->CellSize());
                 transform->setTranslation(QVector3D(i*40.0f, j*40.0f, k*40.0f));
 
-                auto material = new Qt3DExtras::QPhongMaterial;
-                material->setAmbient(QColor(
-                    QRandomGenerator::global()->bounded(0, 256),
-                    QRandomGenerator::global()->bounded(0, 256),
-                    QRandomGenerator::global()->bounded(0, 256)));
-                material->setDiffuse(material->ambient());
-
-                m_Scene->addObject("sphere", material, transform);
+                auto matname = m_Scene->Materials().keys().at(
+                    QRandomGenerator::global()->bounded(0, m_Scene->Materials().keys().count()));
+                m_Scene->addObject("cube", matname, transform);
             }
     m_Scene->setEnabled(true);
 }
