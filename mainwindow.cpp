@@ -196,7 +196,7 @@ void MainWindow::slotCreatePointLight()
         };
     auto dvl = new DialogValuesList(":/res/icons/lamp.svg", tr("New light"), true, &map, this);
 
-    if(!dvl->exec()) return;  qDebug() << map.last().value;
+    if(!dvl->exec()) return;
 
     auto color = QColor(map.value(keys.at(5)).value.toString());
     if(!color.isValid())
