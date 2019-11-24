@@ -149,7 +149,7 @@ void MainWindow::slotViewSceneChanged(Scene *scene)
 void MainWindow::slotCreateScene()
 {
     const QVector<QString> keys =
-        {tr("1. Name (m.b. empty)"),
+        {tr("1. Name (m.b. empty):"),
          tr("2. Scene: cell size"),
          tr("3. Scene: width (in cells)"),
          tr("4. Scene: height (in cells)"),
@@ -178,25 +178,25 @@ void MainWindow::slotCreatePointLight()
 {
     auto s = sceneView->getScene();
 
-        const QVector<QString> keys =
-            {tr("1. Name (m.b. empty)"),
-                tr("3. Position: X (in cells)"),
-                tr("4. Position: Y (in cells)"),
-                tr("5. Position: Z (in cells)"),
-                tr("6. Intensity (N/100)"),
-                tr("7. Color (#XXXXXX)"),
-                };
+    const QVector<QString> keys =
+        {tr("1. Name (m.b. empty):"),
+         tr("2. Position: X (in cells)"),
+         tr("3. Position: Y (in cells)"),
+         tr("4. Position: Z (in cells)"),
+         tr("5. Intensity (N/100)"),
+         tr("6. Color (#XXXXXX):")
+        };
     QMap<QString, DialogValue> map =
         {{keys.at(0), {QVariant::String, ""}},
          {keys.at(1), {QVariant::Int, s->Size().x() / 2, 0, s->Size().x() - 1}},
          {keys.at(2), {QVariant::Int, s->Size().y() / 2, 0, s->Size().y() - 1}},
          {keys.at(3), {QVariant::Int, s->Size().z() / 2, 0, s->Size().z() - 1}},
          {keys.at(4), {QVariant::Int, 10, 1, 100}},
-         {keys.at(5), {QVariant::String, "#FFFFFF"}},
-         };
+         {keys.at(5), {QVariant::String, "#FFFFFF"}}
+        };
     auto dvl = new DialogValuesList(":/res/icons/lamp.svg", tr("New light"), true, &map, this);
 
-    if(!dvl->exec()) return;
+    if(!dvl->exec()) return;  qDebug() << map.last().value;
 
     auto color = QColor(map.value(keys.at(5)).value.toString());
     if(!color.isValid())

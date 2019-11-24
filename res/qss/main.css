@@ -14,7 +14,7 @@ background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
 stop: 0.5 white, stop: 0 silver,
 stop: 1 silver, stop: 0.5 white);
 border-radius: 5px;
-min-height: 32px;
+min-height: 20px;
 border: 1px outset grey;
 }
 
@@ -39,7 +39,7 @@ background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
 stop: 0 silver, stop: 0.5 white,
 stop: 0.5 white, stop: 1 silver);
 border-radius: 5px;
-min-width: 32px;
+min-width: 20px;
 border: 1px outset grey;
 }
 

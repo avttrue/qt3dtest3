@@ -27,6 +27,7 @@ const QString COLOR_SELECT = "#1047C7";     // синий
 const QString COLOR_SCENE_BOX = "#000000";  // чёрный
 const QString COLOR_SCENE_BG = "#DCDCDC";   // светлосерый
 const QString COLOR_SCENE_GREED = "#FFFAFA";// тёмнобелый
+const QString RE_FIRST_LAST_SPACES = "^\\s+|\\s+$"; // регексп на наличие стартовых и финальных пробелов
 const QVector3D BOX_EXCESS = QVector3D(0.01f, 0.01f, 0.01f);
 
 

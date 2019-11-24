@@ -3,10 +3,12 @@
 #include "properties.h"
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QDebug>
 #include <QEvent>
 #include <QLabel>
 #include <QLineEdit>
+#include <QListView>
 #include <QScrollArea>
 #include <QSpinBox>
 
@@ -81,66 +83,109 @@ void DialogValuesList::slotLoadContent(QMap<QString, DialogValue>* values)
 
     if(!values) { qCritical() << __func__ << "Values is empty"; return; }
 
-    for (auto s: values->keys())
+    for (auto key: values->keys())
     {
-        QVariant::Type t = values->value(s).type;
-        QVariant v = values->value(s).value;
-        QVariant minv = values->value(s).minValue;
-        QVariant maxv = values->value(s).maxValue;
+        QVariant::Type t = values->value(key).type;
+        QVariant v = values->value(key).value;
+        QVariant minv = values->value(key).minValue;
+        QVariant maxv = values->value(key).maxValue;
         if(t == QVariant::String)
         {
             auto widget = new QWidget();
             auto bl = new QHBoxLayout();
             bl->setMargin(0);
+            bl->setSpacing(1);
             auto label = new QLabel(widget);
-            label->setText(QString("<b>%1:</b>").arg(s));
-            bl->addWidget(label, 1);
+            label->setText(QString(key));
+            bl->addWidget(label, 0);
             auto le = new QLineEdit(v.toString(), widget);
-            le->setProperty("ValueName", s);
-            connect(le, &QLineEdit::textEdited, this, &DialogValuesList::slotStringValueChanged);
+            le->setProperty("ValueName", key);
+            QObject::connect(le, &QLineEdit::textEdited, this, &DialogValuesList::slotStringValueChanged);
             bl->addWidget(le, 1);
             widget->setLayout(bl);
             addWidgetContent(widget);
         }
         else if(t == QVariant::Bool)
         {
-            auto cbox = new QCheckBox(s);
+            auto cbox = new QCheckBox(key);
             cbox->setChecked(v.toBool());
-            cbox->setProperty("ValueName", s);
-            connect(cbox, &QCheckBox::stateChanged, this, &DialogValuesList::slotBoolValueChanged);
+            cbox->setProperty("ValueName", key);
+            QObject::connect(cbox, &QCheckBox::stateChanged, this, &DialogValuesList::slotBoolValueChanged);
             addWidgetContent(cbox);
         }
         else if(t == QVariant::Int || t == QVariant::Double)
         {
             auto spinbox = new QSpinBox();
-            spinbox->setPrefix(QString("%1: ").arg(s));
+            spinbox->setPrefix(QString("%1: ").arg(key));
             spinbox->setRange(minv.toInt(), maxv.toInt());
             spinbox->setSingleStep(1);
             spinbox->setValue(v.toInt());
             spinbox->installEventFilter(this);
-            spinbox->setProperty("ValueName", s);
+            spinbox->setProperty("ValueName", key);
             void (QSpinBox::*Sender)(int) = &QSpinBox::valueChanged;
             void (DialogValuesList::*Receiver)(int) = &DialogValuesList::slotIntValueChanged;
-            connect(spinbox, Sender, this, Receiver);
+            QObject::connect(spinbox, Sender, this, Receiver);
             addWidgetContent(spinbox);
         }
-        else if(t == QVariant::StringList) // TODO: переделать в формат списка
+        else if(t == QVariant::StringList)
         {
             auto widget = new QWidget();
+            auto label = new QLabel();
+            label->setText(QString(key));
             auto bl = new QHBoxLayout();
             bl->setMargin(0);
-            auto label = new QLabel();
-            label->setText(QString("<b>%1:</b>").arg(s));
-            bl->addWidget(label, 1);
-            auto le = new QLineEdit(v.toStringList().join(","), widget);
-            le->setProperty("ValueName", s);
-            connect(le, &QLineEdit::textEdited, this, &DialogValuesList::slotStringListValueChanged);
-            bl->addWidget(le, 1);
-            widget->setLayout(bl);
+            bl->setSpacing(2);
+            bl->addWidget(label, 0);
+            if(values->value(key).mode == DialogValueMode::Default)
+            { 
+                auto le = new QLineEdit(v.toStringList().join(","), widget);
+                le->setProperty("ValueName", key);
+                le->setToolTip("Enter");
+                // значение присваивается по нажатию Enter
+                QObject::connect(le, &QLineEdit::returnPressed, this, &DialogValuesList::slotStringListValueChanged);
+                bl->addWidget(le, 1);
+                widget->setLayout(bl);
+            }
+            else if(values->value(key).mode == DialogValueMode::OneFromList)
+            {
+                auto cb = new QComboBox(widget);
+                cb->addItems(maxv.toStringList());
+                cb->setProperty("ValueName", key);
+                auto index = maxv.toStringList().indexOf(v.toString());
+                if(index != -1) cb->setCurrentIndex(index);
+                void (QComboBox::*Sender)(const QString&) = &QComboBox::currentIndexChanged;
+                void (DialogValuesList::*Receiver)(const QString&) = &DialogValuesList::slotOneOfStringListValueChanged;
+                QObject::connect(cb, Sender, this, Receiver);                
+                bl->addWidget(cb, 1);
+                widget->setLayout(bl);
+            }
+            else if(values->value(key).mode == DialogValueMode::ManyFromList)
+            {
+                auto lv = new QListView(widget);
+                lv->setSelectionMode(QAbstractItemView::NoSelection);
+                lv->setEditTriggers(QAbstractItemView::NoEditTriggers);
+                lv->setSelectionRectVisible(false);                
+                QFontMetrics fm(lv->font());
+                lv->setFixedHeight(fm.height() * 4);
+                auto model = new QStandardItemModel(lv);
+                model->setProperty("ValueName", key);
+                for(QString s: maxv.toStringList())
+                {
+                    auto i = new QStandardItem(s);
+                    i->setCheckable(true);
+                    i->setCheckState(v.toStringList().contains(s) ? Qt::Checked : Qt::Unchecked);
+                    model->appendRow(i);
+                }
+
+                lv->setModel(model);
+                connect(model, &QStandardItemModel::itemChanged, this, &DialogValuesList::slotManyOfStringListValueChanged);
+                bl->addWidget(lv, 1);
+                widget->setLayout(bl);
+            }
             addWidgetContent(widget);
         }
         else
-        { qCritical() << __func__ << "Value" << s << ": unsupported type" << t; }
+        { qCritical() << __func__ << ": Value" << key << "Unsupported type" << t; }
     }
 }
 
@@ -154,27 +199,50 @@ bool DialogValuesList::eventFilter(QObject *obj, QEvent *event)
 void DialogValuesList::slotStringValueChanged(const QString &value)
 {
     auto ledit = qobject_cast<QLineEdit*>(sender());
-    if(ledit == nullptr) { qCritical() << __func__ << "Signal sender not found."; return; }
+    if(!ledit) { qCritical() << __func__ << ": Signal sender not found."; return; }
     auto key = ledit->property("ValueName").toString();
     DialogValue dv = m_Values->value(key);
     dv.value = value;
     m_Values->insert(key, dv);
 }
 
-void DialogValuesList::slotStringListValueChanged(const QString &value)
+void DialogValuesList::slotStringListValueChanged()
 {
     auto ledit = qobject_cast<QLineEdit*>(sender());
-    if(ledit == nullptr) { qCritical() << __func__ << "Signal sender not found."; return; }
+    if(!ledit) { qCritical() << __func__ << ": Signal sender not found."; return; }
     auto key = ledit->property("ValueName").toString();
     DialogValue dv = m_Values->value(key);
-    dv.value = value.split(",");
+    dv.value = ledit->text().split(",", QString::SkipEmptyParts).replaceInStrings(QRegExp(RE_FIRST_LAST_SPACES), "");
+    m_Values->insert(key, dv);
+}
+
+void DialogValuesList::slotOneOfStringListValueChanged(const QString &value)
+{
+    auto cb = qobject_cast<QComboBox*>(sender());
+    if(!cb) { qCritical() << __func__ << ": Signal sender not found."; return; }
+    auto key = cb->property("ValueName").toString();
+    DialogValue dv = m_Values->value(key);
+    dv.value = QStringList(value);
+    m_Values->insert(key, dv);
+}
+
+void DialogValuesList::slotManyOfStringListValueChanged()
+{
+    auto sim = qobject_cast<QStandardItemModel*>(sender());
+    if(!sim) { qCritical() << __func__ << ": Signal sender not found."; return; }
+    auto key = sim->property("ValueName").toString();
+    auto sl = QStringList();
+    for(int i = 0; i < sim->rowCount(); i++)
+        if(sim->item(i)->checkState() == Qt::Checked) sl.append(sim->item(i)->text());
+    DialogValue dv = m_Values->value(key);
+    dv.value = sl;
     m_Values->insert(key, dv);
 }
 
 void DialogValuesList::slotBoolValueChanged(bool value)
 {
     auto cbox = qobject_cast<QCheckBox*>(sender());
-    if(cbox == nullptr) { qCritical() << __func__ << "Signal sender not found."; return; }
+    if(!cbox) { qCritical() << __func__ << ": Signal sender not found."; return; }
     auto key = cbox->property("ValueName").toString();
     DialogValue dv = m_Values->value(key);
     dv.value = value;
@@ -184,7 +252,7 @@ void DialogValuesList::slotBoolValueChanged(bool value)
 void DialogValuesList::slotIntValueChanged(int value)
 {
     auto spinbox = qobject_cast<QSpinBox*>(sender());
-    if(spinbox == nullptr) { qCritical() << __func__ << "Signal sender not found."; return; }
+    if(!spinbox) { qCritical() << __func__ << ": Signal sender not found."; return; }
     auto key = spinbox->property("ValueName").toString();
     DialogValue dv = m_Values->value(key);
     dv.value = value;
