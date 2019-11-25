@@ -149,7 +149,8 @@ void DialogValuesList::slotLoadContent(QMap<QString, DialogValue>* values)
             else if(values->value(key).mode == DialogValueMode::OneFromList)
             {
                 auto cb = new QComboBox(widget);
-                cb->addItems(maxv.toStringList());
+                auto list = maxv.toStringList(); list.sort(Qt::CaseInsensitive);
+                cb->addItems(list);
                 cb->setProperty("ValueName", key);
                 auto index = maxv.toStringList().indexOf(v.toString());
                 if(index != -1) cb->setCurrentIndex(index);
@@ -169,7 +170,8 @@ void DialogValuesList::slotLoadContent(QMap<QString, DialogValue>* values)
                 lv->setFixedHeight(fm.height() * 4);
                 auto model = new QStandardItemModel(lv);
                 model->setProperty("ValueName", key);
-                for(QString s: maxv.toStringList())
+                auto list = maxv.toStringList(); list.sort(Qt::CaseInsensitive);
+                for(QString s: list)
                 {
                     auto i = new QStandardItem(s);
                     i->setCheckable(true);

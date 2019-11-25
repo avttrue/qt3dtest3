@@ -107,7 +107,7 @@ void SceneEntity::applyMaterial(const QString &name)
 void SceneEntity::applyPosition(const QVector3D &position)
 {
     auto curpos = m_Transform->translation();
-    m_Transform->setTranslation(curpos - position);
+    m_Transform->setTranslation(position - curpos);
 }
 
 void SceneEntity::slotSelect(bool value)
