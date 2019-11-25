@@ -16,7 +16,6 @@ class SceneObject;
 class CameraController;
 class FrameRateCalculator;
 class Light;
-class Material;
 
 class Scene : public Qt3DCore::QEntity
 {
@@ -46,13 +45,16 @@ public:
     QHash<QString, SceneObject* > Objects() const;
     QHash<QString, Light* > Lights() const;
     QHash<QString, Qt3DRender::QGeometryRenderer *> Geometries() const;
-    QHash<QString, Material *> Materials() const;
+    QHash<QString, Qt3DRender::QMaterial* > Materials() const;
     SceneEntity *SelectedEntity() const;
     FrameRateCalculator *FRC() const;
     float CellSize() const;
     QVector3D Size() const;
     QVector3D RealSize() const;
-    float CameraFarPlane() const;    
+    float CameraFarPlane() const;
+    void SelectEntity(SceneEntity* entity);
+    QString EntityGeometry(SceneEntity* entity) const;
+    QString EntityMaterial(SceneEntity* entity) const;
 
 Q_SIGNALS:
     void signalSelectedEntityChanged(SceneEntity* entity);
@@ -62,15 +64,14 @@ Q_SIGNALS:
     void signalGeometryLoaded(const QString& name);
     void signalMaterialsCountChanged(int count);
     void signalMaterialLoaded(const QString& name);
+    void signalEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity *entity);
 
 public Q_SLOTS:
-    void slotEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity* entity);
     void slotFrameActionTriggered(float dt);
     void slotShowBoxes(bool value);
 
 
 protected:
-    void SelectEntity(SceneEntity* entity);
     void loadGeometries();
     void loadMaterials();
     void loadGeometry(const QString& path);
@@ -86,7 +87,7 @@ private:
     QHash <QString, Light*> m_Lights;
     QHash <QString, SceneObject*> m_Objects;
     QHash <QString, Qt3DRender::QGeometryRenderer*> m_Geometries;
-    QHash <QString, Material*> m_Materials;
+    QHash <QString, Qt3DRender::QMaterial*> m_Materials;
     Qt3DExtras::QSphereMesh* m_LightMesh;
     float m_CellSize;
     float m_Height;

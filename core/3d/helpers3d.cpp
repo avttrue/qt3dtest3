@@ -258,27 +258,27 @@ void applyEntityName(Qt3DCore::QEntity *entity, const QString& prefix, const QSt
     entity->setObjectName(newname);
 }
 
-void applyEntityGeometry(Qt3DCore::QEntity* entity, Qt3DRender::QGeometryRenderer *gr)
+void applyEntityGeometry(Qt3DCore::QEntity* entity, Qt3DRender::QGeometryRenderer *geometryrenderer)
 {
-    if(!entity || !gr) { qCritical() << __func__ << ": Wrong parameters"; return; }
+    if(!entity || !geometryrenderer) { qCritical() << __func__ << ": Wrong parameters"; return; }
 
     // searching old geometry and meshes
     QVector<Qt3DCore::QComponent*> vc;
     for(Qt3DCore::QComponent* c: entity->components())
     {
         if(qobject_cast<Qt3DRender::QGeometryRenderer*>(c) || qobject_cast<Qt3DRender::QMesh*>(c))
-            if(c->parent() == entity) vc.append(c);
+            vc.append(c);
     }
 
     // apply new geometry
-    entity->addComponent(gr);
+    entity->addComponent(geometryrenderer);
 
     // delete old geometry and meshes
     for(Qt3DCore::QComponent* c: vc)
     {
-        c->setEnabled(false);
+        if(c == geometryrenderer) continue; // тот же самый
         entity->removeComponent(c);
-        c->deleteLater();
+        if(c->parent() == entity) c->deleteLater();
     }
     qDebug() << entity->objectName() << ": Geometry applied";
 }
@@ -298,19 +298,18 @@ void applyEntityMaterial(Qt3DCore::QEntity* entity, Qt3DRender::QMaterial* mater
   QVector<Qt3DCore::QComponent*> vc;
   for(Qt3DCore::QComponent* m: entity->components())
   {
-      if(qobject_cast<Qt3DRender::QMaterial*>(m))
-          if(m->parent() == entity) vc.append(m);
+      if(qobject_cast<Qt3DRender::QMaterial*>(m)) vc.append(m);
   }
 
   // apply new material
   entity->addComponent(material);
 
   // delete old material
-  for(Qt3DCore::QComponent* m: vc)
+  for(Qt3DCore::QComponent* c: vc)
   {
-      m->setEnabled(false);
-      entity->removeComponent(m);
-      m->deleteLater();
+      if(c == material) continue; // тот же самый
+      entity->removeComponent(c);
+      if(c->parent() == entity) c->deleteLater();
   }
   qDebug() << entity->objectName() << ": Material applied";
 }

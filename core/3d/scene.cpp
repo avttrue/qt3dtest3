@@ -93,8 +93,6 @@ void Scene::addLight(Qt3DCore::QTransform *transform,
     delLight(l->objectName());
     m_Lights.insert(l->objectName(), l);
 
-    QObject::connect(l, &SceneObject::signalClicked, this, &Scene::slotEntityClicked, Qt::DirectConnection);
-
     qDebug() << l->objectName() << ": Light added, count" << m_Lights.count();
     emit signalLightsCountChanged(m_Lights.count());
 }
@@ -126,8 +124,6 @@ SceneObject* Scene::addObject(Qt3DRender::QGeometryRenderer *geometry,
 
     delObject(entity->objectName());
     m_Objects.insert(entity->objectName(), entity);
-
-    QObject::connect(entity, &SceneObject::signalClicked, this, &Scene::slotEntityClicked, Qt::DirectConnection);
 
     qDebug() << objectName() << ": Entity created, count" << m_Objects.count();
     emit signalObjectsCountChanged(m_Objects.count());
@@ -166,29 +162,9 @@ bool Scene::delObject(const QString &name)
 
 bool Scene::delObject(SceneEntity *entity) { return delObject(entity->objectName()); }
 
-void Scene::slotEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity *entity)
-{
-    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Entity is empty"; return; }
-
-    if(event->button() == Qt3DRender::QPickEvent::Buttons::LeftButton) {
-        SelectEntity(entity);
-    }
-    else if(event->button() == Qt3DRender::QPickEvent::Buttons::MiddleButton) {
-        qDebug() << "Mouse button: MiddleButton";
-    }
-    else if(event->button() == Qt3DRender::QPickEvent::Buttons::RightButton) {
-        qDebug() << "Mouse button: RightButton";
-        // test
-        if(qobject_cast<SceneObject*>(entity)) {
-            entity->applyGeometry("pyramid");
-            entity->applyMaterial("cube5");
-        }
-    }
-}
-
 void Scene::SelectEntity(SceneEntity *entity)
 {
-    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Entity is empty"; return; }
+    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong Entity"; return; }
 
     if(!m_SelectedEntity)
     {
@@ -210,6 +186,18 @@ void Scene::SelectEntity(SceneEntity *entity)
         }
     }
     emit signalSelectedEntityChanged(m_SelectedEntity);
+}
+
+QString Scene::EntityGeometry(SceneEntity *entity) const
+{
+    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity" << config->PathAssetsDir(); return ""; }
+    return m_Geometries.key(entity->Geometry());
+}
+
+QString Scene::EntityMaterial(SceneEntity *entity) const
+{
+    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity" << config->PathAssetsDir(); return ""; }
+    return m_Materials.key(entity->Material());
 }
 
 void Scene::slotFrameActionTriggered(float dt)
@@ -356,4 +344,4 @@ SceneEntity *Scene::SelectedEntity() const { return m_SelectedEntity; }
 QHash<QString, SceneObject* > Scene::Objects() const { return m_Objects; }
 QHash<QString, Light* > Scene::Lights() const { return m_Lights; }
 QHash<QString, Qt3DRender::QGeometryRenderer *> Scene::Geometries() const { return m_Geometries; }
-QHash<QString, Material *> Scene::Materials() const { return m_Materials; }
+QHash<QString, Qt3DRender::QMaterial* > Scene::Materials() const { return m_Materials; }

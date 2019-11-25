@@ -43,7 +43,7 @@ void SceneView::resizeEvent(QResizeEvent *e)
     camera()->lens()->setPerspectiveProjection(45.0f, camera_aspect, 0.1f, getScene()->CameraFarPlane());
 }
 
-void SceneView::test()
+void SceneView::test() // test
 {
     if(!m_Scene) {qWarning() << "Scene is absent"; return; }
 

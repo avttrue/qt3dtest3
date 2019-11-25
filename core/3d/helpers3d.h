@@ -44,7 +44,7 @@ Qt3DCore::QEntity* createEntityText(Qt3DCore::QEntity* parent,
 
 void applyEntityName(Qt3DCore::QEntity* entity, const QString &prefix, const QString& name = "");
 
-void applyEntityGeometry(Qt3DCore::QEntity* entity, Qt3DRender::QGeometryRenderer *gr);
+void applyEntityGeometry(Qt3DCore::QEntity* entity, Qt3DRender::QGeometryRenderer *geometryrenderer);
 
 void applyEntityMaterial(Qt3DCore::QEntity* entity, Qt3DRender::QMaterial* material);
 

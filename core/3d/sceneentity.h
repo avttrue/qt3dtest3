@@ -27,9 +27,11 @@ public:
      */
     void applyGeometry(Qt3DRender::QGeometryRenderer* geometry, float diagonal = 0.0f);
     void applyGeometry(const QString& name);
+    Qt3DRender::QGeometryRenderer* Geometry() const;
     void applyMaterial(Qt3DRender::QMaterial* material);
     void applyMaterial(const QString& name);
-
+    Qt3DRender::QMaterial* Material() const;
+    void applyPosition(const QVector3D& position);
     void Interactive(bool value);
 
 Q_SIGNALS:
@@ -41,7 +43,6 @@ public Q_SLOTS:
 
 protected:
     void createSelectionBox();
-    Qt3DRender::QGeometryRenderer *Geometry() const;
 
 private:
     Scene* m_Scene;

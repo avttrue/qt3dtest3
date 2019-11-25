@@ -39,6 +39,8 @@ SceneEntity::SceneEntity(Scene *parent,
 void SceneEntity::slotClicked(Qt3DRender::QPickEvent *event)
 {
     qDebug() << objectName() << ": clicked";
+
+    if(m_Scene) emit m_Scene->signalEntityClicked(event, this);
     emit signalClicked(event, this);
 }
 
@@ -66,7 +68,7 @@ void SceneEntity::applyGeometry(Qt3DRender::QGeometryRenderer* geometry, float d
         if(diagonal > 0.0f)
         {
             auto gd = getGeometryDiagonal(m_Geometry->geometry());
-            if(gd > 0.0f) m_Transform->setScale(diagonal * m_Transform->scale() / gd);
+            if(gd != 0.0f) m_Transform->setScale(diagonal * m_Transform->scale() / gd);
             else qCritical() << objectName() << "(" << __func__ << "): Diagonal of new geometry is 0.0";
         }
         if (m_SelectionBox) createSelectionBox();
@@ -97,9 +99,15 @@ void SceneEntity::applyMaterial(Qt3DRender::QMaterial *material)
 void SceneEntity::applyMaterial(const QString &name)
 {
     auto m = m_Scene->Materials().value(name);
-    if(!m) { qCritical() << objectName() << "(" << __func__ << "): Wrong material name";  return; }
+    if(!m) { qCritical() << objectName() << "(" << __func__ << "): Wrong material name" << name;  return; }
 
     applyMaterial(m);
+}
+
+void SceneEntity::applyPosition(const QVector3D &position)
+{
+    auto curpos = m_Transform->translation();
+    m_Transform->setTranslation(curpos - position);
 }
 
 void SceneEntity::slotSelect(bool value)
@@ -119,3 +127,4 @@ void SceneEntity::slotSelect(bool value)
 Qt3DCore::QEntity *SceneEntity::SelectionBox() const { return m_SelectionBox; }
 void SceneEntity::Interactive(bool value) { m_Picker->setEnabled(value); }
 Qt3DRender::QGeometryRenderer *SceneEntity::Geometry() const { return m_Geometry; }
+Qt3DRender::QMaterial *SceneEntity::Material() const { return m_Material; }

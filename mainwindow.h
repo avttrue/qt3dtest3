@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <Qt3DRender/QPickEvent>
 #include <QGridLayout>
 #include <QLabel>
 #include <QCheckBox>
@@ -39,7 +40,7 @@ public Q_SLOTS:
     void slotCreateScene();
     void slotCreatePointLight();
     void slotDeleteSelectedEntity();
-
+    void slotSceneEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity *entity);
 };
 
 #endif // MAINWINDOW_H

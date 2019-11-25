@@ -140,6 +140,8 @@ void MainWindow::slotViewSceneChanged(Scene *scene)
     QObject::connect(scene, &Scene::signalObjectsCountChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene, &Scene::signalGeometriesCountChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene, &Scene::signalMaterialsCountChanged, this, &MainWindow::slotWriteSceneStat);
+    QObject::connect(scene, &Scene::signalEntityClicked, this, &MainWindow::slotSceneEntityClicked);
+
     QObject::connect(scene->FRC(), &FrameRateCalculator::signalFramesPerSecondChanged, [=](auto value)
                      { labelSceneFPS->setText(tr("<b>FPS:</b>%1 | ").arg(QString::number(value, 'f', 1))); });
     QObject::connect(scene, &Scene::signalSelectedEntityChanged, [=](SceneEntity* se) { btnDelEntity->setEnabled(se); });
@@ -228,6 +230,48 @@ void MainWindow::slotDeleteSelectedEntity()
     if(qobject_cast<Light*>(e)) { s->delLight(e); return; }
 
     viewContainer->setFocus();
+}
+
+void MainWindow::slotSceneEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity *entity)
+{
+    if(!entity) { qCritical() << __func__ << ": Entity is empty"; return; }
+    if(!event) { qCritical() << __func__ << ": Event is empty"; return; }
+
+    auto s = sceneView->getScene();
+
+    if(event->button() == Qt3DRender::QPickEvent::Buttons::LeftButton)
+    {
+        qDebug() << "Mouse button: LeftButton";
+        s->SelectEntity(entity);
+    }
+    else if(event->button() == Qt3DRender::QPickEvent::Buttons::MiddleButton)
+    {
+        qDebug() << "Mouse button: MiddleButton";
+    }
+    else if(event->button() == Qt3DRender::QPickEvent::Buttons::RightButton)
+    {
+        qDebug() << "Mouse button: RightButton";
+        // test
+        if(qobject_cast<SceneObject*>(entity))
+        {
+            const QVector<QString> keys =
+                {tr("1. Material:"),
+                 tr("2. Geometry:")
+                };
+            QMap<QString, DialogValue> map =
+                {{keys.at(0), {QVariant::StringList, s->EntityMaterial(entity),
+                               "", QStringList(s->Materials().keys()), DialogValueMode::OneFromList}},
+                 {keys.at(1), {QVariant::StringList, s->EntityGeometry(entity),
+                               "", QStringList(s->Geometries().keys()), DialogValueMode::OneFromList}}
+                };
+            auto dvl = new DialogValuesList(":/res/icons/setup.svg", tr("Edit"), true, &map, this);
+
+            if(!dvl->exec()) return;
+
+            entity->applyMaterial(map.value(keys.at(0)).value.toString());
+            entity->applyGeometry(map.value(keys.at(1)).value.toString());
+        }
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
