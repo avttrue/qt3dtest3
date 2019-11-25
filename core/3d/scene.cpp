@@ -181,6 +181,7 @@ void Scene::slotEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity *entity
         // test
         if(qobject_cast<SceneObject*>(entity)) {
             entity->applyGeometry("pyramid");
+            entity->applyMaterial("cube5");
         }
     }
 }

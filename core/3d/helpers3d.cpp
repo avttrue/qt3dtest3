@@ -289,3 +289,28 @@ float getGeometryDiagonal(Qt3DRender::QGeometry* geometry)
 
     return geometry->maxExtent().distanceToPoint(geometry->minExtent());
 }
+
+void applyEntityMaterial(Qt3DCore::QEntity* entity, Qt3DRender::QMaterial* material)
+{
+  if(!entity || !material) { qCritical() << __func__ << ": Wrong parameters"; return; }
+
+  // searching old material
+  QVector<Qt3DCore::QComponent*> vc;
+  for(Qt3DCore::QComponent* m: entity->components())
+  {
+      if(qobject_cast<Qt3DRender::QMaterial*>(m))
+          if(m->parent() == entity) vc.append(m);
+  }
+
+  // apply new material
+  entity->addComponent(material);
+
+  // delete old material
+  for(Qt3DCore::QComponent* m: vc)
+  {
+      m->setEnabled(false);
+      entity->removeComponent(m);
+      m->deleteLater();
+  }
+  qDebug() << entity->objectName() << ": Material applied";
+}

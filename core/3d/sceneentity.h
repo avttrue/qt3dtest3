@@ -17,11 +17,19 @@ class SceneEntity : public Qt3DCore::QEntity
 public:
     SceneEntity(Scene* parent,
                 Qt3DRender::QGeometryRenderer* geometry,
-                Qt3DRender::QMaterial* material,
+                Qt3DRender::QMaterial *material,
                 Qt3DCore::QTransform *transform);
     Qt3DCore::QEntity *SelectionBox() const;
-    void applyGeometry(Qt3DRender::QGeometryRenderer* geometry, float size = 0.0f);
+    /*!
+     * \brief applyGeometry - установить новую геометрию сущности.
+     * geometry - новая геометрия.
+     * diagonal - фактор масштаба по диагонали сущности, если 0, то неучитывается.
+     */
+    void applyGeometry(Qt3DRender::QGeometryRenderer* geometry, float diagonal = 0.0f);
     void applyGeometry(const QString& name);
+    void applyMaterial(Qt3DRender::QMaterial* material);
+    void applyMaterial(const QString& name);
+
     void Interactive(bool value);
 
 Q_SIGNALS:

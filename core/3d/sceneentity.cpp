@@ -2,6 +2,7 @@
 #include "scene.h"
 #include "properties.h"
 #include "helpers3d.h"
+#include "material.h"
 
 #include <Qt3DRender/QObjectPicker>
 
@@ -53,17 +54,20 @@ void SceneEntity::createSelectionBox()
     m_SelectionBox = createEntityBox(min, max, QColor(COLOR_SELECT), this);
 }
 
-void SceneEntity::applyGeometry(Qt3DRender::QGeometryRenderer* geometry, float size)
+void SceneEntity::applyGeometry(Qt3DRender::QGeometryRenderer* geometry, float diagonal)
 {
     if(!geometry) { qCritical() << objectName() << "(" << __func__ << "): Wrong geometry";  return; }
 
     applyEntityGeometry(this, geometry);
     m_Geometry = geometry;
 
-    auto func = [=]() {
-        if(size > 0.0f) {
-            auto diagonal = getGeometryDiagonal(m_Geometry->geometry());
-            m_Transform->setScale(size * m_Transform->scale() / diagonal);
+    auto func = [=]()
+    {
+        if(diagonal > 0.0f)
+        {
+            auto gd = getGeometryDiagonal(m_Geometry->geometry());
+            if(gd > 0.0f) m_Transform->setScale(diagonal * m_Transform->scale() / gd);
+            else qCritical() << objectName() << "(" << __func__ << "): Diagonal of new geometry is 0.0";
         }
         if (m_SelectionBox) createSelectionBox();
         QObject::disconnect(m_Geometry->geometry(), &Qt3DRender::QGeometry::maxExtentChanged, nullptr, nullptr);
@@ -74,12 +78,28 @@ void SceneEntity::applyGeometry(Qt3DRender::QGeometryRenderer* geometry, float s
 
 void SceneEntity::applyGeometry(const QString &name)
 {
-    Qt3DRender::QGeometryRenderer* gr = m_Scene->Geometries().value(name);
+    auto gr = m_Scene->Geometries().value(name);
 
     if(!gr){ qCritical() << objectName() << "(" << __func__ << "): Wrong geometry name:" << name;  return; }
 
     auto diagonal = getGeometryDiagonal(m_Geometry->geometry());
     applyGeometry(gr, diagonal);
+}
+
+void SceneEntity::applyMaterial(Qt3DRender::QMaterial *material)
+{
+    if(!material) { qCritical() << objectName() << "(" << __func__ << "): Wrong material";  return; }
+
+    applyEntityMaterial(this, material);
+    m_Material = material;
+}
+
+void SceneEntity::applyMaterial(const QString &name)
+{
+    auto m = m_Scene->Materials().value(name);
+    if(!m) { qCritical() << objectName() << "(" << __func__ << "): Wrong material name";  return; }
+
+    applyMaterial(m);
 }
 
 void SceneEntity::slotSelect(bool value)
