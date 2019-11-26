@@ -128,3 +128,4 @@ Qt3DCore::QEntity *SceneEntity::SelectionBox() const { return m_SelectionBox; }
 void SceneEntity::Interactive(bool value) { m_Picker->setEnabled(value); }
 Qt3DRender::QGeometryRenderer *SceneEntity::Geometry() const { return m_Geometry; }
 Qt3DRender::QMaterial *SceneEntity::Material() const { return m_Material; }
+QVector3D SceneEntity::Position() { return m_Transform->translation(); }

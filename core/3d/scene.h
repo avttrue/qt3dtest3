@@ -55,6 +55,8 @@ public:
     void SelectEntity(SceneEntity* entity);
     QString EntityGeometry(SceneEntity* entity) const;
     QString EntityMaterial(SceneEntity* entity) const;
+    void setEntityCellPosition(SceneEntity* entity, const QVector3D& position);
+    QVector3D EntityCellPosition(SceneEntity* entity);
 
 Q_SIGNALS:
     void signalSelectedEntityChanged(SceneEntity* entity);
@@ -69,7 +71,6 @@ Q_SIGNALS:
 public Q_SLOTS:
     void slotFrameActionTriggered(float dt);
     void slotShowBoxes(bool value);
-
 
 protected:
     void loadGeometries();

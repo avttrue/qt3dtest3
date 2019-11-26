@@ -24,10 +24,10 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window,
     m_SelectedEntity(nullptr),
     m_Box(nullptr),
     m_LightMesh(new Qt3DExtras::QSphereMesh(this)),
-    m_CellSize(cell),
-    m_Height(height),
-    m_Width(width),
-    m_Depth(depth)
+    m_CellSize(abs(cell)),
+    m_Height(abs(height)),
+    m_Width(abs(width)),
+    m_Depth(abs(depth))
 {
     applyEntityName(this, "scene", name);
     window->setRootEntity(this);
@@ -79,7 +79,6 @@ void Scene::addLight(Qt3DCore::QTransform *transform,
                      Qt3DRender::QAbstractLight *light,
                      const QString &name)
 {
-
     auto material = new Qt3DExtras::QPhongMaterial;
     material->setAmbient(light->color());
     material->setDiffuse(light->color());
@@ -112,7 +111,11 @@ bool Scene::delLight(const QString &name)
     return false;
 }
 
-bool Scene::delLight(SceneEntity *entity) { return delLight(entity->objectName()); }
+bool Scene::delLight(SceneEntity* entity)
+{
+    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong light"; return false; }
+    return delLight(entity->objectName());
+}
 
 SceneObject* Scene::addObject(Qt3DRender::QGeometryRenderer *geometry,
                               Qt3DRender::QMaterial *material,
@@ -160,12 +163,15 @@ bool Scene::delObject(const QString &name)
     return false;
 }
 
-bool Scene::delObject(SceneEntity *entity) { return delObject(entity->objectName()); }
+bool Scene::delObject(SceneEntity *entity)
+{
+    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong Entity"; return false; }
+    return delObject(entity->objectName());
+}
 
 void Scene::SelectEntity(SceneEntity *entity)
 {
     if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong Entity"; return; }
-
     if(!m_SelectedEntity)
     {
         entity->slotSelect(true);
@@ -200,6 +206,19 @@ QString Scene::EntityMaterial(SceneEntity *entity) const
     return m_Materials.key(entity->Material());
 }
 
+void Scene::setEntityCellPosition(SceneEntity *entity, const QVector3D &position)
+{
+    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity" << config->PathAssetsDir(); return; }
+    entity->applyPosition(m_CellSize * position);
+}
+
+QVector3D Scene::EntityCellPosition(SceneEntity *entity)
+{
+    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity" << config->PathAssetsDir(); return QVector3D(-1.0, -1.0, -1.0); }
+    auto v = entity->Position() / m_CellSize;
+    return QVector3D(abs(v.x()), abs(v.x()), abs(v.z()));
+}
+
 void Scene::slotFrameActionTriggered(float dt)
 {
     Q_UNUSED(dt)
@@ -209,14 +228,12 @@ void Scene::slotFrameActionTriggered(float dt)
 void Scene::slotShowBoxes(bool value)
 {
     for(Light* l: m_Lights) l->slotShowGeometry(value);
-
     if(m_Box)
     {
         m_Box->setEnabled(false);
         m_Box->deleteLater();
         m_Box = nullptr;
     }
-
     if(!value) return;
 
     m_Box = createEntityBox(QVector3D(0.0, 0.0, 0.0) + BOX_EXCESS, RealSize() - BOX_EXCESS, COLOR_SCENE_BOX, this);

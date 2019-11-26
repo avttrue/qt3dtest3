@@ -32,6 +32,7 @@ public:
     void applyMaterial(const QString& name);
     Qt3DRender::QMaterial* Material() const;
     void applyPosition(const QVector3D& position);
+    QVector3D Position();
     void Interactive(bool value);
 
 Q_SIGNALS:

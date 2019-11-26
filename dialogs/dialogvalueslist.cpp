@@ -152,7 +152,7 @@ void DialogValuesList::slotLoadContent(QMap<QString, DialogValue>* values)
                 auto list = maxv.toStringList(); list.sort(Qt::CaseInsensitive);
                 cb->addItems(list);
                 cb->setProperty("ValueName", key);
-                auto index = maxv.toStringList().indexOf(v.toString());
+                auto index = list.indexOf(v.toString());
                 if(index != -1) cb->setCurrentIndex(index);
                 void (QComboBox::*Sender)(const QString&) = &QComboBox::currentIndexChanged;
                 void (DialogValuesList::*Receiver)(const QString&) = &DialogValuesList::slotOneOfStringListValueChanged;
