@@ -196,26 +196,27 @@ void Scene::SelectEntity(SceneEntity *entity)
 
 QString Scene::EntityGeometry(SceneEntity *entity) const
 {
-    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity" << config->PathAssetsDir(); return ""; }
+    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity"; return ""; }
     return m_Geometries.key(entity->Geometry());
 }
 
 QString Scene::EntityMaterial(SceneEntity *entity) const
 {
-    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity" << config->PathAssetsDir(); return ""; }
+    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity"; return ""; }
     return m_Materials.key(entity->Material());
 }
 
 void Scene::setEntityCellPosition(SceneEntity *entity, const QVector3D &position)
 {
-    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity" << config->PathAssetsDir(); return; }
+    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity"; return; }
     entity->applyPosition(m_CellSize * position);
 }
 
-QVector3D Scene::EntityCellPosition(SceneEntity *entity)
+QVector3D Scene::EntityCellPosition(SceneEntity *entity, float cellSize)
 {
-    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity" << config->PathAssetsDir(); return QVector3D(-1.0, -1.0, -1.0); }
-    auto v = entity->Position() / m_CellSize;
+    if(!entity) { qCritical() << __func__ << ": Wrong cell size" << cellSize; return QVector3D(-1.0, -1.0, -1.0); }
+    if(!entity) { qCritical() << __func__ << ": Wrong entity"; return QVector3D(-1.0, -1.0, -1.0); }
+    auto v = entity->Position() / cellSize;
     return QVector3D(abs(v.x()), abs(v.x()), abs(v.z()));
 }
 

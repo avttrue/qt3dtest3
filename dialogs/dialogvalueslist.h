@@ -12,6 +12,7 @@
 enum DialogValueMode
 {
     Default = 0,    // поумолчанию, для StringList - перечисление через запятую
+    Disabled,       // просто текстовое отображение значения
     OneFromList,    // для StringList - один из списка
     ManyFromList    // для StringList - несколько из списка
 };
@@ -44,7 +45,7 @@ public:
     void addToolbarButton(QAction* action);
 
 protected:
-    void addWidgetContent(QWidget* widget);
+    void addWidgetContent(QWidget* widget); 
 
 private:
     bool eventFilter(QObject *obj, QEvent *event);

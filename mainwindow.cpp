@@ -86,12 +86,19 @@ void MainWindow::createGUI()
     addControlWidget(btnNewLight);
 
     // удалить объект
-    btnDelEntity = new ControlButton(QIcon(":/res/icons/delete.svg"), tr("delete"), this);
-    btnDelEntity->setDisabled(true);
-    btnDelEntity->setShortcut(Qt::Key_Delete);
-    btnDelEntity->setToolTip("Del");
-    QObject::connect(btnDelEntity, &QPushButton::clicked, this, &MainWindow::slotDeleteSelectedEntity);
-    addControlWidget(btnDelEntity);
+    actionDelObject = new QAction(QIcon(":/res/icons/delete.svg"), tr("Delete"), this);
+    actionDelObject->setToolTip(actionDelObject->text());
+    actionDelObject->setDisabled(true);
+    actionDelObject->setShortcut(Qt::Key_Delete);
+    QObject::connect(actionDelObject, &QAction::triggered, this, &MainWindow::slotDeleteSelectedEntity);
+    addAction(actionDelObject);
+
+    // редактировать объект
+    btnEditEntity = new ControlButton(QIcon(":/res/icons/cube.svg"), tr("Edit"), this);
+    btnEditEntity->setDisabled(true);
+    btnEditEntity->setShortcut(Qt::CTRL + Qt::Key_E);
+    QObject::connect(btnEditEntity, &QPushButton::clicked, this, &MainWindow::slotEditSelectedEntity);
+    addControlWidget(btnEditEntity);
 
     // тест
     auto btnTest = new ControlButton(tr("   test entities"), this);
@@ -144,7 +151,8 @@ void MainWindow::slotViewSceneChanged(Scene *scene)
 
     QObject::connect(scene->FRC(), &FrameRateCalculator::signalFramesPerSecondChanged, [=](auto value)
                      { labelSceneFPS->setText(tr("<b>FPS:</b>%1 | ").arg(QString::number(value, 'f', 1))); });
-    QObject::connect(scene, &Scene::signalSelectedEntityChanged, [=](SceneEntity* se) { btnDelEntity->setEnabled(se); });
+    QObject::connect(scene, &Scene::signalSelectedEntityChanged, [=](SceneEntity* se) { btnEditEntity->setEnabled(se); });
+    QObject::connect(scene, &Scene::signalSelectedEntityChanged, [=](SceneEntity* se) { actionDelObject->setEnabled(se); });
     QObject::connect(config, &Config::signalDrawSceneBoxes, scene, &Scene::slotShowBoxes);
 }
 
@@ -224,10 +232,41 @@ void MainWindow::slotDeleteSelectedEntity()
     auto s = sceneView->getScene();
     auto e = sceneView->getScene()->SelectedEntity();
 
-    if(!s || !e) { btnDelEntity->setDisabled(true); return; }
+    if(!s || !e) { actionDelObject->setDisabled(true); return; }
 
-    if(qobject_cast<SceneObject*>(e)) { s->delObject(e); return; }
-    if(qobject_cast<Light*>(e)) { s->delLight(e); return; }
+    if(qobject_cast<SceneObject*>(e)) { if(!s->delObject(e)) qCritical() << __func__ << ": SceneObject not deleted"; return; }
+    if(qobject_cast<Light*>(e)) { if(!s->delLight(e)) qCritical() << __func__ << ": Light not deleted"; return; }
+
+    viewContainer->setFocus();
+}
+
+void MainWindow::slotEditSelectedEntity()
+{
+    auto s = sceneView->getScene();
+    auto e = sceneView->getScene()->SelectedEntity();
+
+    if(!s || !e) { btnEditEntity->setDisabled(true); return; }
+
+    const QVector<QString> keys = {
+        tr("1. Name:"),
+        tr("2. Position: X (in cells)"),
+        tr("3. Position: Y (in cells)"),
+        tr("4. Position: Z (in cells)")
+    };
+    QMap<QString, DialogValue> map = {
+        {keys.at(0), {QVariant::String, e->objectName(), "", ",", DialogValueMode::Disabled}},
+        // test
+        {keys.at(1), {QVariant::Int, Scene::EntityCellPosition(e, s->CellSize()).x(), 0, s->Size().x() - 1, DialogValueMode::Disabled}},
+        {keys.at(2), {QVariant::Int, Scene::EntityCellPosition(e, s->CellSize()).y(), 0, s->Size().y() - 1, DialogValueMode::Disabled}},
+        {keys.at(3), {QVariant::Int, Scene::EntityCellPosition(e, s->CellSize()).z(), 0, s->Size().z() - 1, DialogValueMode::Disabled}}
+    };
+
+    auto dvl = new DialogValuesList(":/res/icons/cube.svg", tr("Edit object"), true, &map, this);
+    dvl->addToolbarButton(actionDelObject);
+    QObject::connect(s, &Scene::signalSelectedEntityChanged, dvl, &QDialog::reject);
+
+    if(!dvl->exec()) return;
+
 
     viewContainer->setFocus();
 }

@@ -31,8 +31,9 @@ private:
     QLabel* labelSceneStat;
     QLabel* labelSceneFPS;
     QGridLayout* glControls;
-    ControlButton* btnDelEntity;
+    ControlButton* btnEditEntity;
     QCheckBox* cbShowSceneBoxes;
+    QAction* actionDelObject;
 
 public Q_SLOTS:
     void slotWriteSceneStat();
@@ -40,6 +41,7 @@ public Q_SLOTS:
     void slotCreateScene();
     void slotCreatePointLight();
     void slotDeleteSelectedEntity();
+    void slotEditSelectedEntity();
     void slotSceneEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity *entity);
 };
 

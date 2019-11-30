@@ -73,7 +73,7 @@ void DialogValuesList::addWidgetContent(QWidget *widget)
 
 void DialogValuesList::addToolbarButton(QAction *action)
 {
-    toolBar->addAction(action);
+    toolBar->insertAction(toolBar->actions().first(), action);
 }
 
 void DialogValuesList::slotLoadContent(QMap<QString, DialogValue>* values)
@@ -89,6 +89,28 @@ void DialogValuesList::slotLoadContent(QMap<QString, DialogValue>* values)
         QVariant v = values->value(key).value;
         QVariant minv = values->value(key).minValue;
         QVariant maxv = values->value(key).maxValue;
+
+        if(values->value(key).mode == DialogValueMode::Disabled)
+        {
+            auto widget = new QWidget();
+            auto bl = new QHBoxLayout();
+            bl->setMargin(0);
+            bl->setSpacing(1);
+            auto label = new QLabel(widget);
+            label->setText(QString(key));
+            bl->addWidget(label, 0);
+            auto le = new QLineEdit(v.toString(), widget);
+            le->setReadOnly(true);
+            QPalette pal;
+            pal.setColor(QPalette::Base, palette().color(QPalette::Button));
+            pal.setColor(QPalette::Text, palette().color(QPalette::ButtonText));
+            le->setPalette(pal);
+            bl->addWidget(le, 1);
+            widget->setLayout(bl);
+            addWidgetContent(widget);
+          continue;
+        }
+
         if(t == QVariant::String)
         {
             auto widget = new QWidget();
@@ -100,20 +122,26 @@ void DialogValuesList::slotLoadContent(QMap<QString, DialogValue>* values)
             bl->addWidget(label, 0);
             auto le = new QLineEdit(v.toString(), widget);
             le->setProperty("ValueName", key);
-            QObject::connect(le, &QLineEdit::textEdited, this, &DialogValuesList::slotStringValueChanged);
+            QObject::connect(le, &QLineEdit::textEdited,
+                             this, &DialogValuesList::slotStringValueChanged);
             bl->addWidget(le, 1);
             widget->setLayout(bl);
             addWidgetContent(widget);
+            continue;
         }
-        else if(t == QVariant::Bool)
+
+        if(t == QVariant::Bool)
         {
             auto cbox = new QCheckBox(key);
             cbox->setChecked(v.toBool());
             cbox->setProperty("ValueName", key);
-            QObject::connect(cbox, &QCheckBox::stateChanged, this, &DialogValuesList::slotBoolValueChanged);
+            QObject::connect(cbox, &QCheckBox::stateChanged,
+                             this, &DialogValuesList::slotBoolValueChanged);
             addWidgetContent(cbox);
+            continue;
         }
-        else if(t == QVariant::Int || t == QVariant::Double)
+
+        if(t == QVariant::Int || t == QVariant::Double)
         {
             auto spinbox = new QSpinBox();
             spinbox->setPrefix(QString("%1: ").arg(key));
@@ -122,12 +150,13 @@ void DialogValuesList::slotLoadContent(QMap<QString, DialogValue>* values)
             spinbox->setValue(v.toInt());
             spinbox->installEventFilter(this);
             spinbox->setProperty("ValueName", key);
-            void (QSpinBox::*Sender)(int) = &QSpinBox::valueChanged;
-            void (DialogValuesList::*Receiver)(int) = &DialogValuesList::slotIntValueChanged;
-            QObject::connect(spinbox, Sender, this, Receiver);
+            QObject::connect(spinbox, QOverload<int>::of(&QSpinBox::valueChanged),
+                             this, &DialogValuesList::slotIntValueChanged);
             addWidgetContent(spinbox);
+            continue;
         }
-        else if(t == QVariant::StringList)
+
+        if(t == QVariant::StringList)
         {
             auto widget = new QWidget();
             auto label = new QLabel();
@@ -138,11 +167,12 @@ void DialogValuesList::slotLoadContent(QMap<QString, DialogValue>* values)
             bl->addWidget(label, 0);
             if(values->value(key).mode == DialogValueMode::Default)
             { 
-                auto le = new QLineEdit(v.toStringList().join(","), widget);
+                auto le = new QLineEdit(v.toStringList().join(','), widget);
                 le->setProperty("ValueName", key);
                 le->setToolTip("Enter");
                 // значение присваивается по нажатию Enter
-                QObject::connect(le, &QLineEdit::returnPressed, this, &DialogValuesList::slotStringListValueChanged);
+                QObject::connect(le, &QLineEdit::returnPressed,
+                                 this, &DialogValuesList::slotStringListValueChanged);
                 bl->addWidget(le, 1);
                 widget->setLayout(bl);
             }
@@ -154,9 +184,8 @@ void DialogValuesList::slotLoadContent(QMap<QString, DialogValue>* values)
                 cb->setProperty("ValueName", key);
                 auto index = list.indexOf(v.toString());
                 if(index != -1) cb->setCurrentIndex(index);
-                void (QComboBox::*Sender)(const QString&) = &QComboBox::currentIndexChanged;
-                void (DialogValuesList::*Receiver)(const QString&) = &DialogValuesList::slotOneOfStringListValueChanged;
-                QObject::connect(cb, Sender, this, Receiver);                
+                QObject::connect(cb, QOverload<const QString&>::of(&QComboBox::currentIndexChanged),
+                                 this, &DialogValuesList::slotOneOfStringListValueChanged);
                 bl->addWidget(cb, 1);
                 widget->setLayout(bl);
             }
@@ -180,14 +209,16 @@ void DialogValuesList::slotLoadContent(QMap<QString, DialogValue>* values)
                 }
 
                 lv->setModel(model);
-                connect(model, &QStandardItemModel::itemChanged, this, &DialogValuesList::slotManyOfStringListValueChanged);
+                connect(model, &QStandardItemModel::itemChanged,
+                        this, &DialogValuesList::slotManyOfStringListValueChanged);
                 bl->addWidget(lv, 1);
                 widget->setLayout(bl);
             }
             addWidgetContent(widget);
+            continue;
         }
-        else
-        { qCritical() << __func__ << ": Value" << key << "Unsupported type" << t; }
+
+        qCritical() << __func__ << ": Value" << key << "Unsupported type" << t;
     }
 }
 
@@ -214,7 +245,7 @@ void DialogValuesList::slotStringListValueChanged()
     if(!ledit) { qCritical() << __func__ << ": Signal sender not found."; return; }
     auto key = ledit->property("ValueName").toString();
     DialogValue dv = m_Values->value(key);
-    dv.value = ledit->text().split(",", QString::SkipEmptyParts).replaceInStrings(QRegExp(RE_FIRST_LAST_SPACES), "");
+    dv.value = ledit->text().split(',', QString::SkipEmptyParts).replaceInStrings(QRegExp(RE_FIRST_LAST_SPACES), "");
     m_Values->insert(key, dv);
 }
 

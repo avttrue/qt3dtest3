@@ -56,7 +56,8 @@ public:
     QString EntityGeometry(SceneEntity* entity) const;
     QString EntityMaterial(SceneEntity* entity) const;
     void setEntityCellPosition(SceneEntity* entity, const QVector3D& position);
-    QVector3D EntityCellPosition(SceneEntity* entity);
+
+    static QVector3D EntityCellPosition(SceneEntity* entity, float cellSize);
 
 Q_SIGNALS:
     void signalSelectedEntityChanged(SceneEntity* entity);
