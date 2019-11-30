@@ -24,10 +24,10 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window,
     m_SelectedEntity(nullptr),
     m_Box(nullptr),
     m_LightMesh(new Qt3DExtras::QSphereMesh(this)),
-    m_CellSize(abs(cell)),
-    m_Height(abs(height)),
-    m_Width(abs(width)),
-    m_Depth(abs(depth))
+    m_CellSize(ceilf(cell)),
+    m_Height(ceilf(height)),
+    m_Width(ceilf(width)),
+    m_Depth(ceilf(depth))
 {
     applyEntityName(this, "scene", name);
     window->setRootEntity(this);
@@ -209,15 +209,7 @@ QString Scene::EntityMaterial(SceneEntity *entity) const
 void Scene::setEntityCellPosition(SceneEntity *entity, const QVector3D &position)
 {
     if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity"; return; }
-    entity->applyPosition(m_CellSize * position);
-}
-
-QVector3D Scene::EntityCellPosition(SceneEntity *entity, float cellSize)
-{
-    if(!entity) { qCritical() << __func__ << ": Wrong cell size" << cellSize; return QVector3D(-1.0, -1.0, -1.0); }
-    if(!entity) { qCritical() << __func__ << ": Wrong entity"; return QVector3D(-1.0, -1.0, -1.0); }
-    auto v = entity->Position() / cellSize;
-    return QVector3D(abs(v.x()), abs(v.x()), abs(v.z()));
+    entity->applyPosition(FromCellPosition(position, m_CellSize));
 }
 
 void Scene::slotFrameActionTriggered(float dt)

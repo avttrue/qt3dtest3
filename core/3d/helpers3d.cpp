@@ -1,5 +1,6 @@
 #include "helpers3d.h"
 
+#include <cmath>
 #include <QUuid>
 #include <Qt3DRender/QGeometry>
 #include <Qt3DRender/QMesh>
@@ -312,4 +313,17 @@ void applyEntityMaterial(Qt3DCore::QEntity* entity, Qt3DRender::QMaterial* mater
       if(c->parent() == entity) c->deleteLater();
   }
   qDebug() << entity->objectName() << ": Material applied";
+}
+
+QVector3D FromCellPosition(const QVector3D &position, float cellSize)
+{
+    auto c_2 = cellSize / 2;
+    return cellSize * position + QVector3D(c_2, c_2, c_2);
+}
+
+QVector3D ToCellPosition(const QVector3D &position, float cellSize)
+{
+    return  QVector3D(floorf(position.x() / cellSize),
+                     floorf(position.y() / cellSize),
+                     floorf(position.z() / cellSize));
 }

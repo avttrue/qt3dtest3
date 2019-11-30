@@ -9,6 +9,7 @@
 #include "core/3d/sceneobject.h"
 #include "core/3d/light.h"
 #include "core/3d/frameratecalculator.h"
+#include "core/3d/helpers3d.h"
 
 #include <Qt3DCore/QTransform>
 #include <Qt3DRender/QPointLight>
@@ -94,7 +95,7 @@ void MainWindow::createGUI()
     addAction(actionDelObject);
 
     // редактировать объект
-    btnEditEntity = new ControlButton(QIcon(":/res/icons/cube.svg"), tr("Edit"), this);
+    btnEditEntity = new ControlButton(QIcon(":/res/icons/cube.svg"), tr("Edit object"), this);
     btnEditEntity->setDisabled(true);
     btnEditEntity->setShortcut(Qt::CTRL + Qt::Key_E);
     QObject::connect(btnEditEntity, &QPushButton::clicked, this, &MainWindow::slotEditSelectedEntity);
@@ -216,10 +217,10 @@ void MainWindow::slotCreatePointLight()
     }
 
     auto lightTransform = new Qt3DCore::QTransform;
-    lightTransform->setTranslation(s->CellSize() *
-                                   QVector3D(map.value(keys.at(1)).value.toInt(),
-                                             map.value(keys.at(2)).value.toInt(),
-                                             map.value(keys.at(3)).value.toInt()));
+    lightTransform->setTranslation(FromCellPosition(QVector3D(map.value(keys.at(1)).value.toInt(),
+                                                              map.value(keys.at(2)).value.toInt(),
+                                                              map.value(keys.at(3)).value.toInt()),
+                                                    s->CellSize()));
     auto light = new Qt3DRender::QPointLight;
     light->setIntensity(static_cast<float>(map.value(keys.at(4)).value.toInt()) / 100);
     light->setColor(color);
@@ -244,6 +245,7 @@ void MainWindow::slotEditSelectedEntity()
 {
     auto s = sceneView->getScene();
     auto e = sceneView->getScene()->SelectedEntity();
+    auto e_pos = ToCellPosition(e->Position(), s->CellSize());
 
     if(!s || !e) { btnEditEntity->setDisabled(true); return; }
 
@@ -255,10 +257,9 @@ void MainWindow::slotEditSelectedEntity()
     };
     QMap<QString, DialogValue> map = {
         {keys.at(0), {QVariant::String, e->objectName(), "", ",", DialogValueMode::Disabled}},
-        // test
-        {keys.at(1), {QVariant::Int, Scene::EntityCellPosition(e, s->CellSize()).x(), 0, s->Size().x() - 1, DialogValueMode::Disabled}},
-        {keys.at(2), {QVariant::Int, Scene::EntityCellPosition(e, s->CellSize()).y(), 0, s->Size().y() - 1, DialogValueMode::Disabled}},
-        {keys.at(3), {QVariant::Int, Scene::EntityCellPosition(e, s->CellSize()).z(), 0, s->Size().z() - 1, DialogValueMode::Disabled}}
+        {keys.at(1), {QVariant::Int, e_pos.x(), 0, s->Size().x() - 1}},
+        {keys.at(2), {QVariant::Int, e_pos.y(), 0, s->Size().y() - 1}},
+        {keys.at(3), {QVariant::Int, e_pos.z(), 0, s->Size().z() - 1}}
     };
 
     auto dvl = new DialogValuesList(":/res/icons/cube.svg", tr("Edit object"), true, &map, this);
@@ -267,6 +268,9 @@ void MainWindow::slotEditSelectedEntity()
 
     if(!dvl->exec()) return;
 
+    s->setEntityCellPosition(e, QVector3D(map.value(keys.at(1)).value.toInt(),
+                                          map.value(keys.at(2)).value.toInt(),
+                                          map.value(keys.at(3)).value.toInt()));
 
     viewContainer->setFocus();
 }
