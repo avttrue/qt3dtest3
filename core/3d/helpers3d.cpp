@@ -293,26 +293,23 @@ float getGeometryDiagonal(Qt3DRender::QGeometry* geometry)
 
 void applyEntityMaterial(Qt3DCore::QEntity* entity, Qt3DRender::QMaterial* material)
 {
-  if(!entity || !material) { qCritical() << __func__ << ": Wrong parameters"; return; }
+    if(!entity || !material) { qCritical() << __func__ << ": Wrong parameters"; return; }
 
-  // searching old material
-  QVector<Qt3DCore::QComponent*> vc;
-  for(Qt3DCore::QComponent* m: entity->components())
-  {
-      if(qobject_cast<Qt3DRender::QMaterial*>(m)) vc.append(m);
-  }
+    QVector<Qt3DCore::QComponent*> vc;
+    for(Qt3DCore::QComponent* m: entity->components())
+    {
+        if(qobject_cast<Qt3DRender::QMaterial*>(m)) vc.append(m);
+    }
 
-  // apply new material
-  entity->addComponent(material);
+    entity->addComponent(material);
 
-  // delete old material
-  for(Qt3DCore::QComponent* c: vc)
-  {
-      if(c == material) continue; // тот же самый
-      entity->removeComponent(c);
-      if(c->parent() == entity) c->deleteLater();
-  }
-  qDebug() << entity->objectName() << ": Material applied";
+    for(Qt3DCore::QComponent* c: vc)
+    {
+        if(c == material) continue; // тот же самый
+        entity->removeComponent(c);
+        if(c->parent() == entity) c->deleteLater();
+    }
+    qDebug() << entity->objectName() << ": Material applied";
 }
 
 QVector3D FromCellPosition(const QVector3D &position, float cellSize)
@@ -326,4 +323,26 @@ QVector3D ToCellPosition(const QVector3D &position, float cellSize)
     return  QVector3D(floorf(position.x() / cellSize),
                      floorf(position.y() / cellSize),
                      floorf(position.z() / cellSize));
+}
+
+void applyEntityLight(Qt3DCore::QEntity *entity, Qt3DRender::QAbstractLight *light)
+{
+    if(!entity || !light) { qCritical() << __func__ << ": Wrong parameters"; return; }
+
+    QVector<Qt3DCore::QComponent*> vc;
+    for(Qt3DCore::QComponent* c: entity->components())
+    {
+        if(qobject_cast<Qt3DRender::QAbstractLight*>(c))
+            vc.append(c);
+    }
+
+    entity->addComponent(light);
+
+    for(Qt3DCore::QComponent* c: vc)
+    {
+        if(c == light) continue; // тот же самый
+        entity->removeComponent(c);
+        if(c->parent() == entity) c->deleteLater();
+    }
+    qDebug() << entity->objectName() << ": Light applied";
 }

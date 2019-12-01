@@ -6,6 +6,7 @@
 #include <Qt3DRender/QGeometryRenderer>
 #include <Qt3DRender/QMaterial>
 
+#include <QAbstractLight>
 #include <QColor>
 #include <QVector3D>
 
@@ -47,6 +48,8 @@ void applyEntityName(Qt3DCore::QEntity* entity, const QString &prefix, const QSt
 void applyEntityGeometry(Qt3DCore::QEntity* entity, Qt3DRender::QGeometryRenderer *geometryrenderer);
 
 void applyEntityMaterial(Qt3DCore::QEntity* entity, Qt3DRender::QMaterial* material);
+
+void applyEntityLight(Qt3DCore::QEntity* entity, Qt3DRender::QAbstractLight* light);
 
 float getGeometryDiagonal(Qt3DRender::QGeometry* geometry);
 

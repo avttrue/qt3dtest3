@@ -104,11 +104,6 @@ void SceneEntity::applyMaterial(const QString &name)
     applyMaterial(m);
 }
 
-void SceneEntity::applyPosition(const QVector3D &position)
-{
-    m_Transform->setTranslation(position);
-}
-
 void SceneEntity::slotSelect(bool value)
 {
     if(m_SelectionBox)
@@ -123,6 +118,7 @@ void SceneEntity::slotSelect(bool value)
     qDebug() << objectName() << ": selection" << value;
 }
 
+void SceneEntity::applyPosition(const QVector3D &position) { m_Transform->setTranslation(position); }
 Qt3DCore::QEntity *SceneEntity::SelectionBox() const { return m_SelectionBox; }
 void SceneEntity::Interactive(bool value) { m_Picker->setEnabled(value); }
 Qt3DRender::QGeometryRenderer *SceneEntity::Geometry() const { return m_Geometry; }

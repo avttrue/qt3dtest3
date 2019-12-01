@@ -15,6 +15,8 @@ public:
           Qt3DRender::QMaterial* material,
           Qt3DCore::QTransform *transform,
           Qt3DRender::QAbstractLight *light);
+    void applyLight(Qt3DRender::QAbstractLight* light);
+    Qt3DRender::QAbstractLight* getLight() const;
 
 Q_SIGNALS:
 

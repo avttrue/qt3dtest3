@@ -249,7 +249,7 @@ void MainWindow::slotEditSelectedEntity()
 
     if(!s || !e) { btnEditEntity->setDisabled(true); return; }
 
-    const QVector<QString> keys = {
+    QVector<QString> keys = {
         tr("1. Name:"),
         tr("2. Position: X (in cells)"),
         tr("3. Position: Y (in cells)"),
@@ -262,6 +262,16 @@ void MainWindow::slotEditSelectedEntity()
         {keys.at(3), {QVariant::Int, e_pos.z(), 0, s->Size().z() - 1}}
     };
 
+    auto le = qobject_cast<Light*>(e);
+    if(le)
+    {
+        keys.append(tr("5. Intensity (N/100)"));
+        keys.append(tr("6. Color (#XXXXXX):"));
+
+        map.insert(keys.at(4), {QVariant::Int, le->getLight()->intensity() * 100, 1, 100});
+        map.insert(keys.at(5), {QVariant::String, le->getLight()->color().name(QColor::HexRgb)});
+    }
+
     auto dvl = new DialogValuesList(":/res/icons/cube.svg", tr("Edit object"), true, &map, this);
     dvl->addToolbarButton(actionDelObject);
     QObject::connect(s, &Scene::signalSelectedEntityChanged, dvl, &QDialog::reject);
@@ -271,6 +281,21 @@ void MainWindow::slotEditSelectedEntity()
     s->setEntityCellPosition(e, QVector3D(map.value(keys.at(1)).value.toInt(),
                                           map.value(keys.at(2)).value.toInt(),
                                           map.value(keys.at(3)).value.toInt()));
+
+    if(le)
+    {
+        auto color = QColor(map.value(keys.at(5)).value.toString());
+        if(!color.isValid())
+        {
+            QMessageBox::critical(this, tr("Error"), tr("Wrong color: '%1'.").arg(map.value(keys.at(5)).value.toString()));
+            color = le->getLight()->color();
+        }
+
+        auto light = new Qt3DRender::QPointLight;
+        light->setIntensity(static_cast<float>(map.value(keys.at(4)).value.toInt()) / 100);
+        light->setColor(color);
+        le->applyLight(light);
+    }
 
     viewContainer->setFocus();
 }
