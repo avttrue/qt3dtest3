@@ -14,6 +14,7 @@
 #include <Qt3DCore/QTransform>
 #include <Qt3DRender/QPointLight>
 
+#include <QRandomGenerator> // test
 #include <QMessageBox>
 #include <QScrollArea>
 #include <QSplitter>
@@ -102,8 +103,8 @@ void MainWindow::createGUI()
     addControlWidget(btnEditEntity);
 
     // тест
-    auto btnTest = new ControlButton(tr("   test entities"), this);
-    QObject::connect(btnTest, &QPushButton::clicked, [=]() { sceneView->test(); viewContainer->setFocus(); });
+    auto btnTest = new ControlButton(tr("  test 1000"), this);
+    QObject::connect(btnTest, &QPushButton::clicked, this, &MainWindow::slotTest);
     addControlWidget(btnTest);
 
     // статусбар
@@ -194,7 +195,7 @@ void MainWindow::slotCreatePointLight()
          tr("2. Position: X (in cells)"),
          tr("3. Position: Y (in cells)"),
          tr("4. Position: Z (in cells)"),
-         tr("5. Intensity (N/100)"),
+         tr("5. Intensity (N/100):"),
          tr("6. Color (#XXXXXX):")
         };
     QMap<QString, DialogValue> map =
@@ -263,13 +264,28 @@ void MainWindow::slotEditSelectedEntity()
     };
 
     auto le = qobject_cast<Light*>(e);
+    auto so = qobject_cast<SceneObject*>(e);
+
     if(le)
     {
-        keys.append(tr("5. Intensity (N/100)"));
+        keys.append(tr("5. Intensity (N/100):"));
         keys.append(tr("6. Color (#XXXXXX):"));
 
         map.insert(keys.at(4), {QVariant::Int, le->getLight()->intensity() * 100, 1, 100});
         map.insert(keys.at(5), {QVariant::String, le->getLight()->color().name(QColor::HexRgb)});
+    }    
+    else if(so)
+    {
+        keys.append(tr("5. Material:"));
+        keys.append(tr("6. Geometry:"));
+        map.insert(keys.at(4), {QVariant::StringList, s->EntityMaterial(e),
+                                "", QStringList(s->Materials().keys()), DialogValueMode::OneFromList});
+        map.insert(keys.at(5), {QVariant::StringList, s->EntityGeometry(e),
+                                "", QStringList(s->Geometries().keys()), DialogValueMode::OneFromList});
+    }
+    else
+    {
+        qCritical() << e->objectName() << "(" << __func__ << "): Unknown object type";
     }
 
     auto dvl = new DialogValuesList(":/res/icons/cube.svg", tr("Edit object"), true, &map, this);
@@ -296,6 +312,34 @@ void MainWindow::slotEditSelectedEntity()
         light->setColor(color);
         le->applyLight(light);
     }
+    else if(so)
+    {
+        e->applyMaterial(map.value(keys.at(4)).value.toString());
+        e->applyGeometry(map.value(keys.at(5)).value.toString());
+    }
+
+    viewContainer->setFocus();
+}
+
+void MainWindow::slotTest()
+{
+    auto s = sceneView->getScene();
+    if(!s) {qWarning() << "Scene is absent"; return; }
+
+    s->setEnabled(false);
+    for(int i = 0; i < 10; i++)
+        for(int j = 0; j < 10; j++)
+            for(int k = 0; k < 10; k++)
+            {
+                auto transform = new Qt3DCore::QTransform;
+                transform->setScale(s->CellSize());
+                transform->setTranslation(QVector3D(i*30, j*30, k*30));
+
+                auto matname = s->Materials().keys().at(
+                    QRandomGenerator::global()->bounded(0, s->Materials().keys().count()));
+                s->addObject("cube", matname, transform);
+            }
+    s->setEnabled(true);
 
     viewContainer->setFocus();
 }
@@ -318,27 +362,7 @@ void MainWindow::slotSceneEntityClicked(Qt3DRender::QPickEvent *event, SceneEnti
     }
     else if(event->button() == Qt3DRender::QPickEvent::Buttons::RightButton)
     {
-        qDebug() << "Mouse button: RightButton";
-        // test
-        if(qobject_cast<SceneObject*>(entity))
-        {
-            const QVector<QString> keys =
-                {tr("1. Material:"),
-                 tr("2. Geometry:")
-                };
-            QMap<QString, DialogValue> map =
-                {{keys.at(0), {QVariant::StringList, s->EntityMaterial(entity),
-                               "", QStringList(s->Materials().keys()), DialogValueMode::OneFromList}},
-                 {keys.at(1), {QVariant::StringList, s->EntityGeometry(entity),
-                               "", QStringList(s->Geometries().keys()), DialogValueMode::OneFromList}}
-                };
-            auto dvl = new DialogValuesList(":/res/icons/setup.svg", tr("Edit"), true, &map, this);
-
-            if(!dvl->exec()) return;
-
-            entity->applyMaterial(map.value(keys.at(0)).value.toString());
-            entity->applyGeometry(map.value(keys.at(1)).value.toString());
-        }
+        qDebug() << "Mouse button: RightButton";        
     }
 }
 

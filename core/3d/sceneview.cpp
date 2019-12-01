@@ -5,7 +5,6 @@
 #include "sceneobject.h"
 
 #include <QDebug>
-#include <QRandomGenerator>
 
 #include <Qt3DExtras/QForwardRenderer>
 #include <Qt3DCore/QTransform>
@@ -41,31 +40,6 @@ void SceneView::resizeEvent(QResizeEvent *e)
 
     auto camera_aspect = static_cast<float>(e->size().width()) / e->size().height();
     camera()->lens()->setPerspectiveProjection(45.0f, camera_aspect, 0.1f, getScene()->CameraFarPlane());
-}
-
-void SceneView::test() // test
-{
-    if(!m_Scene) {qWarning() << "Scene is absent"; return; }
-
-    m_Scene->setEnabled(false);
-    for(int i = 0; i < 10; i++)
-        for(int j = 0; j < 10; j++)
-            for(int k = 0; k < 10; k++)
-            {
-                auto mesh = new Qt3DExtras::QSphereMesh;
-                mesh->setRadius(20.0);
-                mesh->setSlices(32);
-                mesh->setRings(32);
-
-                auto transform = new Qt3DCore::QTransform;
-                transform->setScale(m_Scene->CellSize());
-                transform->setTranslation(QVector3D(i*40.0f, j*40.0f, k*40.0f));
-
-                auto matname = m_Scene->Materials().keys().at(
-                    QRandomGenerator::global()->bounded(0, m_Scene->Materials().keys().count()));
-                m_Scene->addObject("cube", matname, transform);
-            }
-    m_Scene->setEnabled(true);
 }
 
 Scene* SceneView::getScene() const { return m_Scene; }

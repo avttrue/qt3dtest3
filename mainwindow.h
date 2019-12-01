@@ -42,6 +42,7 @@ public Q_SLOTS:
     void slotCreatePointLight();
     void slotDeleteSelectedEntity();
     void slotEditSelectedEntity();
+    void slotTest();
     void slotSceneEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity *entity);
 };
 

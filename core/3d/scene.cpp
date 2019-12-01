@@ -24,10 +24,10 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window,
     m_SelectedEntity(nullptr),
     m_Box(nullptr),
     m_LightMesh(new Qt3DExtras::QSphereMesh(this)),
-    m_CellSize(ceilf(cell)),
-    m_Height(ceilf(height)),
-    m_Width(ceilf(width)),
-    m_Depth(ceilf(depth))
+    m_CellSize(abs(ceilf(cell))),
+    m_Height(abs(ceilf(height))),
+    m_Width(abs(ceilf(width))),
+    m_Depth(abs(ceilf(depth)))
 {
     applyEntityName(this, "scene", name);
     window->setRootEntity(this);
