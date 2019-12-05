@@ -23,7 +23,6 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window,
     Qt3DCore::QEntity(nullptr),
     m_SelectedEntity(nullptr),
     m_Box(nullptr),
-    m_LightMesh(new Qt3DExtras::QSphereMesh(this)),
     m_CellSize(abs(ceilf(cell))),
     m_Height(abs(ceilf(height))),
     m_Width(abs(ceilf(width))),
@@ -35,10 +34,6 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window,
     auto w = cell * width; auto h = cell * height; auto d = cell * depth;
 
     m_FRC = new FrameRateCalculator(FRAME_RATE_COUNT_CALC, this);
-
-    m_LightMesh->setRadius(m_CellSize / 2);
-    m_LightMesh->setSlices(64);
-    m_LightMesh->setRings(64);
 
     m_Camera = window->camera();
     m_CameraFarPlane = static_cast<float>(sqrt(pow(static_cast<double>(w), 2) +
@@ -75,17 +70,11 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window,
     qDebug() << objectName() << ": Scene created";
 }
 
-void Scene::addLight(Qt3DCore::QTransform *transform,
-                     Qt3DRender::QAbstractLight *light,
-                     const QString &name)
+Light* Scene::addLight(Qt3DRender::QAbstractLight *light,
+                       Qt3DCore::QTransform *transform,
+                       const QString &name)
 {
-    auto material = new Qt3DExtras::QPhongMaterial;
-    material->setAmbient(light->color());
-    material->setDiffuse(light->color());
-    material->setSpecular(light->color());
-    material->setShininess(light->intensity() * 100);
-
-    auto l = new Light(this, m_LightMesh, material, transform, light);
+    auto l = new Light(this, light, transform);
     applyEntityName(l, "light", name);
     l->slotShowGeometry(config->DrawSceneBoxes());
 
@@ -94,6 +83,8 @@ void Scene::addLight(Qt3DCore::QTransform *transform,
 
     qDebug() << l->objectName() << ": Light added, count" << m_Lights.count();
     emit signalLightsCountChanged(m_Lights.count());
+
+    return l;
 }
 
 bool Scene::delLight(const QString &name)
@@ -206,10 +197,37 @@ QString Scene::EntityMaterial(SceneEntity *entity) const
     return m_Materials.key(entity->Material());
 }
 
-void Scene::setEntityCellPosition(SceneEntity *entity, const QVector3D &position)
+void Scene::setEntityPosition(SceneEntity *entity, const QVector3D &position)
 {
     if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity"; return; }
-    entity->applyPosition(FromCellPosition(position, m_CellSize));
+
+    entity->applyPosition(entity->Size() + m_CellSize * position);
+}
+
+QVector3D Scene::EntityPosition(SceneEntity *entity) const
+{
+    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity"; return QVector3D(-1, -1, -1); }
+
+    auto p = entity->Position() - entity->Size();
+    return QVector3D(floorf(p.x() / m_CellSize),
+                     floorf(p.y() / m_CellSize),
+                     floorf(p.z() / m_CellSize));
+}
+
+void Scene::setEntitySize(SceneEntity *entity, const QVector3D &size)
+{
+    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity"; return; }
+    entity->setSize(m_CellSize * size / 2);
+}
+
+QVector3D Scene::EntitySize(SceneEntity *entity) const
+{
+    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity"; return QVector3D(0, 0, 0); }
+
+    auto p = entity->Size() * 2;
+    return  QVector3D(floorf(p.x() / m_CellSize),
+                     floorf(p.y() / m_CellSize),
+                     floorf(p.z() / m_CellSize));
 }
 
 void Scene::slotFrameActionTriggered(float dt)

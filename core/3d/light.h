@@ -11,10 +11,8 @@ class Light : public SceneEntity
 
 public:
     Light(Scene* parent,
-          Qt3DRender::QGeometryRenderer* geometry,
-          Qt3DRender::QMaterial* material,
-          Qt3DCore::QTransform *transform,
-          Qt3DRender::QAbstractLight *light);
+          Qt3DRender::QAbstractLight *light,
+          Qt3DCore::QTransform *transform = nullptr);
     void applyLight(Qt3DRender::QAbstractLight* light);
     Qt3DRender::QAbstractLight* getLight() const;
 

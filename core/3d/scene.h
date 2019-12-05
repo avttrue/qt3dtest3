@@ -3,7 +3,6 @@
 
 #include <Qt3DCore/QEntity>
 #include <Qt3DExtras/Qt3DWindow>
-#include <Qt3DExtras/QSphereMesh>
 #include <Qt3DLogic/QFrameAction>
 #include <Qt3DRender/QMaterial>
 #include <Qt3DRender/QGeometryRenderer>
@@ -26,14 +25,14 @@ public:
           float cell,
           float width, float height, float depth,
           const QString &name = "");
-    void addLight(Qt3DCore::QTransform *transform,
-                  Qt3DRender::QAbstractLight* light,
-                  const QString &name = "");
+    Light *addLight(Qt3DRender::QAbstractLight* light,
+                    Qt3DCore::QTransform *transform = nullptr,
+                    const QString &name = "");
     bool delLight(const QString& name);
     bool delLight(SceneEntity *entity);
     SceneObject* addObject(const QString& geometry,
                            const QString &material,
-                           Qt3DCore::QTransform *transform,
+                           Qt3DCore::QTransform *transform = nullptr,
                            const QString &name = "");
 
     bool delObject(const QString &name);
@@ -51,7 +50,10 @@ public:
     void SelectEntity(SceneEntity* entity);
     QString EntityGeometry(SceneEntity* entity) const;
     QString EntityMaterial(SceneEntity* entity) const;
-    void setEntityCellPosition(SceneEntity* entity, const QVector3D& position);
+    void setEntityPosition(SceneEntity* entity, const QVector3D& position);
+    QVector3D EntityPosition(SceneEntity* entity) const;
+    void setEntitySize(SceneEntity* entity, const QVector3D& size);
+    QVector3D EntitySize(SceneEntity* entity) const;
 
 Q_SIGNALS:
     void signalSelectedEntityChanged(SceneEntity* entity);
@@ -88,7 +90,6 @@ private:
     QHash <QString, SceneObject*> m_Objects;
     QHash <QString, Qt3DRender::QGeometryRenderer*> m_Geometries;
     QHash <QString, Qt3DRender::QMaterial*> m_Materials;
-    Qt3DExtras::QSphereMesh* m_LightMesh;
     float m_CellSize;
     float m_Height;
     float m_Width;

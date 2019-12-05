@@ -11,5 +11,6 @@
         <file>res/icons/no.svg</file>
         <file>res/icons/matrix.svg</file>
         <file>res/icons/lamp.svg</file>
+        <file>res/icons/edit.svg</file>
     </qresource>
 </RCC>

@@ -53,14 +53,4 @@ void applyEntityLight(Qt3DCore::QEntity* entity, Qt3DRender::QAbstractLight* lig
 
 float getGeometryDiagonal(Qt3DRender::QGeometry* geometry);
 
-/*!
- * \brief FromCellPosition - преобразовать координаты ячеек в реальные координаты
- */
-QVector3D FromCellPosition(const QVector3D &position, float cellSize);
-
-/*!
- * \brief ToCellPosition - преобразовать координаты в координаты ячеек
- */
-QVector3D ToCellPosition(const QVector3D &position, float cellSize);
-
 #endif // HELPERS_H

@@ -96,7 +96,7 @@ void MainWindow::createGUI()
     addAction(actionDelObject);
 
     // редактировать объект
-    btnEditEntity = new ControlButton(QIcon(":/res/icons/cube.svg"), tr("Edit object"), this);
+    btnEditEntity = new ControlButton(QIcon(":/res/icons/edit.svg"), tr("Edit object"), this);
     btnEditEntity->setDisabled(true);
     btnEditEntity->setShortcut(Qt::CTRL + Qt::Key_E);
     QObject::connect(btnEditEntity, &QPushButton::clicked, this, &MainWindow::slotEditSelectedEntity);
@@ -217,15 +217,13 @@ void MainWindow::slotCreatePointLight()
         return;
     }
 
-    auto lightTransform = new Qt3DCore::QTransform;
-    lightTransform->setTranslation(FromCellPosition(QVector3D(map.value(keys.at(1)).value.toInt(),
-                                                              map.value(keys.at(2)).value.toInt(),
-                                                              map.value(keys.at(3)).value.toInt()),
-                                                    s->CellSize()));
     auto light = new Qt3DRender::QPointLight;
     light->setIntensity(static_cast<float>(map.value(keys.at(4)).value.toInt()) / 100);
     light->setColor(color);
-    s->addLight(lightTransform, light, map.value(keys.at(0)).value.toString());
+    auto e = s->addLight(light, new Qt3DCore::QTransform, map.value(keys.at(0)).value.toString());
+    s->setEntityPosition(e, QVector3D(map.value(keys.at(1)).value.toInt(),
+                                      map.value(keys.at(2)).value.toInt(),
+                                      map.value(keys.at(3)).value.toInt()));
     viewContainer->setFocus();
 }
 
@@ -246,7 +244,7 @@ void MainWindow::slotEditSelectedEntity()
 {
     auto s = sceneView->getScene();
     auto e = sceneView->getScene()->SelectedEntity();
-    auto e_pos = ToCellPosition(e->Position(), s->CellSize());
+    auto e_pos = s->EntityPosition(e);
 
     if(!s || !e) { btnEditEntity->setDisabled(true); return; }
 
@@ -257,7 +255,7 @@ void MainWindow::slotEditSelectedEntity()
         tr("4. Position: Z (in cells)")
     };
     QMap<QString, DialogValue> map = {
-        {keys.at(0), {QVariant::String, e->objectName(), "", ",", DialogValueMode::Disabled}},
+        {keys.at(0), {QVariant::String, e->objectName(), "", ',', DialogValueMode::Disabled}},
         {keys.at(1), {QVariant::Int, e_pos.x(), 0, s->Size().x() - 1}},
         {keys.at(2), {QVariant::Int, e_pos.y(), 0, s->Size().y() - 1}},
         {keys.at(3), {QVariant::Int, e_pos.z(), 0, s->Size().z() - 1}}
@@ -276,11 +274,18 @@ void MainWindow::slotEditSelectedEntity()
     }    
     else if(so)
     {
-        keys.append(tr("5. Material:"));
-        keys.append(tr("6. Geometry:"));
-        map.insert(keys.at(4), {QVariant::StringList, s->EntityMaterial(e),
+        keys.append(tr("5. Size: X (in cells)"));
+        keys.append(tr("6. Size: Y (in cells)"));
+        keys.append(tr("7. Size: Z (in cells)"));
+        keys.append(tr("8. Material:"));
+        keys.append(tr("9. Geometry:"));
+
+        map.insert(keys.at(4), {QVariant::Int, s->EntitySize(e).x(), 1, s->Size().x()});
+        map.insert(keys.at(5), {QVariant::Int, s->EntitySize(e).y(), 1, s->Size().y()});
+        map.insert(keys.at(6), {QVariant::Int, s->EntitySize(e).z(), 1, s->Size().z()});
+        map.insert(keys.at(7), {QVariant::StringList, s->EntityMaterial(e),
                                 "", QStringList(s->Materials().keys()), DialogValueMode::OneFromList});
-        map.insert(keys.at(5), {QVariant::StringList, s->EntityGeometry(e),
+        map.insert(keys.at(8), {QVariant::StringList, s->EntityGeometry(e),
                                 "", QStringList(s->Geometries().keys()), DialogValueMode::OneFromList});
     }
     else
@@ -288,15 +293,11 @@ void MainWindow::slotEditSelectedEntity()
         qCritical() << e->objectName() << "(" << __func__ << "): Unknown object type";
     }
 
-    auto dvl = new DialogValuesList(":/res/icons/cube.svg", tr("Edit object"), true, &map, this);
+    auto dvl = new DialogValuesList(":/res/icons/edit.svg", tr("Edit object"), true, &map, this);
     dvl->addToolbarButton(actionDelObject);
     QObject::connect(s, &Scene::signalSelectedEntityChanged, dvl, &QDialog::reject);
 
     if(!dvl->exec()) return;
-
-    s->setEntityCellPosition(e, QVector3D(map.value(keys.at(1)).value.toInt(),
-                                          map.value(keys.at(2)).value.toInt(),
-                                          map.value(keys.at(3)).value.toInt()));
 
     if(le)
     {
@@ -314,15 +315,28 @@ void MainWindow::slotEditSelectedEntity()
     }
     else if(so)
     {
-        e->applyMaterial(map.value(keys.at(4)).value.toString());
-        e->applyGeometry(map.value(keys.at(5)).value.toString());
+        s->setEntitySize(e, QVector3D(map.value(keys.at(4)).value.toInt(),
+                                      map.value(keys.at(5)).value.toInt(),
+                                      map.value(keys.at(6)).value.toInt()));
+        e->applyMaterial(map.value(keys.at(7)).value.toString());
+        e->applyGeometry(map.value(keys.at(8)).value.toString());
     }
+
+    s->setEntityPosition(e, QVector3D(map.value(keys.at(1)).value.toInt(),
+                                      map.value(keys.at(2)).value.toInt(),
+                                      map.value(keys.at(3)).value.toInt()));
 
     viewContainer->setFocus();
 }
 
 void MainWindow::slotTest()
 {
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, tr("Confirm"), tr("Cretare 1000 objects?"),
+                                  QMessageBox::Yes | QMessageBox::No);
+
+    if (reply == QMessageBox::No)  return;
+
     auto s = sceneView->getScene();
     if(!s) {qWarning() << "Scene is absent"; return; }
 
@@ -331,13 +345,11 @@ void MainWindow::slotTest()
         for(int j = 0; j < 10; j++)
             for(int k = 0; k < 10; k++)
             {
-                auto transform = new Qt3DCore::QTransform;
-                transform->setScale(s->CellSize());
-                transform->setTranslation(QVector3D(i*30, j*30, k*30));
-
                 auto matname = s->Materials().keys().at(
                     QRandomGenerator::global()->bounded(0, s->Materials().keys().count()));
-                s->addObject("cube", matname, transform);
+                auto e = s->addObject("cube", matname);
+                s->setEntitySize(e, QVector3D(1, 1, 1));
+                s->setEntityPosition(e, 2 * QVector3D(i, j, k));
             }
     s->setEnabled(true);
 

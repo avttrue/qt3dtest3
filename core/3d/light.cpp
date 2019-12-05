@@ -4,16 +4,33 @@
 #include "scene.h"
 
 #include <QPhongMaterial>
+#include <Qt3DExtras/QSphereMesh>
 
 Light::Light(Scene *parent,
-             Qt3DRender::QGeometryRenderer *geometry,
-             Qt3DRender::QMaterial *material,
-             Qt3DCore::QTransform *transform,
-             Qt3DRender::QAbstractLight *light)
-    :SceneEntity(parent, geometry, material, transform),
+             Qt3DRender::QAbstractLight *light,
+             Qt3DCore::QTransform *transform)
+    :SceneEntity(parent, nullptr, nullptr, transform),
     m_Light(light)
 {
     addComponent(light);
+    m_Light = light;
+
+    auto material = new Qt3DExtras::QPhongMaterial;
+    material->setAmbient(light->color());
+    material->setDiffuse(light->color());
+    material->setSpecular(light->color());
+    material->setShininess(light->intensity() * 100);
+    addComponent(material);
+    m_Material = material;
+
+    auto mesh = new Qt3DExtras::QSphereMesh(this);
+    mesh->setRadius(parent->CellSize() / 2);
+    mesh->setSlices(32);
+    mesh->setRings(32);
+    addComponent(mesh);
+    m_Geometry = mesh;
+
+    m_Size = QVector3D(1, 1, 1) * parent->CellSize() / 2;
 }
 
 void Light::applyLight(Qt3DRender::QAbstractLight *light)
