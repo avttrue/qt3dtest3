@@ -17,7 +17,7 @@ Material::Material(Scene *parent) :
     QObject::connect(this, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": Material" << objectName() << " destroyed"; });
 }
 
-Qt3DRender::QTexture2D* Material::createTexture(const QString &path)
+Qt3DRender::QTexture2D* Material::createTexture(const QString &path, bool mirrored)
 {
     auto fi = QFileInfo(path);
     auto texture2d = new Qt3DRender::QTexture2D(this);
@@ -30,7 +30,7 @@ Qt3DRender::QTexture2D* Material::createTexture(const QString &path)
         textureImage->setSource(QUrl::fromLocalFile(DEFAULT_TEXTURE));
     }
 
-    textureImage->setMirrored(false);
+    textureImage->setMirrored(mirrored);
     texture2d->addTextureImage(textureImage);
 
     return texture2d;
@@ -55,11 +55,13 @@ void Material::loadCFG(const QString &cfg_path)
     setShininess(cfg->value("TextureScale", TEXTURE_SCALE).toFloat());
 
     auto diffuse = cfg->value("DiffuseMap", "").toString();
-    setDiffuse(QVariant::fromValue<Qt3DRender::QAbstractTexture*>(createTexture(assetsdir + diffuse)));
+    auto diffuse_m = cfg->value("DiffuseMapMirrored", false).toBool();
+    setDiffuse(QVariant::fromValue<Qt3DRender::QAbstractTexture*>(createTexture(assetsdir + diffuse, diffuse_m)));
 
     auto specular = cfg->value("SpecularMap", "").toString();
+    auto specular_m = cfg->value("SpecularMapMirrored", false).toBool();
     if(!specular.isEmpty())
-        setSpecular(QVariant::fromValue<Qt3DRender::QAbstractTexture*>(createTexture(assetsdir + specular)));
+        setSpecular(QVariant::fromValue<Qt3DRender::QAbstractTexture*>(createTexture(assetsdir + specular, specular_m)));
     else
     {
         auto specularColor = QColor(cfg->value("SpecularColor", QColor::Invalid).toString());
@@ -67,6 +69,7 @@ void Material::loadCFG(const QString &cfg_path)
     }
 
     auto normal = cfg->value("NormalMap", "").toString();
+    auto normal_m = cfg->value("NormalMapMirrored", false).toBool();
     if(!normal.isEmpty())
-        setNormal(QVariant::fromValue<Qt3DRender::QAbstractTexture*>(createTexture(assetsdir + normal)));
+        setNormal(QVariant::fromValue<Qt3DRender::QAbstractTexture*>(createTexture(assetsdir + normal, normal_m)));
 }

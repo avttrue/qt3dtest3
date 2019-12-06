@@ -5,4 +5,7 @@ SpecularColor=
 SpecularMap=
 DiffuseMap=cube3.png
 NormalMap=cube3_n.png
+DiffuseMapMirrored=false
+SpecularMapMirrored=false
+NormalMapMirrored=false
 Name=cube3

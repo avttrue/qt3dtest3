@@ -19,5 +19,15 @@
         <file>models/cube3.png</file>
         <file>models/cube4.material</file>
         <file>models/cube5.material</file>
+        <file>models/powerup_n.png</file>
+        <file>models/powerup.obj</file>
+        <file>models/powerup.material</file>
+        <file>models/powerup_s.png</file>
+        <file>models/powerup.png</file>
+        <file>models/roundedcube_n.png</file>
+        <file>models/roundedcube_s.png</file>
+        <file>models/roundedcube.material</file>
+        <file>models/roundedcube.obj</file>
+        <file>models/roundedcube.png</file>
     </qresource>
 </RCC>

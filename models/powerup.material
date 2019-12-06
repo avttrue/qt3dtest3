@@ -1,0 +1,11 @@
+AmbientColor=#FFFFFF
+Shininess=150.0
+TextureScale=1.0
+SpecularColor=
+SpecularMap=powerup_s.png
+DiffuseMap=powerup.png
+NormalMap=powerup_n.png
+DiffuseMapMirrored=false
+SpecularMapMirrored=false
+NormalMapMirrored=false
+Name=powerup

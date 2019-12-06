@@ -19,7 +19,7 @@ public:
     void loadCFG(const QString& cfg_path);
 
 protected:
-    Qt3DRender::QTexture2D *createTexture(const QString& path);
+    Qt3DRender::QTexture2D *createTexture(const QString& path, bool mirrored = false);
 
 private:
 

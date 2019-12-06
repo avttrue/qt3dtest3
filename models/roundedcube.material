@@ -1,0 +1,11 @@
+AmbientColor=#FFFFFF
+Shininess=150.0
+TextureScale=1.0
+SpecularColor=
+SpecularMap=roundedcube_s.png
+DiffuseMap=roundedcube.png
+NormalMap=roundedcube_n.png
+DiffuseMapMirrored=false
+SpecularMapMirrored=false
+NormalMapMirrored=false
+Name=roundedcube

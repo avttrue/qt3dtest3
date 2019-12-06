@@ -40,6 +40,7 @@ public Q_SLOTS:
     void slotViewSceneChanged(Scene* scene);
     void slotCreateScene();
     void slotCreatePointLight();
+    void slotCreateObject();
     void slotDeleteSelectedEntity();
     void slotEditSelectedEntity();
     void slotTest();

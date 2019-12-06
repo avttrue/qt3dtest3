@@ -81,6 +81,12 @@ void MainWindow::createGUI()
     QObject::connect(cbShowSceneBoxes, &QCheckBox::stateChanged, [=](int value){ config->setDrawSceneBoxes(value); });
     addControlWidget(cbShowSceneBoxes);
 
+    // новый объект
+    auto btnNewObject = new ControlButton(QIcon(":/res/icons/cube.svg"), tr("Add object"), this);
+    QObject::connect(btnNewObject, &QPushButton::clicked, this, &MainWindow::slotCreateObject);
+    btnNewObject->setDisabled(true);
+    addControlWidget(btnNewObject);
+
     // новый свет
     auto btnNewLight = new ControlButton(QIcon(":/res/icons/lamp.svg"), tr("Add light"), this);
     QObject::connect(btnNewLight, &QPushButton::clicked, this, &MainWindow::slotCreatePointLight);
@@ -96,7 +102,7 @@ void MainWindow::createGUI()
     addAction(actionDelObject);
 
     // редактировать объект
-    btnEditEntity = new ControlButton(QIcon(":/res/icons/edit.svg"), tr("Edit object"), this);
+    btnEditEntity = new ControlButton(QIcon(":/res/icons/edit.svg"), tr("Edit selection"), this);
     btnEditEntity->setDisabled(true);
     btnEditEntity->setShortcut(Qt::CTRL + Qt::Key_E);
     QObject::connect(btnEditEntity, &QPushButton::clicked, this, &MainWindow::slotEditSelectedEntity);
@@ -122,6 +128,7 @@ void MainWindow::createGUI()
 
     setStatusBar(statusBar);
 
+    QObject::connect(sceneView, &SceneView::signalSceneChanged, [=](Scene* scene){ btnNewObject->setEnabled(scene); });
     QObject::connect(sceneView, &SceneView::signalSceneChanged, [=](Scene* scene){ btnNewLight->setEnabled(scene); });
     QObject::connect(sceneView, &SceneView::signalSceneChanged, this, &MainWindow::slotViewSceneChanged);
     QObject::connect(sceneView, &SceneView::signalSceneChanged, this, &MainWindow::slotWriteSceneStat);
@@ -224,6 +231,58 @@ void MainWindow::slotCreatePointLight()
     s->setEntityPosition(e, QVector3D(map.value(keys.at(1)).value.toInt(),
                                       map.value(keys.at(2)).value.toInt(),
                                       map.value(keys.at(3)).value.toInt()));
+    viewContainer->setFocus();
+}
+
+void MainWindow::slotCreateObject()
+{
+    auto s = sceneView->getScene();
+
+    const QVector<QString> keys =
+        {tr("1. Name (m.b. empty):"),
+         tr("2. Position: X (in cells)"),
+         tr("3. Position: Y (in cells)"),
+         tr("4. Position: Z (in cells)"),
+         tr("5. Size: X (in cells)"),
+         tr("6. Size: Y (in cells)"),
+         tr("7. Size: Z (in cells)"),
+         tr("8. Material:"),
+         tr("9. Geometry:")
+        };
+    QMap<QString, DialogValue>
+        map =
+            {{keys.at(0), {QVariant::String, ""}},
+             {keys.at(1), {QVariant::Int, 0, 0, s->Size().x() - 1}},
+             {keys.at(2), {QVariant::Int, 0, 0, s->Size().y() - 1}},
+             {keys.at(3), {QVariant::Int, 0, 0, s->Size().z() - 1}},
+             {keys.at(4), {QVariant::Int, 1, 1, s->Size().x()}},
+             {keys.at(5), {QVariant::Int, 1, 1, s->Size().y()}},
+             {keys.at(6), {QVariant::Int, 1, 1, s->Size().z()}},
+             {keys.at(7), {QVariant::StringList, s->Materials().keys().first(),
+                           "", QStringList(s->Materials().keys()), DialogValueMode::OneFromList}},
+             {keys.at(8), {QVariant::StringList, s->Geometries().keys().first(),
+                           "", QStringList(s->Geometries().keys()), DialogValueMode::OneFromList}}
+            };
+    auto dvl = new DialogValuesList(":/res/icons/cube.svg", tr("New object"), true, &map, this);
+
+    if(!dvl->exec()) return;
+
+    auto transform = new Qt3DCore::QTransform;
+    transform->setScale3D(QVector3D(s->CellSize(), s->CellSize(), s->CellSize()));
+
+    auto e = s->addObject(map.value(keys.at(8)).value.toString(),
+                          map.value(keys.at(7)).value.toString(),
+                          transform,
+                          map.value(keys.at(0)).value.toString());
+
+    s->setEntitySize(e, QVector3D(map.value(keys.at(4)).value.toInt(),
+                                  map.value(keys.at(5)).value.toInt(),
+                                  map.value(keys.at(6)).value.toInt()));
+
+    s->setEntityPosition(e, QVector3D(map.value(keys.at(1)).value.toInt(),
+                                      map.value(keys.at(2)).value.toInt(),
+                                      map.value(keys.at(3)).value.toInt()));
+
     viewContainer->setFocus();
 }
 
