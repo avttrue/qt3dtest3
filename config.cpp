@@ -68,6 +68,22 @@ void Config::load()
     if(!m_Settings->contains("Scene/DrawBoxes"))
         m_Settings->setValue("Scene/DrawBoxes", SCENE_DRAW_BOXES);
     m_DrawSceneBoxes = m_Settings->value("Scene/DrawBoxes").toBool();
+
+    if(!m_Settings->contains("Scene/Depth"))
+    m_Settings->setValue("Scene/Depth", SCENE_DEPTH);
+    m_SceneDepth = m_Settings->value("Scene/Depth").toInt();
+
+    if(!m_Settings->contains("Scene/Width"))
+    m_Settings->setValue("Scene/Width", SCENE_WIDTH);
+    m_SceneWidth = m_Settings->value("Scene/Width").toInt();
+
+    if(!m_Settings->contains("Scene/Height"))
+    m_Settings->setValue("Scene/Height", SCENE_HEIGHT);
+    m_SceneHeight = m_Settings->value("Scene/Height").toInt();
+
+    if(!m_Settings->contains("Scene/CellSize"))
+    m_Settings->setValue("Scene/CellSize", SCENE_CELL_SIZE);
+    m_SceneCellSize = m_Settings->value("Scene/CellSize").toInt();
 }
 
 void Config::setDefaults()
@@ -98,6 +114,50 @@ void Config::setDefaults()
 
     m_Settings->setValue("Scene/DrawBoxes", SCENE_DRAW_BOXES);
     m_DrawSceneBoxes = SCENE_DRAW_BOXES;
+
+    m_Settings->setValue("Scene/Depth", SCENE_DEPTH);
+    m_SceneDepth = SCENE_DEPTH;
+
+    m_Settings->setValue("Scene/Width", SCENE_WIDTH);
+    m_SceneWidth = SCENE_WIDTH;
+
+    m_Settings->setValue("Scene/Height", SCENE_HEIGHT);
+    m_SceneHeight = SCENE_HEIGHT;
+
+    m_Settings->setValue("Scene/CellSize", SCENE_CELL_SIZE);
+    m_SceneCellSize = SCENE_CELL_SIZE;
+}
+
+void Config::setSceneDepth(int inSceneDepth)
+{
+    if(m_SceneDepth == inSceneDepth) return;
+    m_SceneDepth = inSceneDepth;
+    m_Settings->setValue("Scene/Depth", m_SceneDepth);
+    emit signalConfigChanged();
+}
+
+void Config::setSceneWidth(int inSceneWidth)
+{
+    if(m_SceneWidth == inSceneWidth) return;
+    m_SceneWidth = inSceneWidth;
+    m_Settings->setValue("Scene/Width", m_SceneWidth);
+    emit signalConfigChanged();
+}
+
+void Config::setSceneHeight(int inSceneHeight)
+{
+    if(m_SceneHeight == inSceneHeight) return;
+    m_SceneHeight = inSceneHeight;
+    m_Settings->setValue("Scene/Height", m_SceneHeight);
+    emit signalConfigChanged();
+}
+
+void Config::setSceneCellSize(int inSceneCellSize)
+{
+    if(m_SceneCellSize == inSceneCellSize) return;
+    m_SceneCellSize = inSceneCellSize;
+    m_Settings->setValue("Scene/CellSize", m_SceneCellSize);
+    emit signalConfigChanged();
 }
 
 void Config::setRewriteResources(bool inRewriteResources)
@@ -170,6 +230,10 @@ void Config::setDrawSceneBoxes(bool inDrawSceneBoxes)
     emit signalDrawSceneBoxes(m_DrawSceneBoxes);
 }
 
+int Config::SceneDepth() const { return m_SceneDepth; }
+int Config::SceneWidth() const { return m_SceneWidth; }
+int Config::SceneHeight() const { return m_SceneHeight; }
+int Config::SceneCellSize() const { return m_SceneCellSize; }
 bool Config::RewriteResources() const { return m_RewriteResources; }
 bool Config::DrawSceneBoxes() const { return m_DrawSceneBoxes; }
 int Config::SplashTime() const { return m_SplashTime; }

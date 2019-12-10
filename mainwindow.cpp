@@ -176,10 +176,10 @@ void MainWindow::slotCreateScene()
         };
     QMap<QString, DialogValue> map =
         {{keys.at(0), {QVariant::String, ""}},
-         {keys.at(1), {QVariant::Int, SCENE_CELL_SIZE, 1, 1000}},
-         {keys.at(2), {QVariant::Int, SCENE_WIDTH, 10, std::numeric_limits<int>::max()}},
-         {keys.at(3), {QVariant::Int, SCENE_HEIGHT, 10, std::numeric_limits<int>::max()}},
-         {keys.at(4), {QVariant::Int, SCENE_DEPTH, 10, std::numeric_limits<int>::max()}}
+         {keys.at(1), {QVariant::Int, config->SceneCellSize(), 1, 1000}},
+         {keys.at(2), {QVariant::Int, config->SceneWidth(), 10, std::numeric_limits<int>::max()}},
+         {keys.at(3), {QVariant::Int, config->SceneHeight(), 10, std::numeric_limits<int>::max()}},
+         {keys.at(4), {QVariant::Int, config->SceneDepth(), 10, std::numeric_limits<int>::max()}}
         };
     auto dvl = new DialogValuesList(":/res/icons/matrix.svg", tr("New scene"), true, &map, this);
 
@@ -190,6 +190,11 @@ void MainWindow::slotCreateScene()
                            map.value(keys.at(3)).value.toInt(),
                            map.value(keys.at(4)).value.toInt(),
                            map.value(keys.at(0)).value.toString());
+    config->setSceneCellSize(map.value(keys.at(1)).value.toInt());
+    config->setSceneWidth(map.value(keys.at(2)).value.toInt());
+    config->setSceneHeight(map.value(keys.at(3)).value.toInt());
+    config->setSceneDepth(map.value(keys.at(4)).value.toInt());
+
     viewContainer->setFocus();
 }
 

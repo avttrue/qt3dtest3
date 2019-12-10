@@ -46,6 +46,14 @@ public:
     void setRotationSpeed(int inRotationSpeed);
     bool RewriteResources() const;
     void setRewriteResources(bool inRewriteResources);
+    int SceneCellSize() const;
+    void setSceneCellSize(int inSceneCellSize);
+    int SceneHeight() const;
+    void setSceneHeight(int inSceneHeight);
+    int SceneWidth() const;
+    void setSceneWidth(int inSceneWidth);
+    int SceneDepth() const;
+    void setSceneDepth(int inSceneDepth);
 
 protected:
     void load();
@@ -65,7 +73,11 @@ private:
     int m_MoveAcceleration;             // ускорение линейного перемещения
     int m_RotationAcceleration;         // ускорение поворота
     int m_MoveSpeed;                    // скорость линейного перемещения
-    int m_RotationSpeed;                // скорость поворота 
+    int m_RotationSpeed;                // скорость поворота
+    int m_SceneCellSize;                // размер ячейки сцены
+    int m_SceneHeight;                  // размер сцены высота
+    int m_SceneWidth;                   // размер сцены ширина
+    int m_SceneDepth;                   // размер сцены глубина
 
 
     const QHash<QString, QString> captions =
@@ -74,8 +86,6 @@ private:
             {"ButtonAcceleration", tr("кнопка ускорения камеры")},
             {"DrawSceneBoxes", tr("отображать контуры сцены и сл. объектов")}
         };
-
-
 
 signals:
     void signalConfigChanged();         // сигнал изменения параметров
