@@ -15,27 +15,17 @@ class SceneEntity : public Qt3DCore::QEntity
     Q_OBJECT
 
 public:
-    SceneEntity(Scene* parent,
-                Qt3DRender::QGeometryRenderer* geometry,
-                Qt3DRender::QMaterial *material,
-                Qt3DCore::QTransform *transform);
+    SceneEntity(Scene* parent);
     Qt3DCore::QEntity *SelectionBox() const;
-    /*!
-     * \brief applyGeometry - установить новую геометрию сущности.
-     * geometry - новая геометрия.
-     * diagonal - фактор масштаба по диагонали сущности, если 0, то неучитывается.
-     */
-    void applyGeometry(Qt3DRender::QGeometryRenderer* geometry, float diagonal = 0.0f);
-    void applyGeometry(const QString& name);
+    void applyGeometry(Qt3DRender::QGeometryRenderer* geometry);
     Qt3DRender::QGeometryRenderer* Geometry() const;
     void applyMaterial(Qt3DRender::QMaterial* material);
-    void applyMaterial(const QString& name);
     Qt3DRender::QMaterial* Material() const;
     void applyPosition(const QVector3D& position);
     QVector3D Position();
     void Interactive(bool value);
     QVector3D Size() const;
-    void setSize(const QVector3D &size);
+    void applySize(const QVector3D &size);
 
 Q_SIGNALS:
     void signalClicked(Qt3DRender::QPickEvent *event, SceneEntity* entity);
@@ -54,7 +44,6 @@ protected:
     QVector3D m_Size;
 
     void createSelectionBox();
-
 };
 
 #endif // SCENEENTITY_H

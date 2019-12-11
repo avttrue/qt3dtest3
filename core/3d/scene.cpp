@@ -37,7 +37,7 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window,
 
     m_Camera = window->camera();
     m_CameraFarPlane = static_cast<float>(sqrt(pow(static_cast<double>(w), 2) +
-                                               pow(static_cast<double>(h), 2)+
+                                               pow(static_cast<double>(h), 2) +
                                                pow(static_cast<double>(d), 2)));
     auto camera_aspect = static_cast<float>(window->width()) / window->height();
     m_Camera->lens()->setPerspectiveProjection(45.0f, camera_aspect, 0.1f, m_CameraFarPlane);
@@ -71,10 +71,9 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window,
 }
 
 Light* Scene::addLight(Qt3DRender::QAbstractLight *light,
-                       Qt3DCore::QTransform *transform,
                        const QString &name)
 {
-    auto l = new Light(this, light, transform);
+    auto l = new Light(this, light);
     applyEntityName(l, "light", name);
     l->slotShowGeometry(config->DrawSceneBoxes());
 
@@ -110,11 +109,9 @@ bool Scene::delLight(SceneEntity* entity)
 
 SceneObject* Scene::addObject(Qt3DRender::QGeometryRenderer *geometry,
                               Qt3DRender::QMaterial *material,
-                              Qt3DCore::QTransform *transform,
                               const QString &name)
 {
-    auto entity = new SceneObject(this, geometry, material, transform);
-    applyEntityName(entity, "object", name);
+    auto entity = new SceneObject(this, geometry, material, name);
 
     delObject(entity->objectName());
     m_Objects.insert(entity->objectName(), entity);
@@ -127,7 +124,6 @@ SceneObject* Scene::addObject(Qt3DRender::QGeometryRenderer *geometry,
 
 SceneObject *Scene::addObject(const QString &geometry,
                               const QString &material,
-                              Qt3DCore::QTransform *transform,
                               const QString &name)
 {
     auto gr = m_Geometries.value(geometry);
@@ -136,7 +132,7 @@ SceneObject *Scene::addObject(const QString &geometry,
     auto mat = m_Materials.value(material);
     if(!mat) { qCritical() << objectName() << "Material not exists:" << material; return nullptr; }
 
-    return addObject(gr, mat, transform, name);
+    return addObject(gr, mat, name);
 }
 
 bool Scene::delObject(const QString &name)
@@ -217,7 +213,7 @@ QVector3D Scene::EntityPosition(SceneEntity *entity) const
 void Scene::setEntitySize(SceneEntity *entity, const QVector3D &size)
 {
     if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity"; return; }
-    entity->setSize(m_CellSize * size / 2);
+    entity->applySize(m_CellSize * size / 2);
 }
 
 QVector3D Scene::EntitySize(SceneEntity *entity) const
@@ -228,6 +224,22 @@ QVector3D Scene::EntitySize(SceneEntity *entity) const
     return  QVector3D(floorf(p.x() / m_CellSize),
                      floorf(p.y() / m_CellSize),
                      floorf(p.z() / m_CellSize));
+}
+
+void Scene::setEntityGeometry(SceneEntity* entity, const QString &name)
+{
+    auto gr = Geometries().value(name);
+    if(!gr){ qCritical() << objectName() << "(" << __func__ << "): Wrong geometry name:" << name;  return; }
+
+    entity->applyGeometry(gr);
+}
+
+void Scene::setEntityMaterial(SceneEntity *entity, const QString &name)
+{
+    auto m = Materials().value(name);
+    if(!m) { qCritical() << objectName() << "(" << __func__ << "): Wrong material name" << name;  return; }
+
+    entity->applyMaterial(m);
 }
 
 void Scene::slotFrameActionTriggered(float dt)

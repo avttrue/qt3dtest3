@@ -232,7 +232,7 @@ void MainWindow::slotCreatePointLight()
     auto light = new Qt3DRender::QPointLight;
     light->setIntensity(static_cast<float>(map.value(keys.at(4)).value.toInt()) / 100);
     light->setColor(color);
-    auto e = s->addLight(light, new Qt3DCore::QTransform, map.value(keys.at(0)).value.toString());
+    auto e = s->addLight(light, map.value(keys.at(0)).value.toString());
     s->setEntityPosition(e, QVector3D(map.value(keys.at(1)).value.toInt(),
                                       map.value(keys.at(2)).value.toInt(),
                                       map.value(keys.at(3)).value.toInt()));
@@ -272,12 +272,8 @@ void MainWindow::slotCreateObject()
 
     if(!dvl->exec()) return;
 
-    auto transform = new Qt3DCore::QTransform;
-    transform->setScale3D(QVector3D(s->CellSize(), s->CellSize(), s->CellSize()));
-
     auto e = s->addObject(map.value(keys.at(8)).value.toString(),
                           map.value(keys.at(7)).value.toString(),
-                          transform,
                           map.value(keys.at(0)).value.toString());
 
     s->setEntitySize(e, QVector3D(map.value(keys.at(4)).value.toInt(),
@@ -382,8 +378,8 @@ void MainWindow::slotEditSelectedEntity()
         s->setEntitySize(e, QVector3D(map.value(keys.at(4)).value.toInt(),
                                       map.value(keys.at(5)).value.toInt(),
                                       map.value(keys.at(6)).value.toInt()));
-        e->applyMaterial(map.value(keys.at(7)).value.toString());
-        e->applyGeometry(map.value(keys.at(8)).value.toString());
+        s->setEntityMaterial(e, map.value(keys.at(7)).value.toString());
+        s->setEntityGeometry(e, map.value(keys.at(8)).value.toString());
     }
 
     s->setEntityPosition(e, QVector3D(map.value(keys.at(1)).value.toInt(),
@@ -412,7 +408,7 @@ void MainWindow::slotTest()
                 auto matname = s->Materials().keys().at(
                     QRandomGenerator::global()->bounded(0, s->Materials().keys().count()));
                 auto e = s->addObject("cube", matname);
-                s->setEntitySize(e, QVector3D(1, 1, 1));
+                s->setEntitySize(e, QVector3D(1.0, 1.0, 1.0));
                 s->setEntityPosition(e, 2 * QVector3D(i, j, k));
             }
     s->setEnabled(true);

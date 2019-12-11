@@ -26,13 +26,11 @@ public:
           float width, float height, float depth,
           const QString &name = "");
     Light *addLight(Qt3DRender::QAbstractLight* light,
-                    Qt3DCore::QTransform *transform = nullptr,
                     const QString &name = "");
     bool delLight(const QString& name);
     bool delLight(SceneEntity *entity);
     SceneObject* addObject(const QString& geometry,
                            const QString &material,
-                           Qt3DCore::QTransform *transform = nullptr,
                            const QString &name = "");
 
     bool delObject(const QString &name);
@@ -54,6 +52,8 @@ public:
     QVector3D EntityPosition(SceneEntity* entity) const;
     void setEntitySize(SceneEntity* entity, const QVector3D& size);
     QVector3D EntitySize(SceneEntity* entity) const;
+    void setEntityGeometry(SceneEntity* entity, const QString& name);
+    void setEntityMaterial(SceneEntity* entity, const QString& name);
 
 Q_SIGNALS:
     void signalSelectedEntityChanged(SceneEntity* entity);
@@ -76,7 +76,6 @@ protected:
     void loadMaterial(const QString& path);
     SceneObject* addObject(Qt3DRender::QGeometryRenderer *geometry,
                            Qt3DRender::QMaterial *material,
-                           Qt3DCore::QTransform *transform,
                            const QString &name = "");
 
 private:

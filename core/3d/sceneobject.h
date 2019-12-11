@@ -11,7 +11,7 @@ public:
     SceneObject(Scene* parent,
                 Qt3DRender::QGeometryRenderer* geometry,
                 Qt3DRender::QMaterial* material,
-                Qt3DCore::QTransform *transform);
+                const QString &name = "");
 };
 
 #endif // SCENEOBJECT_H

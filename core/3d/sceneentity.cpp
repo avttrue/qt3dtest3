@@ -6,19 +6,16 @@
 
 #include <Qt3DRender/QObjectPicker>
 
-SceneEntity::SceneEntity(Scene *parent,
-                         Qt3DRender::QGeometryRenderer *geometry,
-                         Qt3DRender::QMaterial *material,
-                         Qt3DCore::QTransform *transform) :
+SceneEntity::SceneEntity(Scene *parent) :
     Qt3DCore::QEntity(parent),    
     m_Scene(parent),
-    m_Transform(transform),
-    m_Geometry(geometry),
-    m_Material(material),
+    m_Transform(new Qt3DCore::QTransform(this)),
+    m_Geometry(nullptr),
+    m_Material(nullptr),
     m_SelectionBox(nullptr),
     m_Size(QVector3D(1.0, 1.0, 1.0))
 {
-    if(!m_Transform) m_Transform = new Qt3DCore::QTransform(this);
+    m_Transform->setScale3D(m_Size);
 
     m_Picker = new Qt3DRender::QObjectPicker;
     m_Picker->setHoverEnabled(false);
@@ -59,13 +56,13 @@ void SceneEntity::createSelectionBox()
     m_SelectionBox = createEntityBox(min, max, QColor(COLOR_SELECT), this);
 }
 
-void SceneEntity::setSize(const QVector3D &size)
+void SceneEntity::applySize(const QVector3D &size)
 {
     m_Transform->setScale3D(QVector3D(size.x(), size.y(), size.z()));
     m_Size = size;
 }
 
-void SceneEntity::applyGeometry(Qt3DRender::QGeometryRenderer* geometry, float diagonal)
+void SceneEntity::applyGeometry(Qt3DRender::QGeometryRenderer* geometry)
 {
     if(!geometry) { qCritical() << objectName() << "(" << __func__ << "): Wrong geometry";  return; }
 
@@ -74,27 +71,11 @@ void SceneEntity::applyGeometry(Qt3DRender::QGeometryRenderer* geometry, float d
 
     auto func = [=]()
     {
-        if(diagonal > 0.0f)
-        {
-            auto gd = getGeometryDiagonal(m_Geometry->geometry());
-            if(gd != 0.0f) m_Transform->setScale3D(m_Transform->scale3D() * diagonal / gd);
-            else qCritical() << objectName() << "(" << __func__ << "): Diagonal of new geometry is 0.0";
-        }
         if (m_SelectionBox) createSelectionBox();
         QObject::disconnect(m_Geometry->geometry(), &Qt3DRender::QGeometry::maxExtentChanged, nullptr, nullptr);
     };
 
     QObject::connect(m_Geometry->geometry(), &Qt3DRender::QGeometry::maxExtentChanged, func);
-}
-
-void SceneEntity::applyGeometry(const QString &name)
-{
-    auto gr = m_Scene->Geometries().value(name);
-
-    if(!gr){ qCritical() << objectName() << "(" << __func__ << "): Wrong geometry name:" << name;  return; }
-
-    auto diagonal = getGeometryDiagonal(m_Geometry->geometry());
-    applyGeometry(gr, diagonal);
 }
 
 void SceneEntity::applyMaterial(Qt3DRender::QMaterial *material)
@@ -103,14 +84,6 @@ void SceneEntity::applyMaterial(Qt3DRender::QMaterial *material)
 
     applyEntityMaterial(this, material);
     m_Material = material;
-}
-
-void SceneEntity::applyMaterial(const QString &name)
-{
-    auto m = m_Scene->Materials().value(name);
-    if(!m) { qCritical() << objectName() << "(" << __func__ << "): Wrong material name" << name;  return; }
-
-    applyMaterial(m);
 }
 
 void SceneEntity::slotSelect(bool value)

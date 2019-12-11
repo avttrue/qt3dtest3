@@ -7,9 +7,8 @@
 #include <Qt3DExtras/QSphereMesh>
 
 Light::Light(Scene *parent,
-             Qt3DRender::QAbstractLight *light,
-             Qt3DCore::QTransform *transform)
-    :SceneEntity(parent, nullptr, nullptr, transform),
+             Qt3DRender::QAbstractLight *light)
+    :SceneEntity(parent),
     m_Light(light)
 {
     addComponent(light);
