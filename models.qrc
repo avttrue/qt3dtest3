@@ -6,7 +6,6 @@
         <file>models/cube4.png</file>
         <file>models/cube4_n.png</file>
         <file>models/cube2.png</file>
-        <file>models/any_n.png</file>
         <file>models/cube.obj</file>
         <file>models/cube1_n.png</file>
         <file>models/cube1.png</file>
@@ -29,5 +28,11 @@
         <file>models/roundedcube.material</file>
         <file>models/roundedcube.obj</file>
         <file>models/roundedcube.png</file>
+        <file>models/cube7.png</file>
+        <file>models/cube7.material</file>
+        <file>models/cube7_n.png</file>
+        <file>models/cube6.png</file>
+        <file>models/cube6.material</file>
+        <file>models/cube6_n.png</file>
     </qresource>
 </RCC>
