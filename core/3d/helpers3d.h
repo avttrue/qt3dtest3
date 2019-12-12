@@ -51,6 +51,4 @@ void applyEntityMaterial(Qt3DCore::QEntity* entity, Qt3DRender::QMaterial* mater
 
 void applyEntityLight(Qt3DCore::QEntity* entity, Qt3DRender::QAbstractLight* light);
 
-float getGeometryDiagonal(Qt3DRender::QGeometry* geometry);
-
 #endif // HELPERS_H

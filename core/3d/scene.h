@@ -55,25 +55,11 @@ public:
     void setEntityGeometry(SceneEntity* entity, const QString& name);
     void setEntityMaterial(SceneEntity* entity, const QString& name);
 
-Q_SIGNALS:
-    void signalSelectedEntityChanged(SceneEntity* entity);
-    void signalObjectsCountChanged(int count);
-    void signalLightsCountChanged(int count);
-    void signalGeometriesCountChanged(int count);
-    void signalGeometryLoaded(const QString& name);
-    void signalMaterialsCountChanged(int count);
-    void signalMaterialLoaded(const QString& name);
-    void signalEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity *entity);
-
-public Q_SLOTS:
-    void slotFrameActionTriggered(float dt);
-    void slotShowBoxes(bool value);
-
 protected:
-    void loadGeometries();
-    void loadMaterials();
     void loadGeometry(const QString& path);
     void loadMaterial(const QString& path);
+    void loadGeometries();
+    void loadMaterials();
     SceneObject* addObject(Qt3DRender::QGeometryRenderer *geometry,
                            Qt3DRender::QMaterial *material,
                            const QString &name = "");
@@ -94,6 +80,21 @@ private:
     float m_Width;
     float m_Depth;
     float m_CameraFarPlane;
+
+Q_SIGNALS:
+    void signalSelectedEntityChanged(SceneEntity* entity);
+    void signalObjectChanged(const QString& name);
+    void signalLightChanged(const QString& name);
+    void signalGeometryChanged(const QString& name);
+    void signalMaterialChanged(const QString& name);
+    void signalEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity *entity);
+
+public Q_SLOTS:
+    void slotFrameActionTriggered(float dt);
+    void slotShowBoxes(bool value);
+
+private Q_SLOTS:
+
 };
 
 #endif // SCENE_H

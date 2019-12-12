@@ -60,4 +60,5 @@ DISTFILES +=
 RESOURCES += \
     interface.qrc \
     models.qrc \
+    tests.qrc \
     textures.qrc

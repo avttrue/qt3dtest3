@@ -283,13 +283,6 @@ void applyEntityGeometry(Qt3DCore::QEntity* entity, Qt3DRender::QGeometryRendere
     qDebug() << entity->objectName() << ": Geometry applied";
 }
 
-float getGeometryDiagonal(Qt3DRender::QGeometry* geometry)
-{
-    if(!geometry) { qCritical() << __func__ << ": Wrong parameter"; return 0.0f; }
-
-    return geometry->maxExtent().distanceToPoint(geometry->minExtent());
-}
-
 void applyEntityMaterial(Qt3DCore::QEntity* entity, Qt3DRender::QMaterial* material)
 {
     if(!entity || !material) { qCritical() << __func__ << ": Wrong parameters"; return; }

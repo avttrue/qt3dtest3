@@ -81,7 +81,7 @@ Light* Scene::addLight(Qt3DRender::QAbstractLight *light,
     m_Lights.insert(l->objectName(), l);
 
     qDebug() << l->objectName() << ": Light added, count" << m_Lights.count();
-    emit signalLightsCountChanged(m_Lights.count());
+    emit signalLightChanged(name);
 
     return l;
 }
@@ -94,7 +94,7 @@ bool Scene::delLight(const QString &name)
         if(m_SelectedEntity == l) m_SelectedEntity = nullptr;
         l->deleteLater();
         emit signalSelectedEntityChanged(m_SelectedEntity);
-        emit signalLightsCountChanged(m_Lights.count());
+        emit signalLightChanged(name);
         qDebug() << objectName() << ": Lights count" << m_Lights.count();
         return true;
     }
@@ -117,7 +117,7 @@ SceneObject* Scene::addObject(Qt3DRender::QGeometryRenderer *geometry,
     m_Objects.insert(entity->objectName(), entity);
 
     qDebug() << objectName() << ": Entity created, count" << m_Objects.count();
-    emit signalObjectsCountChanged(m_Objects.count());
+    emit signalObjectChanged(name);
 
     return entity;
 }
@@ -143,7 +143,7 @@ bool Scene::delObject(const QString &name)
         if(m_SelectedEntity == entity) m_SelectedEntity = nullptr;
         entity->deleteLater();
         emit signalSelectedEntityChanged(m_SelectedEntity);
-        emit signalObjectsCountChanged(m_Objects.count());
+        emit signalObjectChanged(name);
         qDebug() << objectName() << ": Objects count" << m_Objects.count();
         return true;
     }
@@ -275,39 +275,17 @@ void Scene::loadGeometry(const QString &path)
     if(geometry)
     {
         geometry->deleteLater();
-        emit signalGeometriesCountChanged(m_Geometries.count());
+        emit signalGeometryChanged(geometry->objectName());
         qDebug() << objectName() << ": Geometries count" << m_Geometries.count();
     }
 
     Qt3DRender::QMesh* mesh = new Qt3DRender::QMesh(this);
     mesh->setObjectName(name);
     QObject::connect(mesh, &QObject::destroyed, [=](QObject* o){ qDebug() << objectName() << ": Geometry" << o->objectName() << "destroyed"; });
-    /* auto func = [=](Qt3DRender::QMesh::Status s)
-    {
-        if(s == Qt3DRender::QMesh::Status::Ready)
-        {
-            QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
-            m_Geometries.insert(name, mesh);
-            qDebug() << objectName() << ": Geometry loaded" << name << "count" << m_Geometries.count();
-            emit signalGeometryLoaded(name);
-            emit signalGeometriesCountChanged(m_Geometries.count());
-        }
-        else if(s == Qt3DRender::QMesh::Status::Error)
-        {
-            QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
-            qDebug() << objectName() << "Error at geometry loading" << name;
-        }
-        else
-        {
-            qDebug() << objectName() << "Geometry" << name << "loading status:" << s;
-        }
-    };
-    QObject::connect(mesh, &Qt3DRender::QMesh::statusChanged, func); */
     mesh->setSource(QUrl::fromLocalFile(path));
     m_Geometries.insert(name, mesh);
     qDebug() << objectName() << ": Geometry loaded" << name << "count" << m_Geometries.count();
-    emit signalGeometryLoaded(name);
-    emit signalGeometriesCountChanged(m_Geometries.count());
+    emit signalGeometryChanged(name);
 }
 
 void Scene::loadGeometries()
@@ -322,12 +300,12 @@ void Scene::loadGeometries()
     {
         if(m_Geometries.count() == fileList.count())
         {
-            QObject::disconnect(this, &Scene::signalGeometryLoaded, nullptr, nullptr);
+            QObject::disconnect(this, &Scene::signalGeometryChanged, nullptr, nullptr);
             qDebug() << objectName() << "All geometries loaded";
             // TODO: do next
         }
     };
-    QObject::connect(this, &Scene::signalGeometryLoaded, this, func, Qt::DirectConnection);
+    QObject::connect(this, &Scene::signalGeometryChanged, this, func, Qt::DirectConnection);
 
     for(QString f: fileList)
         loadGeometry(config->PathAssetsDir() + QDir::separator() + f);
@@ -336,20 +314,23 @@ void Scene::loadGeometries()
 void Scene::loadMaterial(const QString& path)
 {
     auto material = new Material(this);
-    material->loadCFG(path);
-
-    auto m = m_Materials.take(material->objectName());
-    if(m)
+    auto func = [=]()
     {
-        m->deleteLater();
-        emit signalMaterialsCountChanged(m_Materials.count());
-        qDebug() << objectName() << ": Materials count" << m_Materials.count();
-    }
+        QObject::disconnect(material, &Material::signalReady, nullptr, nullptr);
+        auto m = m_Materials.take(material->objectName());
+        if(m)
+        {
+            m->deleteLater();
+            emit signalMaterialChanged(m->objectName());
+            qDebug() << objectName() << ": Materials count" << m_Materials.count();
+        }
 
-    m_Materials.insert(material->objectName(), material);
-    qDebug() << objectName() << ": Material loaded" << material->objectName() << "count" << m_Materials.count();
-    emit signalMaterialLoaded(material->objectName());
-    emit signalMaterialsCountChanged(m_Materials.count());
+        m_Materials.insert(material->objectName(), material);
+        qDebug() << objectName() << ": Material loaded" << material->objectName() << "count" << m_Materials.count();
+        emit signalMaterialChanged(material->objectName());
+    };
+    QObject::connect(material, &Material::signalReady, func);
+    material->loadCFG(path);
 }
 
 void Scene::loadMaterials()
@@ -364,12 +345,12 @@ void Scene::loadMaterials()
     {
         if(m_Materials.count() == fileList.count())
         {
-            QObject::disconnect(this, &Scene::signalMaterialLoaded, nullptr, nullptr);
+            QObject::disconnect(this, &Scene::signalMaterialChanged, nullptr, nullptr);
             qDebug() << objectName() << "All materials loaded";
             // TODO: do next
         }
     };
-    QObject::connect(this, &Scene::signalMaterialLoaded, this, func, Qt::DirectConnection);
+    QObject::connect(this, &Scene::signalMaterialChanged, this, func, Qt::DirectConnection);
 
     for(QString f: fileList)
         loadMaterial(config->PathAssetsDir() + QDir::separator() + f);

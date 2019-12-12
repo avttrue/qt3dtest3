@@ -1,0 +1,38 @@
+auto func = [=](Qt3DRender::QTextureLoader::Status s)
+    {
+        if(s == Qt3DRender::QTextureLoader::Status::Ready)
+        {
+            QObject::disconnect(tl, &Qt3DRender::QTextureLoader::statusChanged, nullptr, nullptr);
+
+            tl->setMirrored(mirrored);
+            tl->setMinificationFilter(Qt3DRender::QAbstractTexture::LinearMipMapLinear);
+            tl->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
+
+            Qt3DRender::QTextureWrapMode wm;
+            wm.setX(Qt3DRender::QTextureWrapMode::ClampToEdge);
+            wm.setY(Qt3DRender::QTextureWrapMode::ClampToEdge);
+            wm.setZ(Qt3DRender::QTextureWrapMode::ClampToEdge);
+            tl->setWrapMode(wm);
+
+            if(type == MapTypes::DiffuseMap)
+                setDiffuse(QVariant::fromValue<Qt3DRender::QTextureLoader*>(tl));
+
+            else if(type == MapTypes::SpecularMap)
+                setSpecular(QVariant::fromValue<Qt3DRender::QTextureLoader*>(tl));
+
+            else if(type == MapTypes::NormalMap)
+                setNormal(QVariant::fromValue<Qt3DRender::QTextureLoader*>(tl));
+
+            qDebug() << objectName() << ": Texture loaded" << path;
+            emit signalTextureDone();
+        }
+        else if(s == Qt3DRender::QTextureLoader::Status::Error)
+        {
+            QObject::disconnect(tl, &Qt3DRender::QTextureLoader::statusChanged, nullptr, nullptr);
+            qCritical() << objectName() << ": Error at texture loading" << path;
+            emit signalTextureDone();
+        }
+        else
+        { qDebug() << objectName() << ": Texture" << path << "loading status:" << s; }
+    };
+    QObject::connect(tl, &Qt3DRender::QTextureLoader::statusChanged, func);

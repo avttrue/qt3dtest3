@@ -152,10 +152,10 @@ void MainWindow::slotViewSceneChanged(Scene *scene)
 {
     cbShowSceneBoxes->setEnabled(true);
 
-    QObject::connect(scene, &Scene::signalLightsCountChanged, this, &MainWindow::slotWriteSceneStat);
-    QObject::connect(scene, &Scene::signalObjectsCountChanged, this, &MainWindow::slotWriteSceneStat);
-    QObject::connect(scene, &Scene::signalGeometriesCountChanged, this, &MainWindow::slotWriteSceneStat);
-    QObject::connect(scene, &Scene::signalMaterialsCountChanged, this, &MainWindow::slotWriteSceneStat);
+    QObject::connect(scene, &Scene::signalLightChanged, this, &MainWindow::slotWriteSceneStat);
+    QObject::connect(scene, &Scene::signalObjectChanged, this, &MainWindow::slotWriteSceneStat);
+    QObject::connect(scene, &Scene::signalGeometryChanged, this, &MainWindow::slotWriteSceneStat);
+    QObject::connect(scene, &Scene::signalMaterialChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene, &Scene::signalEntityClicked, this, &MainWindow::slotSceneEntityClicked);
 
     QObject::connect(scene->FRC(), &FrameRateCalculator::signalFramesPerSecondChanged, [=](auto value)
