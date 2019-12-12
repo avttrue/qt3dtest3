@@ -51,6 +51,7 @@ void Material::loadTexture(MapTypes type, const QString &path, bool mirrored)
     tl->setMirrored(mirrored);
     tl->setMinificationFilter(Qt3DRender::QAbstractTexture::LinearMipMapLinear);
     tl->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
+    tl->setFormat(Qt3DRender::QAbstractTexture::Automatic);
 
     Qt3DRender::QTextureWrapMode wm;
     wm.setX(Qt3DRender::QTextureWrapMode::ClampToEdge);

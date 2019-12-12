@@ -10,8 +10,7 @@ class Light : public SceneEntity
     Q_OBJECT
 
 public:
-    Light(Scene* parent,
-          Qt3DRender::QAbstractLight *light);
+    Light(Scene* parent, Qt3DRender::QAbstractLight *light);
     void applyLight(Qt3DRender::QAbstractLight* light);
     Qt3DRender::QAbstractLight* getLight() const;
 

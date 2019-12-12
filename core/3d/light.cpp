@@ -6,8 +6,7 @@
 #include <QPhongMaterial>
 #include <Qt3DExtras/QSphereMesh>
 
-Light::Light(Scene *parent,
-             Qt3DRender::QAbstractLight *light)
+Light::Light(Scene *parent, Qt3DRender::QAbstractLight *light)
     :SceneEntity(parent),
     m_Light(light)
 {

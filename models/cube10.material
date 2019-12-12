@@ -1,0 +1,11 @@
+AmbientColor=#FFFFFF
+Shininess=150.0
+TextureScale=1.0
+SpecularColor=#FFFFFF
+SpecularMap=
+DiffuseMap=cube10.png
+NormalMap=
+DiffuseMapMirrored=false
+SpecularMapMirrored=false
+NormalMapMirrored=false
+Name=cube10
