@@ -270,12 +270,7 @@ void Scene::loadGeometry(const QString &path)
     auto name = fi.baseName();
 
     auto geometry = m_Geometries.take(name);
-    if(geometry)
-    {
-        geometry->deleteLater();
-        Q_EMIT signalGeometryChanged(geometry->objectName());
-        qDebug() << objectName() << ": Geometries count" << m_Geometries.count();
-    }
+    if(geometry) geometry->deleteLater();
 
     Qt3DRender::QMesh* mesh = new Qt3DRender::QMesh(this);
     mesh->setObjectName(name);
@@ -314,13 +309,9 @@ void Scene::loadMaterial(const QString& path)
     auto material = new Material(this);
     auto func = [=]()
     {
+        QObject::disconnect(material, &Material::signalReady, nullptr, nullptr);
         auto m = m_Materials.take(material->objectName());
-        if(m)
-        {
-            m->deleteLater();
-            Q_EMIT signalMaterialChanged(m->objectName());
-            qDebug() << objectName() << ": Materials count" << m_Materials.count();
-        }
+        if(m) m->deleteLater();
 
         m_Materials.insert(material->objectName(), material);
         qDebug() << objectName() << ": Material loaded" << material->objectName();

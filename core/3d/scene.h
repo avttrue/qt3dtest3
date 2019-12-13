@@ -73,8 +73,8 @@ private:
     Qt3DCore::QEntity* m_Box;
     QHash <QString, Light*> m_Lights;
     QHash <QString, SceneObject*> m_Objects;
-    QHash <QString, Qt3DRender::QGeometryRenderer*> m_Geometries; // TODO: перенести в SceneView
-    QHash <QString, Qt3DRender::QMaterial*> m_Materials; // TODO: перенести в SceneView
+    QHash <QString, Qt3DRender::QGeometryRenderer*> m_Geometries;
+    QHash <QString, Qt3DRender::QMaterial*> m_Materials;
     float m_CellSize;
     float m_Height;
     float m_Width;

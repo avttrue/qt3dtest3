@@ -8,17 +8,45 @@
 
 Material::Material(Scene *parent) :
     Qt3DExtras::QDiffuseSpecularMaterial(parent)
-{
-
+{   
     QObject::connect(this, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": Material" << objectName() << " destroyed"; });
     QObject::connect(this, &Material::signalTextureDone, this, &Material::slotTextureDone, Qt::DirectConnection);
 }
 
-Qt3DRender::QTexture2D* Material::createTexture(const QString &path, bool mirrored)
+void Material::loadTexture(MapTypes type, const QString &path, bool mirrored)
 {
     auto fi = QFileInfo(path);
     auto texture2d = new Qt3DRender::QTexture2D(this);
     auto textureImage = new Qt3DRender::QTextureImage(texture2d);
+
+    textureImage->setMirrored(mirrored);
+    texture2d->setMinificationFilter(Qt3DRender::QAbstractTexture::LinearMipMapLinear);
+    texture2d->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
+    texture2d->setFormat(Qt3DRender::QAbstractTexture::Automatic);
+
+    Qt3DRender::QTextureWrapMode wm;
+    wm.setX(Qt3DRender::QTextureWrapMode::ClampToEdge);
+    wm.setY(Qt3DRender::QTextureWrapMode::ClampToEdge);
+    wm.setZ(Qt3DRender::QTextureWrapMode::ClampToEdge);
+    texture2d->setWrapMode(wm);
+
+    auto func = [=](Qt3DRender::QAbstractTexture::Status s)
+    {
+        if(s == Qt3DRender::QAbstractTexture::Ready)
+        {
+            QObject::disconnect(texture2d, &Qt3DRender::QAbstractTexture::statusChanged, nullptr, nullptr);
+            qDebug() << objectName() << ": Texture loaded" << fi.fileName();
+            Q_EMIT signalTextureDone();
+        }
+        else if(s == Qt3DRender::QAbstractTexture::Error)
+        {
+            QObject::disconnect(texture2d, &Qt3DRender::QAbstractTexture::statusChanged, nullptr, nullptr);
+            qCritical() << objectName() << ": Error at texture loading" << fi.fileName();
+            Q_EMIT signalTextureDone();
+        }
+        else
+        { qDebug() << objectName() << ": Texture" << fi.fileName() << "loading status:" << s; }
+    };
 
     if(fi.exists() && fi.isFile()) textureImage->setSource(QUrl::fromLocalFile(path));
     else
@@ -26,66 +54,21 @@ Qt3DRender::QTexture2D* Material::createTexture(const QString &path, bool mirror
         qCritical() << __func__ << ": Wrong texture path" << path;
         textureImage->setSource(QUrl::fromLocalFile(DEFAULT_TEXTURE));
     }
-
-    textureImage->setMirrored(mirrored);
     texture2d->addTextureImage(textureImage);
 
-    return texture2d;
-}
+    QObject::connect(texture2d, &Qt3DRender::QAbstractTexture::statusChanged, func);
 
-void Material::loadTexture(MapTypes type, const QString &path, bool mirrored)
-{
-    auto fi = QFileInfo(path);
-    auto tl = new Qt3DRender::QTextureLoader(this);
-
-    auto func = [=](Qt3DRender::QAbstractTexture::Status s)
-    {
-        if(s == Qt3DRender::QAbstractTexture::Ready)
-        {
-            QObject::disconnect(tl, &Qt3DRender::QTextureLoader::statusChanged, nullptr, nullptr);
-
-            tl->setMirrored(mirrored);
-            tl->setMinificationFilter(Qt3DRender::QAbstractTexture::LinearMipMapLinear);
-            tl->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
-            tl->setFormat(Qt3DRender::QAbstractTexture::Automatic);
-
-            Qt3DRender::QTextureWrapMode wm;
-            wm.setX(Qt3DRender::QTextureWrapMode::ClampToEdge);
-            wm.setY(Qt3DRender::QTextureWrapMode::ClampToEdge);
-            wm.setZ(Qt3DRender::QTextureWrapMode::ClampToEdge);
-            tl->setWrapMode(wm);
-
-            qDebug() << objectName() << ": Texture loaded" << fi.fileName();
-            Q_EMIT signalTextureDone();
-        }
-        else if(s == Qt3DRender::QAbstractTexture::Error)
-        {
-            QObject::disconnect(tl, &Qt3DRender::QTextureLoader::statusChanged, nullptr, nullptr);
-            qCritical() << objectName() << ": Error at texture loading" << fi.fileName();
-            Q_EMIT signalTextureDone();
-        }
-        else
-        { qDebug() << objectName() << ": Texture" << fi.fileName() << "loading status:" << s; }
-    };
-    QObject::connect(tl, &Qt3DRender::QTextureLoader::statusChanged, func);
-
-    if(fi.exists() && fi.isFile()) tl->setSource(QUrl::fromLocalFile(path));
-    else
-    {
-        qCritical() << __func__ << ": Wrong texture path" << path;
-        tl->setSource(QUrl::fromLocalFile(DEFAULT_TEXTURE));
-    }
     if(type == MapTypes::DiffuseMap)
-        setDiffuse(QVariant::fromValue<Qt3DRender::QTextureLoader*>(tl));
+        setDiffuse(QVariant::fromValue<Qt3DRender::QTexture2D*>(texture2d));
 
     else if(type == MapTypes::SpecularMap)
-        setSpecular(QVariant::fromValue<Qt3DRender::QTextureLoader*>(tl));
+        setSpecular(QVariant::fromValue<Qt3DRender::QTexture2D*>(texture2d));
 
     else if(type == MapTypes::NormalMap)
-        setNormal(QVariant::fromValue<Qt3DRender::QTextureLoader*>(tl));
+        setNormal(QVariant::fromValue<Qt3DRender::QTexture2D*>(texture2d));
     else
     {
-        QObject::disconnect(tl, &Qt3DRender::QTextureLoader::statusChanged, nullptr, nullptr);
+        QObject::disconnect(texture2d, &Qt3DRender::QAbstractTexture::statusChanged, nullptr, nullptr);
         qCritical() << objectName() << ": Unknown texture type" << type;
         Q_EMIT signalTextureDone();
     }

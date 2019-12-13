@@ -29,7 +29,6 @@ public:
     void load(const QString& path);
 
 protected:
-    Qt3DRender::QTexture2D* createTexture(const QString& path, bool mirrored = false); // delete
     void loadTexture(MapTypes type, const QString& path, bool mirrored = false);
 
 private:
