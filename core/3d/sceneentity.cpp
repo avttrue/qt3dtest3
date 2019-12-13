@@ -40,8 +40,8 @@ void SceneEntity::slotClicked(Qt3DRender::QPickEvent *event)
 {
     qDebug() << objectName() << ": clicked";
 
-    if(m_Scene) emit m_Scene->signalEntityClicked(event, this);
-    emit signalClicked(event, this);
+    if(m_Scene) Q_EMIT m_Scene->signalEntityClicked(event, this);
+    Q_EMIT signalClicked(event, this);
 }
 
 void SceneEntity::createSelectionBox()

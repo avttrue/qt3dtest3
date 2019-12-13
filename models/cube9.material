@@ -1,11 +1,10 @@
 AmbientColor=#FFFFFF
 Shininess=150.0
-TextureScale=1.0
+Scale=1.0
 SpecularColor=#FFFFFF
 SpecularMap=
 DiffuseMap=cube9.png
 NormalMap=
-DiffuseMapMirrored=false
-SpecularMapMirrored=false
-NormalMapMirrored=false
+MapMirrored=true
+AlphaBlending=true
 Name=cube9

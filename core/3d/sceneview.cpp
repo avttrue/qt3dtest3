@@ -26,7 +26,7 @@ void SceneView::createScene(float cell, float width, float height, float depth, 
     m_Scene = new Scene(this, cell, width, height, depth, name);
     m_Scene->slotShowBoxes(config->DrawSceneBoxes());
 
-    emit signalSceneChanged(m_Scene);
+    Q_EMIT signalSceneChanged(m_Scene);
 }
 
 void SceneView::keyPressEvent(QKeyEvent *e)

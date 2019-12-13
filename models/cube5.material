@@ -1,11 +1,10 @@
 AmbientColor=#FFFFFF
 Shininess=150.0
-TextureScale=1.0
+Scale=1.0
 SpecularColor=#FFFFFF
 SpecularMap=
 DiffuseMap=cube5.png
 NormalMap=cube5_n.png
-DiffuseMapMirrored=false
-SpecularMapMirrored=false
-NormalMapMirrored=false
+MapMirrored=false
+AlphaBlending=false
 Name=cube5

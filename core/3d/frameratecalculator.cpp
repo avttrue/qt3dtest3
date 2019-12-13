@@ -24,7 +24,7 @@ void FrameRateCalculator::calculate()
             if(abs(m_FramesPerSecond - fps) > 0.09f)
             {
                 m_FramesPerSecond = fps;
-                emit signalFramesPerSecondChanged(m_FramesPerSecond);
+                Q_EMIT signalFramesPerSecondChanged(m_FramesPerSecond);
             }
         }
         m_Time = time;
@@ -37,7 +37,7 @@ void FrameRateCalculator::setFrameCount(int fc)
     if (m_FrameCount == fc) return;
 
     m_FrameCount = fc;
-    emit signalFrameCountChanged(m_FrameCount);
+    Q_EMIT signalFrameCountChanged(m_FrameCount);
 }
 
 float FrameRateCalculator::FramesPerSecond() const { return m_FramesPerSecond; }

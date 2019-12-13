@@ -133,7 +133,7 @@ void Config::setSceneDepth(int inSceneDepth)
     if(m_SceneDepth == inSceneDepth) return;
     m_SceneDepth = inSceneDepth;
     m_Settings->setValue("Scene/Depth", m_SceneDepth);
-    emit signalConfigChanged();
+    Q_EMIT signalConfigChanged();
 }
 
 void Config::setSceneWidth(int inSceneWidth)
@@ -141,7 +141,7 @@ void Config::setSceneWidth(int inSceneWidth)
     if(m_SceneWidth == inSceneWidth) return;
     m_SceneWidth = inSceneWidth;
     m_Settings->setValue("Scene/Width", m_SceneWidth);
-    emit signalConfigChanged();
+    Q_EMIT signalConfigChanged();
 }
 
 void Config::setSceneHeight(int inSceneHeight)
@@ -149,7 +149,7 @@ void Config::setSceneHeight(int inSceneHeight)
     if(m_SceneHeight == inSceneHeight) return;
     m_SceneHeight = inSceneHeight;
     m_Settings->setValue("Scene/Height", m_SceneHeight);
-    emit signalConfigChanged();
+    Q_EMIT signalConfigChanged();
 }
 
 void Config::setSceneCellSize(int inSceneCellSize)
@@ -157,7 +157,7 @@ void Config::setSceneCellSize(int inSceneCellSize)
     if(m_SceneCellSize == inSceneCellSize) return;
     m_SceneCellSize = inSceneCellSize;
     m_Settings->setValue("Scene/CellSize", m_SceneCellSize);
-    emit signalConfigChanged();
+    Q_EMIT signalConfigChanged();
 }
 
 void Config::setRewriteResources(bool inRewriteResources)
@@ -165,7 +165,7 @@ void Config::setRewriteResources(bool inRewriteResources)
     if (m_RewriteResources == inRewriteResources) return;
     m_RewriteResources = inRewriteResources;
     m_Settings->setValue("Resources/RewriteResources", m_RewriteResources);
-    emit signalConfigChanged();
+    Q_EMIT signalConfigChanged();
 }
 
 void Config::setRotationSpeed(int inRotationSpeed)
@@ -173,7 +173,7 @@ void Config::setRotationSpeed(int inRotationSpeed)
     if (m_RotationSpeed == inRotationSpeed) return;
     m_RotationSpeed = inRotationSpeed;
     m_Settings->setValue("Camera/RotationSpeed", m_RotationSpeed);
-    emit signalConfigChanged();
+    Q_EMIT signalConfigChanged();
 }
 
 void Config::setMoveSpeed(int inMoveSpeed)
@@ -181,7 +181,7 @@ void Config::setMoveSpeed(int inMoveSpeed)
     if (m_MoveSpeed == inMoveSpeed) return;
     m_MoveSpeed = inMoveSpeed;
     m_Settings->setValue("Camera/MoveSpeed", m_MoveSpeed);
-    emit signalConfigChanged();
+    Q_EMIT signalConfigChanged();
 }
 
 void Config::setRotationAcceleration(int inRotationAcceleration)
@@ -189,7 +189,7 @@ void Config::setRotationAcceleration(int inRotationAcceleration)
     if (m_RotationAcceleration == inRotationAcceleration) return;
     m_RotationAcceleration = inRotationAcceleration;
     m_Settings->setValue("Camera/RotationAcceleration", m_RotationAcceleration);
-    emit signalConfigChanged();
+    Q_EMIT signalConfigChanged();
 }
 
 void Config::setMoveAcceleration(int inMoveAcceleration)
@@ -197,7 +197,7 @@ void Config::setMoveAcceleration(int inMoveAcceleration)
     if (m_MoveAcceleration == inMoveAcceleration) return;
     m_MoveAcceleration = inMoveAcceleration;
     m_Settings->setValue("Camera/MoveAcceleration", m_MoveAcceleration);
-    emit signalConfigChanged();
+    Q_EMIT signalConfigChanged();
 }
 
 QString Config::Caption(QString key)
@@ -211,7 +211,7 @@ void Config::setDateTimeFormat(QString inDateTimeFormat)
     if (m_DateTimeFormat == inDateTimeFormat) return;
     m_DateTimeFormat = std::move(inDateTimeFormat);
     m_Settings->setValue("DateTimeFormat", m_DateTimeFormat);
-    emit signalConfigChanged();
+    Q_EMIT signalConfigChanged();
 }
 
 void Config::setButtonAcceleration(int inButtonAcceleration)
@@ -219,7 +219,7 @@ void Config::setButtonAcceleration(int inButtonAcceleration)
     if (m_ButtonAcceleration == inButtonAcceleration) return;
     m_ButtonAcceleration = inButtonAcceleration;
     m_Settings->setValue("Keyboard/ButtonAcceleration", m_ButtonAcceleration);
-    emit signalConfigChanged();
+    Q_EMIT signalConfigChanged();
 }
 
 void Config::setDrawSceneBoxes(bool inDrawSceneBoxes)
@@ -227,7 +227,7 @@ void Config::setDrawSceneBoxes(bool inDrawSceneBoxes)
     if (m_DrawSceneBoxes == inDrawSceneBoxes) return;
     m_DrawSceneBoxes = inDrawSceneBoxes;
     m_Settings->setValue("Scene/DrawBoxes", m_DrawSceneBoxes);
-    emit signalDrawSceneBoxes(m_DrawSceneBoxes);
+    Q_EMIT signalDrawSceneBoxes(m_DrawSceneBoxes);
 }
 
 int Config::SceneDepth() const { return m_SceneDepth; }

@@ -1,11 +1,10 @@
 AmbientColor=#FFFFFF
 Shininess=150.0
-TextureScale=1.0
+Scale=1.0
 SpecularColor=
 SpecularMap=powerup_s.png
 DiffuseMap=powerup.png
 NormalMap=powerup_n.png
-DiffuseMapMirrored=true
-SpecularMapMirrored=true
-NormalMapMirrored=true
-Name=powerup
+MapMirrored=true
+AlphaBlending=false
+Name=PowerUp

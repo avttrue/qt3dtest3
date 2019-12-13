@@ -81,7 +81,7 @@ Light* Scene::addLight(Qt3DRender::QAbstractLight *light,
     m_Lights.insert(l->objectName(), l);
 
     qDebug() << l->objectName() << ": Light added, count" << m_Lights.count();
-    emit signalLightChanged(name);
+    Q_EMIT signalLightChanged(name);
 
     return l;
 }
@@ -93,8 +93,8 @@ bool Scene::delLight(const QString &name)
     {
         if(m_SelectedEntity == l) m_SelectedEntity = nullptr;
         l->deleteLater();
-        emit signalSelectedEntityChanged(m_SelectedEntity);
-        emit signalLightChanged(name);
+        Q_EMIT signalSelectedEntityChanged(m_SelectedEntity);
+        Q_EMIT signalLightChanged(name);
         qDebug() << objectName() << ": Lights count" << m_Lights.count();
         return true;
     }
@@ -117,7 +117,7 @@ SceneObject* Scene::addObject(Qt3DRender::QGeometryRenderer *geometry,
     m_Objects.insert(entity->objectName(), entity);
 
     qDebug() << objectName() << ": Entity created, count" << m_Objects.count();
-    emit signalObjectChanged(name);
+    Q_EMIT signalObjectChanged(name);
 
     return entity;
 }
@@ -142,8 +142,8 @@ bool Scene::delObject(const QString &name)
     {
         if(m_SelectedEntity == entity) m_SelectedEntity = nullptr;
         entity->deleteLater();
-        emit signalSelectedEntityChanged(m_SelectedEntity);
-        emit signalObjectChanged(name);
+        Q_EMIT signalSelectedEntityChanged(m_SelectedEntity);
+        Q_EMIT signalObjectChanged(name);
         qDebug() << objectName() << ": Objects count" << m_Objects.count();
         return true;
     }
@@ -178,7 +178,7 @@ void Scene::SelectEntity(SceneEntity *entity)
             m_SelectedEntity = entity;
         }
     }
-    emit signalSelectedEntityChanged(m_SelectedEntity);
+    Q_EMIT signalSelectedEntityChanged(m_SelectedEntity);
 }
 
 QString Scene::EntityGeometry(SceneEntity *entity) const
@@ -275,7 +275,7 @@ void Scene::loadGeometry(const QString &path)
     if(geometry)
     {
         geometry->deleteLater();
-        emit signalGeometryChanged(geometry->objectName());
+        Q_EMIT signalGeometryChanged(geometry->objectName());
         qDebug() << objectName() << ": Geometries count" << m_Geometries.count();
     }
 
@@ -284,8 +284,8 @@ void Scene::loadGeometry(const QString &path)
     QObject::connect(mesh, &QObject::destroyed, [=](QObject* o){ qDebug() << objectName() << ": Geometry" << o->objectName() << "destroyed"; });
     mesh->setSource(QUrl::fromLocalFile(path));
     m_Geometries.insert(name, mesh);
-    qDebug() << objectName() << ": Geometry loaded" << name << "count" << m_Geometries.count();
-    emit signalGeometryChanged(name);
+    qDebug() << objectName() << ": Geometry loaded" << mesh->objectName();
+    Q_EMIT signalGeometryChanged(name);
 }
 
 void Scene::loadGeometries()
@@ -301,7 +301,7 @@ void Scene::loadGeometries()
         if(m_Geometries.count() == fileList.count())
         {
             QObject::disconnect(this, &Scene::signalGeometryChanged, nullptr, nullptr);
-            qDebug() << objectName() << "All geometries loaded";
+            qDebug() << objectName() << "All geometries loaded:" << m_Geometries.count();
             // TODO: do next
         }
     };
@@ -321,13 +321,13 @@ void Scene::loadMaterial(const QString& path)
         if(m)
         {
             m->deleteLater();
-            emit signalMaterialChanged(m->objectName());
+            Q_EMIT signalMaterialChanged(m->objectName());
             qDebug() << objectName() << ": Materials count" << m_Materials.count();
         }
 
         m_Materials.insert(material->objectName(), material);
-        qDebug() << objectName() << ": Material loaded" << material->objectName() << "count" << m_Materials.count();
-        emit signalMaterialChanged(material->objectName());
+        qDebug() << objectName() << ": Material loaded" << material->objectName();
+        Q_EMIT signalMaterialChanged(material->objectName());
     };
     QObject::connect(material, &Material::signalReady, func);
     material->loadCFG(path);
@@ -346,7 +346,7 @@ void Scene::loadMaterials()
         if(m_Materials.count() == fileList.count())
         {
             QObject::disconnect(this, &Scene::signalMaterialChanged, nullptr, nullptr);
-            qDebug() << objectName() << "All materials loaded";
+            qDebug() << objectName() << "All materials loaded:" << m_Materials.count();
             // TODO: do next
         }
     };

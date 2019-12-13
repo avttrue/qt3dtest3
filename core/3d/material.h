@@ -6,8 +6,10 @@
 
 const QString AMBIENT_COLOR = "#FFFFFF";
 const float SHININESS = 150.0f;
-const float TEXTURE_SCALE = 1.0f;
+const float SCALE = 1.0f;
 const int MAPS_COUNT = 3;
+const bool ALPHA_BLENDING = false;
+const bool MAP_MIRRORED = false;
 
 enum MapTypes
 {

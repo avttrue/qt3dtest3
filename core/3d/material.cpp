@@ -9,12 +9,8 @@
 Material::Material(Scene *parent) :
     Qt3DExtras::QDiffuseSpecularMaterial(parent)
 {
-    setAmbient(QColor(AMBIENT_COLOR));
-    setShininess(SHININESS);
-    setAlphaBlendingEnabled(false);
-    setTextureScale(TEXTURE_SCALE);
-
     QObject::connect(this, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": Material" << objectName() << " destroyed"; });
+    QObject::connect(this, &Material::signalTextureDone, this, &Material::slotTextureDone, Qt::DirectConnection);
 }
 
 Qt3DRender::QTexture2D* Material::createTexture(const QString &path, bool mirrored)
@@ -78,7 +74,7 @@ void Material::slotTextureDone()
     if(m_MapsCount >= MAPS_COUNT)
     {
         QObject::disconnect(this, &Material::signalTextureDone, nullptr, nullptr);
-        emit signalReady();
+        Q_EMIT signalReady();
     }
 }
 
@@ -88,37 +84,38 @@ void Material::loadCFG(const QString &cfg_path)
 
     if(!fi.exists() || !fi.isFile()) { qCritical() << __func__ << ": Wrong path" << cfg_path; return; }
 
-    QObject::connect(this, &Material::signalTextureDone, this, &Material::slotTextureDone, Qt::DirectConnection);
-
     auto assetsdir = fi.path() + QDir::separator();
     auto cfg = new QSettings(cfg_path, QSettings::IniFormat);
 
     setObjectName(cfg->value("Name", "material").toString());
+    setAlphaBlendingEnabled(cfg->value("AlphaBlending", ALPHA_BLENDING).toBool());
+    setShininess(cfg->value("Shininess", SHININESS).toFloat());
+    setTextureScale(cfg->value("Scale", SCALE).toFloat());
 
+    auto map_mirrored = cfg->value("MapMirrored", MAP_MIRRORED).toBool();
     auto ambientColor = QColor(cfg->value("AmbientColor", QColor::Invalid).toString());
+    auto specularColor = QColor(cfg->value("SpecularColor", QColor::Invalid).toString());
+    auto diffuse = cfg->value("DiffuseMap", "").toString();
+    auto specular = cfg->value("SpecularMap", "").toString();
+    auto normal = cfg->value("NormalMap", "").toString();
+
+    // AmbientColor
     if(!ambientColor.isValid()) ambientColor = QColor(AMBIENT_COLOR);
     setAmbient(ambientColor);
 
-    setShininess(cfg->value("Shininess", SHININESS).toFloat());
-    setShininess(cfg->value("TextureScale", TEXTURE_SCALE).toFloat());
+    // DiffuseMap
+    loadTexture(MapTypes::DiffuseMap, assetsdir + diffuse, map_mirrored);
 
-    auto diffuse = cfg->value("DiffuseMap", "").toString();
-    auto diffuse_m = cfg->value("DiffuseMapMirrored", false).toBool();    
-    loadTexture(MapTypes::DiffuseMap, assetsdir + diffuse, diffuse_m);
-
-    auto specular = cfg->value("SpecularMap", "").toString();
-    auto specular_m = cfg->value("SpecularMapMirrored", false).toBool();
-    if(!specular.isEmpty()) loadTexture(MapTypes::SpecularMap, assetsdir + specular, specular_m);
+    // SpecularMap
+    if(!specular.isEmpty()) loadTexture(MapTypes::SpecularMap, assetsdir + specular, map_mirrored);
     else
     {
-        auto specularColor = QColor(cfg->value("SpecularColor", QColor::Invalid).toString());
         if(!specularColor.isValid()) specularColor = ambientColor.darker();
         setSpecular(QVariant::fromValue<QColor>(specularColor));
-        emit signalTextureDone();
+        Q_EMIT signalTextureDone();
     }
 
-    auto normal = cfg->value("NormalMap", "").toString();
-    auto normal_m = cfg->value("NormalMapMirrored", false).toBool();
-    if(!normal.isEmpty()) loadTexture(MapTypes::NormalMap, assetsdir + normal, normal_m);
-    else emit signalTextureDone();
+    // NormalMap
+    if(!normal.isEmpty()) loadTexture(MapTypes::NormalMap, assetsdir + normal, map_mirrored);
+    else Q_EMIT signalTextureDone();
 }
