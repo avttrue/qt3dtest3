@@ -23,7 +23,9 @@ SceneView::SceneView(QScreen *screen):
 void SceneView::createScene(float cell, float width, float height, float depth, const QString& name)
 {
     if(m_Scene) m_Scene->deleteLater();
+
     m_Scene = new Scene(this, cell, width, height, depth, name);
+    setRootEntity(m_Scene);
     m_Scene->slotShowBoxes(config->DrawSceneBoxes());
 
     Q_EMIT signalSceneChanged(m_Scene);

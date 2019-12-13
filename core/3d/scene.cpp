@@ -29,11 +29,8 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window,
     m_Depth(abs(ceilf(depth)))
 {
     applyEntityName(this, "scene", name);
-    window->setRootEntity(this);
 
     auto w = cell * width; auto h = cell * height; auto d = cell * depth;
-
-    m_FRC = new FrameRateCalculator(FRAME_RATE_COUNT_CALC, this);
 
     m_Camera = window->camera();
     m_CameraFarPlane = static_cast<float>(sqrt(pow(static_cast<double>(w), 2) +
@@ -65,8 +62,9 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window,
 
     m_FrameAction = new Qt3DLogic::QFrameAction(this);
     QObject::connect(m_FrameAction, &Qt3DLogic::QFrameAction::triggered, this, &Scene::slotFrameActionTriggered);
-
     QObject::connect(this, &QObject::destroyed, [=](QObject* o){ qDebug() << o->objectName() << ": destroyed"; });
+
+    m_FRC = new FrameRateCalculator(FRAME_RATE_COUNT_CALC, this);
     qDebug() << objectName() << ": Scene created";
 }
 
@@ -305,7 +303,7 @@ void Scene::loadGeometries()
             // TODO: do next
         }
     };
-    QObject::connect(this, &Scene::signalGeometryChanged, this, func, Qt::DirectConnection);
+    QObject::connect(this, &Scene::signalGeometryChanged, func);
 
     for(QString f: fileList)
         loadGeometry(config->PathAssetsDir() + QDir::separator() + f);
@@ -316,7 +314,6 @@ void Scene::loadMaterial(const QString& path)
     auto material = new Material(this);
     auto func = [=]()
     {
-        QObject::disconnect(material, &Material::signalReady, nullptr, nullptr);
         auto m = m_Materials.take(material->objectName());
         if(m)
         {
@@ -330,7 +327,7 @@ void Scene::loadMaterial(const QString& path)
         Q_EMIT signalMaterialChanged(material->objectName());
     };
     QObject::connect(material, &Material::signalReady, func);
-    material->loadCFG(path);
+    material->load(path);
 }
 
 void Scene::loadMaterials()
@@ -350,7 +347,7 @@ void Scene::loadMaterials()
             // TODO: do next
         }
     };
-    QObject::connect(this, &Scene::signalMaterialChanged, this, func, Qt::DirectConnection);
+    QObject::connect(this, &Scene::signalMaterialChanged, func);
 
     for(QString f: fileList)
         loadMaterial(config->PathAssetsDir() + QDir::separator() + f);

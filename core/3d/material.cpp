@@ -9,6 +9,7 @@
 Material::Material(Scene *parent) :
     Qt3DExtras::QDiffuseSpecularMaterial(parent)
 {
+
     QObject::connect(this, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": Material" << objectName() << " destroyed"; });
     QObject::connect(this, &Material::signalTextureDone, this, &Material::slotTextureDone, Qt::DirectConnection);
 }
@@ -37,24 +38,43 @@ void Material::loadTexture(MapTypes type, const QString &path, bool mirrored)
     auto fi = QFileInfo(path);
     auto tl = new Qt3DRender::QTextureLoader(this);
 
+    auto func = [=](Qt3DRender::QAbstractTexture::Status s)
+    {
+        if(s == Qt3DRender::QAbstractTexture::Ready)
+        {
+            QObject::disconnect(tl, &Qt3DRender::QTextureLoader::statusChanged, nullptr, nullptr);
+
+            tl->setMirrored(mirrored);
+            tl->setMinificationFilter(Qt3DRender::QAbstractTexture::LinearMipMapLinear);
+            tl->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
+            tl->setFormat(Qt3DRender::QAbstractTexture::Automatic);
+
+            Qt3DRender::QTextureWrapMode wm;
+            wm.setX(Qt3DRender::QTextureWrapMode::ClampToEdge);
+            wm.setY(Qt3DRender::QTextureWrapMode::ClampToEdge);
+            wm.setZ(Qt3DRender::QTextureWrapMode::ClampToEdge);
+            tl->setWrapMode(wm);
+
+            qDebug() << objectName() << ": Texture loaded" << fi.fileName();
+            Q_EMIT signalTextureDone();
+        }
+        else if(s == Qt3DRender::QAbstractTexture::Error)
+        {
+            QObject::disconnect(tl, &Qt3DRender::QTextureLoader::statusChanged, nullptr, nullptr);
+            qCritical() << objectName() << ": Error at texture loading" << fi.fileName();
+            Q_EMIT signalTextureDone();
+        }
+        else
+        { qDebug() << objectName() << ": Texture" << fi.fileName() << "loading status:" << s; }
+    };
+    QObject::connect(tl, &Qt3DRender::QTextureLoader::statusChanged, func);
+
     if(fi.exists() && fi.isFile()) tl->setSource(QUrl::fromLocalFile(path));
     else
     {
         qCritical() << __func__ << ": Wrong texture path" << path;
         tl->setSource(QUrl::fromLocalFile(DEFAULT_TEXTURE));
     }
-
-    tl->setMirrored(mirrored);
-    tl->setMinificationFilter(Qt3DRender::QAbstractTexture::LinearMipMapLinear);
-    tl->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
-    tl->setFormat(Qt3DRender::QAbstractTexture::Automatic);
-
-    Qt3DRender::QTextureWrapMode wm;
-    wm.setX(Qt3DRender::QTextureWrapMode::ClampToEdge);
-    wm.setY(Qt3DRender::QTextureWrapMode::ClampToEdge);
-    wm.setZ(Qt3DRender::QTextureWrapMode::ClampToEdge);
-    tl->setWrapMode(wm);
-
     if(type == MapTypes::DiffuseMap)
         setDiffuse(QVariant::fromValue<Qt3DRender::QTextureLoader*>(tl));
 
@@ -63,9 +83,12 @@ void Material::loadTexture(MapTypes type, const QString &path, bool mirrored)
 
     else if(type == MapTypes::NormalMap)
         setNormal(QVariant::fromValue<Qt3DRender::QTextureLoader*>(tl));
-
-    qDebug() << objectName() << ": Texture loaded" << path;
-    Q_EMIT signalTextureDone();
+    else
+    {
+        QObject::disconnect(tl, &Qt3DRender::QTextureLoader::statusChanged, nullptr, nullptr);
+        qCritical() << objectName() << ": Unknown texture type" << type;
+        Q_EMIT signalTextureDone();
+    }
 }
 
 void Material::slotTextureDone()
@@ -78,14 +101,14 @@ void Material::slotTextureDone()
     }
 }
 
-void Material::loadCFG(const QString &cfg_path)
+void Material::load(const QString &path)
 {
-    auto fi = QFileInfo(cfg_path);
+    auto fi = QFileInfo(path);
 
-    if(!fi.exists() || !fi.isFile()) { qCritical() << __func__ << ": Wrong path" << cfg_path; return; }
+    if(!fi.exists() || !fi.isFile()) { qCritical() << __func__ << ": Wrong path" << path; return; }
 
     auto assetsdir = fi.path() + QDir::separator();
-    auto cfg = new QSettings(cfg_path, QSettings::IniFormat);
+    auto cfg = new QSettings(path, QSettings::IniFormat);
 
     setObjectName(cfg->value("Name", "material").toString());
     setAlphaBlendingEnabled(cfg->value("AlphaBlending", ALPHA_BLENDING).toBool());

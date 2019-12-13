@@ -26,7 +26,7 @@ class Material : public Qt3DExtras::QDiffuseSpecularMaterial
 
 public:
     Material(Scene *parent);
-    void loadCFG(const QString& cfg_path);
+    void load(const QString& path);
 
 protected:
     Qt3DRender::QTexture2D* createTexture(const QString& path, bool mirrored = false); // delete
