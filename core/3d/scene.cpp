@@ -268,17 +268,33 @@ void Scene::loadGeometry(const QString &path)
     if(!fi.exists()){ qCritical() << objectName() << "(" << __func__ << "): Wrong path:" << path;  return; }
 
     auto name = fi.baseName();
-
     auto geometry = m_Geometries.take(name);
     if(geometry) geometry->deleteLater();
-
     Qt3DRender::QMesh* mesh = new Qt3DRender::QMesh(this);
     mesh->setObjectName(name);
+    auto func = [=](Qt3DRender::QMesh::Status s)
+    {
+        if(s == Qt3DRender::QMesh::Ready)
+        {
+            QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
+            m_Geometries.insert(name, mesh);
+            qDebug() << objectName() << ": Geometry loaded" << mesh->objectName();
+            Q_EMIT signalGeometryChanged(name);
+        }
+        else if(s == Qt3DRender::QMesh::Error)
+        {
+            QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
+            qCritical() << objectName() << ": Error at geometry loading" << name;
+            Q_EMIT signalGeometryChanged(name);
+        }
+        else
+        {
+            qDebug() << objectName() << ": Geometry" << name << "loading status:" << s;
+        }
+    };
     QObject::connect(mesh, &QObject::destroyed, [=](QObject* o){ qDebug() << objectName() << ": Geometry" << o->objectName() << "destroyed"; });
+    QObject::connect(mesh, &Qt3DRender::QMesh::statusChanged, func);
     mesh->setSource(QUrl::fromLocalFile(path));
-    m_Geometries.insert(name, mesh);
-    qDebug() << objectName() << ": Geometry loaded" << mesh->objectName();
-    Q_EMIT signalGeometryChanged(name);
 }
 
 void Scene::loadGeometries()
@@ -295,6 +311,7 @@ void Scene::loadGeometries()
         {
             QObject::disconnect(this, &Scene::signalGeometryChanged, nullptr, nullptr);
             qDebug() << objectName() << "All geometries loaded:" << m_Geometries.count();
+            Q_EMIT signalGeometryLoaded(m_Geometries.count());
             // TODO: do next
         }
     };
@@ -335,6 +352,7 @@ void Scene::loadMaterials()
         {
             QObject::disconnect(this, &Scene::signalMaterialChanged, nullptr, nullptr);
             qDebug() << objectName() << "All materials loaded:" << m_Materials.count();
+            Q_EMIT signalMaterialLoaded(m_Materials.count());
             // TODO: do next
         }
     };

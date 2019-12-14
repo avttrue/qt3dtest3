@@ -154,8 +154,8 @@ void MainWindow::slotViewSceneChanged(Scene *scene)
 
     QObject::connect(scene, &Scene::signalLightChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene, &Scene::signalObjectChanged, this, &MainWindow::slotWriteSceneStat);
-    QObject::connect(scene, &Scene::signalGeometryChanged, this, &MainWindow::slotWriteSceneStat);
-    QObject::connect(scene, &Scene::signalMaterialChanged, this, &MainWindow::slotWriteSceneStat);
+    QObject::connect(scene, &Scene::signalGeometryLoaded, this, &MainWindow::slotWriteSceneStat);
+    QObject::connect(scene, &Scene::signalMaterialLoaded, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene, &Scene::signalEntityClicked, this, &MainWindow::slotSceneEntityClicked);
 
     QObject::connect(scene->FRC(), &FrameRateCalculator::signalFramesPerSecondChanged, [=](auto value)
