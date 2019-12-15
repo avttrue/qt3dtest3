@@ -13,10 +13,11 @@
 
 #include <Qt3DCore/QTransform>
 #include <Qt3DExtras/QPhongMaterial>
+#include <Qt3DExtras/QCuboidMesh>
 #include <Qt3DRender/QPointLight>
 #include <Qt3DRender/QMesh>
 
-Scene::Scene(Qt3DExtras::Qt3DWindow *window,
+Scene::Scene(Qt3DExtras::Qt3DWindow *view,
              float cell,
              float width, float height, float depth,
              const QString &name):
@@ -32,11 +33,11 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *window,
 
     auto w = cell * width; auto h = cell * height; auto d = cell * depth;
 
-    m_Camera = window->camera();
+    m_Camera = view->camera();
     m_CameraFarPlane = static_cast<float>(sqrt(pow(static_cast<double>(w), 2) +
                                                pow(static_cast<double>(h), 2) +
                                                pow(static_cast<double>(d), 2)));
-    auto camera_aspect = static_cast<float>(window->width()) / window->height();
+    auto camera_aspect = static_cast<float>(view->width()) / view->height();
     m_Camera->lens()->setPerspectiveProjection(45.0f, camera_aspect, 0.1f, m_CameraFarPlane);
 
     m_Camera->setUpVector(QVector3D(0.0f, 1.0f, 0.0f));
@@ -279,18 +280,19 @@ void Scene::loadGeometry(const QString &path)
             QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
             m_Geometries.insert(name, mesh);
             qDebug() << objectName() << ": Geometry loaded" << mesh->objectName();
-            Q_EMIT signalGeometryChanged(name);
+            Q_EMIT signalGeometryLoaded(name);
         }
         else if(s == Qt3DRender::QMesh::Error)
         {
             QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
             qCritical() << objectName() << ": Error at geometry loading" << name;
-            Q_EMIT signalGeometryChanged(name);
+            auto mesh = new Qt3DExtras::QCuboidMesh;
+            mesh->setXExtent(1.0f); mesh->setYExtent(1.0f); mesh->setZExtent(1.0f);
+            mesh->setObjectName(name);
+            Q_EMIT signalGeometryLoaded(name);
         }
         else
-        {
-            qDebug() << objectName() << ": Geometry" << name << "loading status:" << s;
-        }
+        { qDebug() << objectName() << ": Geometry" << name << "loading status:" << s; }
     };
     QObject::connect(mesh, &QObject::destroyed, [=](QObject* o){ qDebug() << objectName() << ": Geometry" << o->objectName() << "destroyed"; });
     QObject::connect(mesh, &Qt3DRender::QMesh::statusChanged, func);
@@ -309,13 +311,13 @@ void Scene::loadGeometries()
     {
         if(m_Geometries.count() == fileList.count())
         {
-            QObject::disconnect(this, &Scene::signalGeometryChanged, nullptr, nullptr);
+            QObject::disconnect(this, &Scene::signalGeometryLoaded, nullptr, nullptr);
             qDebug() << objectName() << "All geometries loaded:" << m_Geometries.count();
-            Q_EMIT signalGeometryLoaded(m_Geometries.count());
+            Q_EMIT signalGeometriesLoaded(m_Geometries.count());
             // TODO: do next
         }
     };
-    QObject::connect(this, &Scene::signalGeometryChanged, func);
+    QObject::connect(this, &Scene::signalGeometryLoaded, func);
 
     for(QString f: fileList)
         loadGeometry(config->PathAssetsDir() + QDir::separator() + f);
@@ -332,7 +334,7 @@ void Scene::loadMaterial(const QString& path)
 
         m_Materials.insert(material->objectName(), material);
         qDebug() << objectName() << ": Material loaded" << material->objectName();
-        Q_EMIT signalMaterialChanged(material->objectName());
+        Q_EMIT signalMaterialLoaded(material->objectName());
     };
     QObject::connect(material, &Material::signalReady, func);
     material->load(path);
@@ -350,13 +352,13 @@ void Scene::loadMaterials()
     {
         if(m_Materials.count() == fileList.count())
         {
-            QObject::disconnect(this, &Scene::signalMaterialChanged, nullptr, nullptr);
+            QObject::disconnect(this, &Scene::signalMaterialLoaded, nullptr, nullptr);
             qDebug() << objectName() << "All materials loaded:" << m_Materials.count();
-            Q_EMIT signalMaterialLoaded(m_Materials.count());
+            Q_EMIT signalMaterialsLoaded(m_Materials.count());
             // TODO: do next
         }
     };
-    QObject::connect(this, &Scene::signalMaterialChanged, func);
+    QObject::connect(this, &Scene::signalMaterialLoaded, func);
 
     for(QString f: fileList)
         loadMaterial(config->PathAssetsDir() + QDir::separator() + f);

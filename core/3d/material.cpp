@@ -87,7 +87,6 @@ void Material::slotTextureDone()
 void Material::load(const QString &path)
 {
     auto fi = QFileInfo(path);
-
     if(!fi.exists() || !fi.isFile()) { qCritical() << __func__ << ": Wrong path" << path; return; }
 
     auto assetsdir = fi.path() + QDir::separator();

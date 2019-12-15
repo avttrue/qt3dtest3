@@ -42,8 +42,8 @@ MainWindow::MainWindow(QWidget *parent) :
 void MainWindow::createGUI()
 {
     // View
-    sceneView = new SceneView;
-    viewContainer = QWidget::createWindowContainer(sceneView);
+    view = new SceneView;
+    viewContainer = QWidget::createWindowContainer(view);
     viewContainer->setFocusPolicy(Qt::StrongFocus);
 
     // Controls
@@ -128,10 +128,10 @@ void MainWindow::createGUI()
 
     setStatusBar(statusBar);
 
-    QObject::connect(sceneView, &SceneView::signalSceneChanged, [=](Scene* scene){ btnNewObject->setEnabled(scene); });
-    QObject::connect(sceneView, &SceneView::signalSceneChanged, [=](Scene* scene){ btnNewLight->setEnabled(scene); });
-    QObject::connect(sceneView, &SceneView::signalSceneChanged, this, &MainWindow::slotViewSceneChanged);
-    QObject::connect(sceneView, &SceneView::signalSceneChanged, this, &MainWindow::slotWriteSceneStat);
+    QObject::connect(view, &SceneView::signalSceneChanged, [=](Scene* scene){ btnNewObject->setEnabled(scene); });
+    QObject::connect(view, &SceneView::signalSceneChanged, [=](Scene* scene){ btnNewLight->setEnabled(scene); });
+    QObject::connect(view, &SceneView::signalSceneChanged, this, &MainWindow::slotViewSceneChanged);
+    QObject::connect(view, &SceneView::signalSceneChanged, this, &MainWindow::slotWriteSceneStat);
 }
 
 void MainWindow::addControlWidget(QWidget *widget)
@@ -142,10 +142,10 @@ void MainWindow::addControlWidget(QWidget *widget)
 void MainWindow::slotWriteSceneStat()
 {
     labelSceneStat->setText(tr("<b>Lights:</b>%1 | <b>Entities:</b>%2 | <b>Geometries:</b>%3 | <b>Materials:</b>%4").
-                            arg(QString::number(sceneView->getScene()->Lights().count()),
-                                QString::number(sceneView->getScene()->Objects().count()),
-                                QString::number(sceneView->getScene()->Geometries().count()),
-                                QString::number(sceneView->getScene()->Materials().count())));
+                            arg(QString::number(view->getScene()->Lights().count()),
+                                QString::number(view->getScene()->Objects().count()),
+                                QString::number(view->getScene()->Geometries().count()),
+                                QString::number(view->getScene()->Materials().count())));
 }
 
 void MainWindow::slotViewSceneChanged(Scene *scene)
@@ -154,8 +154,8 @@ void MainWindow::slotViewSceneChanged(Scene *scene)
 
     QObject::connect(scene, &Scene::signalLightChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene, &Scene::signalObjectChanged, this, &MainWindow::slotWriteSceneStat);
-    QObject::connect(scene, &Scene::signalGeometryLoaded, this, &MainWindow::slotWriteSceneStat);
-    QObject::connect(scene, &Scene::signalMaterialLoaded, this, &MainWindow::slotWriteSceneStat);
+    QObject::connect(scene, &Scene::signalGeometriesLoaded, this, &MainWindow::slotWriteSceneStat);
+    QObject::connect(scene, &Scene::signalMaterialsLoaded, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene, &Scene::signalEntityClicked, this, &MainWindow::slotSceneEntityClicked);
 
     QObject::connect(scene->FRC(), &FrameRateCalculator::signalFramesPerSecondChanged, [=](auto value)
@@ -185,7 +185,7 @@ void MainWindow::slotCreateScene()
 
     if(!dvl->exec()) return;
 
-    sceneView->createScene(map.value(keys.at(1)).value.toInt(),
+    view->createScene(map.value(keys.at(1)).value.toInt(),
                            map.value(keys.at(2)).value.toInt(),
                            map.value(keys.at(3)).value.toInt(),
                            map.value(keys.at(4)).value.toInt(),
@@ -200,7 +200,7 @@ void MainWindow::slotCreateScene()
 
 void MainWindow::slotCreatePointLight()
 {
-    auto s = sceneView->getScene();
+    auto s = view->getScene();
 
     const QVector<QString> keys =
         {tr("1. Name (m.b. empty):"),
@@ -241,7 +241,7 @@ void MainWindow::slotCreatePointLight()
 
 void MainWindow::slotCreateObject()
 {
-    auto s = sceneView->getScene();
+    auto s = view->getScene();
 
     const QVector<QString> keys =
         {tr("1. Name (m.b. empty):"),
@@ -263,9 +263,11 @@ void MainWindow::slotCreateObject()
              {keys.at(4), {QVariant::Int, 1, 1, s->Size().x()}},
              {keys.at(5), {QVariant::Int, 1, 1, s->Size().y()}},
              {keys.at(6), {QVariant::Int, 1, 1, s->Size().z()}},
-             {keys.at(7), {QVariant::StringList, s->Materials().keys().first(),
-                           "", QStringList(s->Materials().keys()), DialogValueMode::OneFromList}},
-             {keys.at(8), {QVariant::StringList, s->Geometries().keys().first(),
+             {keys.at(7), {QVariant::StringList,
+                           s->Materials().keys().isEmpty() ? "" : s->Materials().keys().first(),
+                           "", QStringList(s->Materials().keys()), DialogValueMode::OneFromList}},             
+             {keys.at(8), {QVariant::StringList,
+                           s->Geometries().keys().isEmpty() ? "" : s->Geometries().keys().first(),
                            "", QStringList(s->Geometries().keys()), DialogValueMode::OneFromList}}
             };
     auto dvl = new DialogValuesList(":/res/icons/cube.svg", tr("New object"), true, &map, this);
@@ -289,8 +291,8 @@ void MainWindow::slotCreateObject()
 
 void MainWindow::slotDeleteSelectedEntity()
 {
-    auto s = sceneView->getScene();
-    auto e = sceneView->getScene()->SelectedEntity();
+    auto s = view->getScene();
+    auto e = view->getScene()->SelectedEntity();
 
     if(!s || !e) { actionDelObject->setDisabled(true); return; }
 
@@ -302,8 +304,8 @@ void MainWindow::slotDeleteSelectedEntity()
 
 void MainWindow::slotEditSelectedEntity()
 {
-    auto s = sceneView->getScene();
-    auto e = sceneView->getScene()->SelectedEntity();
+    auto s = view->getScene();
+    auto e = view->getScene()->SelectedEntity();
     auto e_pos = s->EntityPosition(e);
 
     if(!s || !e) { btnEditEntity->setDisabled(true); return; }
@@ -397,7 +399,7 @@ void MainWindow::slotTest()
 
     if (reply == QMessageBox::No)  return;
 
-    auto s = sceneView->getScene();
+    auto s = view->getScene();
     if(!s) {qWarning() << "Scene is absent"; return; }
 
     s->setEnabled(false);
@@ -421,7 +423,7 @@ void MainWindow::slotSceneEntityClicked(Qt3DRender::QPickEvent *event, SceneEnti
     if(!entity) { qCritical() << __func__ << ": Entity is empty"; return; }
     if(!event) { qCritical() << __func__ << ": Event is empty"; return; }
 
-    auto s = sceneView->getScene();
+    auto s = view->getScene();
 
     if(event->button() == Qt3DRender::QPickEvent::Buttons::LeftButton)
     {

@@ -27,7 +27,7 @@ protected:
 
 private:
     QWidget* viewContainer;
-    SceneView* sceneView;
+    SceneView* view;
     QLabel* labelSceneStat;
     QLabel* labelSceneFPS;
     QGridLayout* glControls;

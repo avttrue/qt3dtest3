@@ -85,10 +85,10 @@ Q_SIGNALS:
     void signalSelectedEntityChanged(SceneEntity* entity);
     void signalObjectChanged(const QString& name);
     void signalLightChanged(const QString& name);
-    void signalGeometryChanged(const QString& name);
-    void signalMaterialChanged(const QString& name);
-    void signalGeometryLoaded(int count);
-    void signalMaterialLoaded(int count);
+    void signalGeometryLoaded(const QString& name);
+    void signalMaterialLoaded(const QString& name);
+    void signalGeometriesLoaded(int count);
+    void signalMaterialsLoaded(int count);
     void signalEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity *entity);
 
 public Q_SLOTS:

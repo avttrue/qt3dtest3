@@ -108,7 +108,7 @@ void DialogValuesList::slotLoadContent(QMap<QString, DialogValue>* values)
             bl->addWidget(le, 1);
             widget->setLayout(bl);
             addWidgetContent(widget);
-          continue;
+            continue;
         }
 
         if(t == QVariant::String)
@@ -178,14 +178,19 @@ void DialogValuesList::slotLoadContent(QMap<QString, DialogValue>* values)
             }
             else if(values->value(key).mode == DialogValueMode::OneFromList)
             {
-                auto cb = new QComboBox(widget);
-                auto list = maxv.toStringList(); list.sort(Qt::CaseInsensitive);
-                cb->addItems(list);
-                cb->setProperty("ValueName", key);
-                auto index = list.indexOf(v.toString());
-                if(index != -1) cb->setCurrentIndex(index);
-                QObject::connect(cb, QOverload<const QString&>::of(&QComboBox::currentIndexChanged),
-                                 this, &DialogValuesList::slotOneOfStringListValueChanged);
+                auto cb = new QComboBox(widget);                
+                auto list = maxv.toStringList();
+                if(!list.isEmpty())
+                {
+                    list.sort(Qt::CaseInsensitive);
+                    cb->addItems(list);
+                    cb->setProperty("ValueName", key);
+                    auto index = list.indexOf(v.toString());
+                    if(index != -1) cb->setCurrentIndex(index);
+                    QObject::connect(cb, QOverload<const QString&>::of(&QComboBox::currentIndexChanged),
+                                     this, &DialogValuesList::slotOneOfStringListValueChanged);
+                }
+                else cb->setDisabled(true);
                 bl->addWidget(cb, 1);
                 widget->setLayout(bl);
             }
@@ -199,18 +204,23 @@ void DialogValuesList::slotLoadContent(QMap<QString, DialogValue>* values)
                 lv->setFixedHeight(fm.height() * 4);
                 auto model = new QStandardItemModel(lv);
                 model->setProperty("ValueName", key);
-                auto list = maxv.toStringList(); list.sort(Qt::CaseInsensitive);
-                for(QString s: list)
+                auto list = maxv.toStringList();
+                if(!list.isEmpty())
                 {
-                    auto i = new QStandardItem(s);
-                    i->setCheckable(true);
-                    i->setCheckState(v.toStringList().contains(s) ? Qt::Checked : Qt::Unchecked);
-                    model->appendRow(i);
-                }
+                    list.sort(Qt::CaseInsensitive);
+                    for(QString s: list)
+                    {
+                        auto i = new QStandardItem(s);
+                        i->setCheckable(true);
+                        i->setCheckState(v.toStringList().contains(s) ? Qt::Checked : Qt::Unchecked);
+                        model->appendRow(i);
+                    }
 
-                lv->setModel(model);
-                connect(model, &QStandardItemModel::itemChanged,
-                        this, &DialogValuesList::slotManyOfStringListValueChanged);
+                    lv->setModel(model);
+                    connect(model, &QStandardItemModel::itemChanged,
+                            this, &DialogValuesList::slotManyOfStringListValueChanged);
+                }
+                else lv->setDisabled(true);
                 bl->addWidget(lv, 1);
                 widget->setLayout(bl);
             }
