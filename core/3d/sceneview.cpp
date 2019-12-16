@@ -25,10 +25,17 @@ void SceneView::createScene(float cell, float width, float height, float depth, 
     if(m_Scene) m_Scene->deleteLater();
 
     m_Scene = new Scene(this, cell, width, height, depth, name);
+    m_Scene->setEnabled(false);
     setRootEntity(m_Scene);
-    m_Scene->slotShowBoxes(config->DrawSceneBoxes());
 
-    Q_EMIT signalSceneChanged(m_Scene);
+    auto func = [=]()
+    {
+        m_Scene->setEnabled(true);
+        m_Scene->slotShowBoxes(config->DrawSceneBoxes());
+        Q_EMIT signalSceneChanged(m_Scene);
+    };
+    QObject::connect(m_Scene, &Scene::signalLoaded, func);
+    m_Scene->load();
 }
 
 void SceneView::keyPressEvent(QKeyEvent *e)

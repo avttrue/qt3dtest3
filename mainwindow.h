@@ -37,7 +37,7 @@ private:
 
 public Q_SLOTS:
     void slotWriteSceneStat();
-    void slotViewSceneChanged(Scene* scene);
+    void slotSceneChanged(Scene* scene);
     void slotCreateScene();
     void slotCreatePointLight();
     void slotCreateObject();

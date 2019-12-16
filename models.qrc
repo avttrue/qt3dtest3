@@ -47,5 +47,6 @@
         <file>models/cube12.material</file>
         <file>models/cube12.png</file>
         <file>models/cube3_s.png</file>
+        <file>models/cube9_n.png</file>
     </qresource>
 </RCC>

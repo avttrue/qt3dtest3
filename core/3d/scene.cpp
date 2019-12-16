@@ -22,7 +22,12 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *view,
              float width, float height, float depth,
              const QString &name):
     Qt3DCore::QEntity(nullptr),
+    m_View(view),
+    m_FrameAction(nullptr),
+    m_CameraController(nullptr),
+    m_Camera(nullptr),
     m_SelectedEntity(nullptr),
+    m_FRC(nullptr),
     m_Box(nullptr),
     m_CellSize(abs(ceilf(cell))),
     m_Height(abs(ceilf(height))),
@@ -30,22 +35,6 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *view,
     m_Depth(abs(ceilf(depth)))
 {
     applyEntityName(this, "scene", name);
-
-    auto w = cell * width; auto h = cell * height; auto d = cell * depth;
-
-    m_Camera = view->camera();
-    m_CameraFarPlane = static_cast<float>(sqrt(pow(static_cast<double>(w), 2) +
-                                               pow(static_cast<double>(h), 2) +
-                                               pow(static_cast<double>(d), 2)));
-    auto camera_aspect = static_cast<float>(view->width()) / view->height();
-    m_Camera->lens()->setPerspectiveProjection(45.0f, camera_aspect, 0.1f, m_CameraFarPlane);
-
-    m_Camera->setUpVector(QVector3D(0.0f, 1.0f, 0.0f));
-    m_Camera->setPosition(QVector3D(w, h, d) - BOX_EXCESS);
-    m_Camera->setViewCenter(QVector3D(0.0f, 0.0f, 0.0f));
-
-    m_CameraController = new CameraController(this);
-    m_CameraController->setCamera(m_Camera);
 
     /* обещают исправить в 5.14
     m_SkyBox = new Qt3DExtras::QSkyboxEntity(this);
@@ -58,15 +47,170 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *view,
     m_SkyBox->addComponent(skytrfm);
     */
 
-    loadMaterials();
-    loadGeometries();
-
-    m_FrameAction = new Qt3DLogic::QFrameAction(this);
-    QObject::connect(m_FrameAction, &Qt3DLogic::QFrameAction::triggered, this, &Scene::slotFrameActionTriggered);
     QObject::connect(this, &QObject::destroyed, [=](QObject* o){ qDebug() << o->objectName() << ": destroyed"; });
 
-    m_FRC = new FrameRateCalculator(FRAME_RATE_COUNT_CALC, this);
     qDebug() << objectName() << ": Scene created";
+}
+
+void Scene::slotLoaded()
+{
+    m_LoadingSteps++;
+    if(m_LoadingSteps >= LOADING_STEPS)
+    {
+        m_FRC = new FrameRateCalculator(FRAME_RATE_COUNT_CALC, this);
+        m_FrameAction = new Qt3DLogic::QFrameAction(this);
+        QObject::connect(m_FrameAction, &Qt3DLogic::QFrameAction::triggered, this, &Scene::slotFrameActionTriggered);
+        createCamera();
+        qDebug() << objectName() << ": Resources loaded";
+        Q_EMIT signalLoaded();
+    }
+}
+
+void Scene::load()
+{
+    m_LoadingSteps = 0;
+    QObject::connect(this, &Scene::signalMaterialsLoaded, this, &Scene::slotLoaded);
+    QObject::connect(this, &Scene::signalGeometriesLoaded, this, &Scene::slotLoaded);
+    loadMaterials();
+    loadGeometries();
+}
+
+void Scene::loadGeometry(const QString &path)
+{
+    QFileInfo fi(path);
+    if(!fi.exists()){ qCritical() << objectName() << "(" << __func__ << "): Wrong path:" << path;  return; }
+
+    auto name = fi.baseName();
+    auto geometry = m_Geometries.take(name);
+    if(geometry) geometry->deleteLater();
+    Qt3DRender::QMesh* mesh = new Qt3DRender::QMesh(this);
+    mesh->setObjectName(name);
+    auto func = [=](Qt3DRender::QMesh::Status s)
+    {
+        if(s == Qt3DRender::QMesh::Ready)
+        {
+            QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
+            m_Geometries.insert(name, mesh);
+            qDebug() << objectName() << ": Geometry loaded" << mesh->objectName();
+            Q_EMIT signalGeometryLoaded(name);
+        }
+        else if(s == Qt3DRender::QMesh::Error)
+        {
+            QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
+            qCritical() << objectName() << ": Error at geometry loading" << name;
+            auto mesh = new Qt3DExtras::QCuboidMesh;
+            mesh->setXExtent(1.0f); mesh->setYExtent(1.0f); mesh->setZExtent(1.0f);
+            mesh->setObjectName(name);
+            Q_EMIT signalGeometryLoaded(name);
+        }
+        else
+        { qDebug() << objectName() << ": Geometry" << name << "loading status:" << s; }
+    };
+    QObject::connect(mesh, &QObject::destroyed, [=](QObject* o){ qDebug() << objectName() << ": Geometry" << o->objectName() << "destroyed"; });
+    QObject::connect(mesh, &Qt3DRender::QMesh::statusChanged, func);
+    mesh->setSource(QUrl::fromLocalFile(path));
+}
+
+void Scene::loadGeometries()
+{
+    QDir resdir(config->PathAssetsDir());
+    if(!resdir.exists())
+    {
+        qCritical() << "Path not exist:" << config->PathAssetsDir();
+        Q_EMIT signalGeometriesLoaded(0);
+        return;
+    }
+
+    auto fileList = resdir.entryList({GEOMETRY_EXTENSION}, QDir::Files);
+    if(fileList.count() <= 0)
+    {
+        Q_EMIT signalGeometriesLoaded(0);
+        return;
+    }
+
+    auto func = [=]()
+    {
+        if(m_Geometries.count() == fileList.count())
+        {
+            QObject::disconnect(this, &Scene::signalGeometryLoaded, nullptr, nullptr);
+            qDebug() << objectName() << "All geometries loaded:" << m_Geometries.count();
+            Q_EMIT signalGeometriesLoaded(m_Geometries.count());
+        }
+    };
+    QObject::connect(this, &Scene::signalGeometryLoaded, func);
+
+    for(QString f: fileList)
+        loadGeometry(config->PathAssetsDir() + QDir::separator() + f);
+}
+
+void Scene::loadMaterial(const QString& path)
+{
+    auto material = new Material(this);
+    auto func = [=]()
+    {
+        QObject::disconnect(material, &Material::signalReady, nullptr, nullptr);
+        auto m = m_Materials.take(material->objectName());
+        if(m) m->deleteLater();
+
+        m_Materials.insert(material->objectName(), material);
+        qDebug() << objectName() << ": Material loaded" << material->objectName();
+        Q_EMIT signalMaterialLoaded(material->objectName());
+    };
+    QObject::connect(material, &Material::signalReady, func);
+    material->load(path);
+}
+
+void Scene::loadMaterials()
+{
+    QDir resdir(config->PathAssetsDir());
+    if(!resdir.exists())
+    {
+        qCritical() << "Path not exist:" << config->PathAssetsDir();
+        Q_EMIT signalMaterialsLoaded(0);
+        return;
+    }
+
+    auto fileList = resdir.entryList({MATERIAL_EXTENSION}, QDir::Files);
+    if(fileList.count() <= 0)
+    {
+        Q_EMIT signalMaterialsLoaded(0);
+        return;
+    }
+
+    auto func = [=]()
+    {
+        if(m_Materials.count() == fileList.count())
+        {
+            QObject::disconnect(this, &Scene::signalMaterialLoaded, nullptr, nullptr);
+            qDebug() << objectName() << "All materials loaded:" << m_Materials.count();
+            Q_EMIT signalMaterialsLoaded(m_Materials.count());
+        }
+    };
+    QObject::connect(this, &Scene::signalMaterialLoaded, func);
+
+    for(QString f: fileList)
+        loadMaterial(config->PathAssetsDir() + QDir::separator() + f);
+}
+
+void Scene::createCamera()
+{
+    auto w = m_CellSize * m_Width;
+    auto h = m_CellSize * m_Height;
+    auto d = m_CellSize * m_Depth;
+
+    m_Camera = m_View->camera();
+    m_CameraFarPlane = static_cast<float>(sqrt(pow(static_cast<double>(w), 2) +
+                                               pow(static_cast<double>(h), 2) +
+                                               pow(static_cast<double>(d), 2)));
+    auto camera_aspect = static_cast<float>(m_View->width()) / m_View->height();
+    m_Camera->lens()->setPerspectiveProjection(45.0f, camera_aspect, 0.1f, m_CameraFarPlane);
+
+    m_Camera->setUpVector(QVector3D(0.0f, 1.0f, 0.0f));
+    m_Camera->setPosition(QVector3D(w, h, d) - BOX_EXCESS);
+    m_Camera->setViewCenter(QVector3D(0.0f, 0.0f, 0.0f));
+
+    m_CameraController = new CameraController(this);
+    m_CameraController->setCamera(m_Camera);
 }
 
 Light* Scene::addLight(Qt3DRender::QAbstractLight *light,
@@ -261,107 +405,6 @@ void Scene::slotShowBoxes(bool value)
     m_Box = createEntityBox(QVector3D(0.0, 0.0, 0.0) + BOX_EXCESS, RealSize() - BOX_EXCESS, COLOR_SCENE_BOX, this);
     applyEntityName(m_Box, "box", "scene_box");
     createEntityBottomGrid(QVector3D(0.0, 0.0, 0.0), QVector3D(RealSize().x(), 0.0, RealSize().z()), m_CellSize, COLOR_SCENE_GREED, m_Box);
-}
-
-void Scene::loadGeometry(const QString &path)
-{
-    QFileInfo fi(path);
-    if(!fi.exists()){ qCritical() << objectName() << "(" << __func__ << "): Wrong path:" << path;  return; }
-
-    auto name = fi.baseName();
-    auto geometry = m_Geometries.take(name);
-    if(geometry) geometry->deleteLater();
-    Qt3DRender::QMesh* mesh = new Qt3DRender::QMesh(this);
-    mesh->setObjectName(name);
-    auto func = [=](Qt3DRender::QMesh::Status s)
-    {
-        if(s == Qt3DRender::QMesh::Ready)
-        {
-            QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
-            m_Geometries.insert(name, mesh);
-            qDebug() << objectName() << ": Geometry loaded" << mesh->objectName();
-            Q_EMIT signalGeometryLoaded(name);
-        }
-        else if(s == Qt3DRender::QMesh::Error)
-        {
-            QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
-            qCritical() << objectName() << ": Error at geometry loading" << name;
-            auto mesh = new Qt3DExtras::QCuboidMesh;
-            mesh->setXExtent(1.0f); mesh->setYExtent(1.0f); mesh->setZExtent(1.0f);
-            mesh->setObjectName(name);
-            Q_EMIT signalGeometryLoaded(name);
-        }
-        else
-        { qDebug() << objectName() << ": Geometry" << name << "loading status:" << s; }
-    };
-    QObject::connect(mesh, &QObject::destroyed, [=](QObject* o){ qDebug() << objectName() << ": Geometry" << o->objectName() << "destroyed"; });
-    QObject::connect(mesh, &Qt3DRender::QMesh::statusChanged, func);
-    mesh->setSource(QUrl::fromLocalFile(path));
-}
-
-void Scene::loadGeometries()
-{
-    QDir resdir(config->PathAssetsDir());
-    if(!resdir.exists()) { qCritical() << "Path not exist:" << config->PathAssetsDir(); return; }
-
-    auto fileList = resdir.entryList({GEOMETRY_EXTENSION}, QDir::Files);
-    if(fileList.count() <= 0) return;
-
-    auto func = [=]()
-    {
-        if(m_Geometries.count() == fileList.count())
-        {
-            QObject::disconnect(this, &Scene::signalGeometryLoaded, nullptr, nullptr);
-            qDebug() << objectName() << "All geometries loaded:" << m_Geometries.count();
-            Q_EMIT signalGeometriesLoaded(m_Geometries.count());
-            // TODO: do next
-        }
-    };
-    QObject::connect(this, &Scene::signalGeometryLoaded, func);
-
-    for(QString f: fileList)
-        loadGeometry(config->PathAssetsDir() + QDir::separator() + f);
-}
-
-void Scene::loadMaterial(const QString& path)
-{
-    auto material = new Material(this);
-    auto func = [=]()
-    {
-        QObject::disconnect(material, &Material::signalReady, nullptr, nullptr);
-        auto m = m_Materials.take(material->objectName());
-        if(m) m->deleteLater();
-
-        m_Materials.insert(material->objectName(), material);
-        qDebug() << objectName() << ": Material loaded" << material->objectName();
-        Q_EMIT signalMaterialLoaded(material->objectName());
-    };
-    QObject::connect(material, &Material::signalReady, func);
-    material->load(path);
-}
-
-void Scene::loadMaterials()
-{
-    QDir resdir(config->PathAssetsDir());
-    if(!resdir.exists()) { qCritical() << "Path not exist:" << config->PathAssetsDir(); return; }
-
-    auto fileList = resdir.entryList({MATERIAL_EXTENSION}, QDir::Files);
-    if(fileList.count() <= 0) return;
-
-    auto func = [=]()
-    {
-        if(m_Materials.count() == fileList.count())
-        {
-            QObject::disconnect(this, &Scene::signalMaterialLoaded, nullptr, nullptr);
-            qDebug() << objectName() << "All materials loaded:" << m_Materials.count();
-            Q_EMIT signalMaterialsLoaded(m_Materials.count());
-            // TODO: do next
-        }
-    };
-    QObject::connect(this, &Scene::signalMaterialLoaded, func);
-
-    for(QString f: fileList)
-        loadMaterial(config->PathAssetsDir() + QDir::separator() + f);
 }
 
 float Scene::CameraFarPlane() const { return m_CameraFarPlane; }

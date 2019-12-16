@@ -10,6 +10,8 @@
 #include <Qt3DRender/QCamera>
 #include <Qt3DRender/QAbstractLight>
 
+const int LOADING_STEPS = 2;
+
 class SceneEntity;
 class SceneObject;
 class CameraController;
@@ -21,18 +23,16 @@ class Scene : public Qt3DCore::QEntity
     Q_OBJECT
 
 public:
-    Scene(Qt3DExtras::Qt3DWindow* window,
+    Scene(Qt3DExtras::Qt3DWindow* view,
           float cell,
           float width, float height, float depth,
           const QString &name = "");
+    void load();
     Light *addLight(Qt3DRender::QAbstractLight* light,
                     const QString &name = "");
     bool delLight(const QString& name);
     bool delLight(SceneEntity *entity);
-    SceneObject* addObject(const QString& geometry,
-                           const QString &material,
-                           const QString &name = "");
-
+    SceneObject* addObject(const QString& geometry, const QString &material, const QString &name = "");
     bool delObject(const QString &name);
     bool delObject(SceneEntity *entity);
     QHash<QString, SceneObject* > Objects() const;
@@ -56,6 +56,7 @@ public:
     void setEntityMaterial(SceneEntity* entity, const QString& name);
 
 protected:
+    void createCamera();
     void loadGeometry(const QString& path);
     void loadMaterial(const QString& path);
     void loadGeometries();
@@ -65,6 +66,7 @@ protected:
                            const QString &name = "");
 
 private:
+    Qt3DExtras::Qt3DWindow* m_View;
     Qt3DLogic::QFrameAction* m_FrameAction;
     CameraController* m_CameraController;
     Qt3DRender::QCamera* m_Camera;
@@ -80,6 +82,7 @@ private:
     float m_Width;
     float m_Depth;
     float m_CameraFarPlane;
+    int m_LoadingSteps;
 
 Q_SIGNALS:
     void signalSelectedEntityChanged(SceneEntity* entity);
@@ -89,6 +92,7 @@ Q_SIGNALS:
     void signalMaterialLoaded(const QString& name);
     void signalGeometriesLoaded(int count);
     void signalMaterialsLoaded(int count);
+    void signalLoaded();
     void signalEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity *entity);
 
 public Q_SLOTS:
@@ -96,6 +100,7 @@ public Q_SLOTS:
     void slotShowBoxes(bool value);
 
 private Q_SLOTS:
+    void slotLoaded();
 
 };
 

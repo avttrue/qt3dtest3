@@ -130,7 +130,7 @@ void MainWindow::createGUI()
 
     QObject::connect(view, &SceneView::signalSceneChanged, [=](Scene* scene){ btnNewObject->setEnabled(scene); });
     QObject::connect(view, &SceneView::signalSceneChanged, [=](Scene* scene){ btnNewLight->setEnabled(scene); });
-    QObject::connect(view, &SceneView::signalSceneChanged, this, &MainWindow::slotViewSceneChanged);
+    QObject::connect(view, &SceneView::signalSceneChanged, this, &MainWindow::slotSceneChanged);
     QObject::connect(view, &SceneView::signalSceneChanged, this, &MainWindow::slotWriteSceneStat);
 }
 
@@ -148,7 +148,7 @@ void MainWindow::slotWriteSceneStat()
                                 QString::number(view->getScene()->Materials().count())));
 }
 
-void MainWindow::slotViewSceneChanged(Scene *scene)
+void MainWindow::slotSceneChanged(Scene *scene)
 {
     cbShowSceneBoxes->setEnabled(true);
 
