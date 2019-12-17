@@ -206,7 +206,8 @@ void Scene::createCamera()
     m_Camera->lens()->setPerspectiveProjection(45.0f, camera_aspect, 0.1f, m_CameraFarPlane);
 
     m_Camera->setUpVector(QVector3D(0.0f, 1.0f, 0.0f));
-    m_Camera->setPosition(QVector3D(w, h, d) - BOX_EXCESS);
+    m_Camera->setPosition(QVector3D(w, h, d) -
+                          QVector3D(config->SceneBoxExcess(), config->SceneBoxExcess(), config->SceneBoxExcess()));
     m_Camera->setViewCenter(QVector3D(0.0f, 0.0f, 0.0f));
 
     m_CameraController = new CameraController(this);
@@ -402,9 +403,11 @@ void Scene::slotShowBoxes(bool value)
     }
     if(!value) return;
 
-    m_Box = createEntityBox(QVector3D(0.0, 0.0, 0.0) + BOX_EXCESS, RealSize() - BOX_EXCESS, COLOR_SCENE_BOX, this);
+    m_Box = createEntityBox(QVector3D(0.0, 0.0, 0.0) + QVector3D(config->SceneBoxExcess(), config->SceneBoxExcess(), config->SceneBoxExcess()),
+                            RealSize() - QVector3D(config->SceneBoxExcess(), config->SceneBoxExcess(), config->SceneBoxExcess()),
+                            SCENE_COLOR_BOX, this);
     applyEntityName(m_Box, "box", "scene_box");
-    createEntityBottomGrid(QVector3D(0.0, 0.0, 0.0), QVector3D(RealSize().x(), 0.0, RealSize().z()), m_CellSize, COLOR_SCENE_GREED, m_Box);
+    createEntityBottomGrid(QVector3D(0.0, 0.0, 0.0), QVector3D(RealSize().x(), 0.0, RealSize().z()), m_CellSize, SCENE_COLOR_GREED, m_Box);
 }
 
 float Scene::CameraFarPlane() const { return m_CameraFarPlane; }

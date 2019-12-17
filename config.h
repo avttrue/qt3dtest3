@@ -54,20 +54,27 @@ public:
     void setSceneWidth(int inSceneWidth);
     int SceneDepth() const;
     void setSceneDepth(int inSceneDepth);
+    bool SceneFrustumCulling() const;
+    void setSceneFrustumCulling(bool inSceneFrustumCulling);
+    QString SceneColorBG() const;
+    void setSceneColorBG(const QString &inSceneColorBG);
+    float SceneBoxExcess() const;
+    void setSceneBoxExcess(float inSceneBoxExcess);
 
 protected:
     void load();
 
 private:
     QSettings* m_Settings;
+    QString m_PathAppConfig;            // путь до конфига приложения
+    QString m_PathAppDir;               // путь до приложения
+    QString m_PathAppLogDir;            // путь до логов приложения
+    QString m_PathAssetsDir;            // путь до ресурсов
     QString m_DateTimeFormat;           // формат даты и времени
-    QString pathAppConfig;              // путь до конфига приложения
-    QString pathAppDir;                 // путь до приложения
-    QString pathAppLogDir;              // путь до логов приложения
-    QString pathAssetsDir;              // путь до ресурсов
-
+    QString m_SceneColorBG;               // цвет задника сцены
     bool m_RewriteResources;            // переписывать при копировании файлы ресурсов
     bool m_DrawSceneBoxes;              // отображать контуры сцены и служебных объектов
+    bool m_SceneFrustumCulling;              // FrameGraph()->frustumCullingEnabled
     int m_SplashTime;                   // время отображения сплеш-заставки
     int m_ButtonAcceleration;           // кнопка ускорения перемещения
     int m_MoveAcceleration;             // ускорение линейного перемещения
@@ -78,6 +85,7 @@ private:
     int m_SceneHeight;                  // размер сцены высота
     int m_SceneWidth;                   // размер сцены ширина
     int m_SceneDepth;                   // размер сцены глубина
+    float m_SceneBoxExcess;             // отступы при отображении рамки выделения
 
 
     const QHash<QString, QString> captions =

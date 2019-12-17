@@ -409,7 +409,8 @@ void MainWindow::slotTest()
             {
                 auto matname = s->Materials().keys().at(
                     QRandomGenerator::global()->bounded(0, s->Materials().keys().count()));
-                auto e = s->addObject("cube", matname);
+                auto e = s->addObject("cube", matname,
+                                      QString("object-%1").arg(QString::number(100 * i + 10 * j + k)));
                 s->setEntitySize(e, QVector3D(1.0, 1.0, 1.0));
                 s->setEntityPosition(e, 2 * QVector3D(i, j, k));
             }

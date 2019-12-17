@@ -9,16 +9,16 @@
 Config::Config(const QString& in_AppDirectory):
     m_Settings(nullptr)
 {
-    pathAppDir = in_AppDirectory;
-    pathAppConfig = pathAppDir + QDir::separator() + CFG_APP;
-    pathAppLogDir = pathAppDir + QDir::separator() + LOG_DIR;
-    pathAssetsDir = pathAppDir + QDir::separator() + ASSETS_DIR;
+    m_PathAppDir = in_AppDirectory;
+    m_PathAppConfig = m_PathAppDir + QDir::separator() + CFG_APP;
+    m_PathAppLogDir = m_PathAppDir + QDir::separator() + LOG_DIR;
+    m_PathAssetsDir = m_PathAppDir + QDir::separator() + ASSETS_DIR;
 
-    qDebug() << "AppConfig:" << pathAppConfig;
-    qDebug() << "AppLogDir:" << pathAppLogDir;
-    qDebug() << "AssetsDir:" << pathAssetsDir;
+    qDebug() << "AppConfig:" << m_PathAppConfig;
+    qDebug() << "AppLogDir:" << m_PathAppLogDir;
+    qDebug() << "AssetsDir:" << m_PathAssetsDir;
 
-    m_Settings = new QSettings(pathAppConfig, QSettings::IniFormat);
+    m_Settings = new QSettings(m_PathAppConfig, QSettings::IniFormat);
     m_Settings->setIniCodec(QTextCodec::codecForName(TEXT_CODEC.toLatin1()));
 
     load();
@@ -84,6 +84,18 @@ void Config::load()
     if(!m_Settings->contains("Scene/CellSize"))
     m_Settings->setValue("Scene/CellSize", SCENE_CELL_SIZE);
     m_SceneCellSize = m_Settings->value("Scene/CellSize").toInt();
+
+    if(!m_Settings->contains("Scene/FrustumCulling"))
+        m_Settings->setValue("Scene/FrustumCulling", SCENE_FRUSTRUM_CULLING);
+    m_SceneFrustumCulling = m_Settings->value("Scene/FrustumCulling").toBool();
+
+    if(!m_Settings->contains("Scene/ColorBG"))
+        m_Settings->setValue("Scene/ColorBG", SCENE_COLOR_BG);
+    m_SceneColorBG = m_Settings->value("Scene/ColorBG").toString();
+
+    if(!m_Settings->contains("Scene/BoxExcess"))
+        m_Settings->setValue("Scene/BoxExcess", SCENE_BOX_EXCESS);
+    m_SceneBoxExcess = m_Settings->value("Scene/BoxExcess").toFloat();
 }
 
 void Config::setDefaults()
@@ -126,6 +138,44 @@ void Config::setDefaults()
 
     m_Settings->setValue("Scene/CellSize", SCENE_CELL_SIZE);
     m_SceneCellSize = SCENE_CELL_SIZE;
+
+    m_Settings->setValue("Scene/FrustumCulling", SCENE_FRUSTRUM_CULLING);
+    m_SceneFrustumCulling = SCENE_FRUSTRUM_CULLING;
+
+    m_Settings->setValue("Scene/ColorBG", SCENE_COLOR_BG);
+    m_SceneColorBG = SCENE_COLOR_BG;
+
+    m_Settings->setValue("Scene/BoxExcess", QString(SCENE_BOX_EXCESS).toFloat());
+    m_SceneBoxExcess = QString(SCENE_BOX_EXCESS).toFloat();
+
+    Q_EMIT signalConfigChanged();
+}
+
+void Config::setSceneBoxExcess(float inSceneBoxExcess)
+{
+    m_SceneBoxExcess = inSceneBoxExcess;
+    if(abs(m_SceneBoxExcess - inSceneBoxExcess) < 0.0001f) return;
+    m_SceneBoxExcess = inSceneBoxExcess;
+    m_Settings->setValue("Scene/ColorBG", m_SceneBoxExcess);
+    Q_EMIT signalConfigChanged();
+}
+
+void Config::setSceneColorBG(const QString &inSceneColorBG)
+{
+    m_SceneColorBG = inSceneColorBG;
+    if(m_SceneColorBG == inSceneColorBG) return;
+    m_SceneColorBG = inSceneColorBG;
+    m_Settings->setValue("Scene/ColorBG", m_SceneColorBG);
+    Q_EMIT signalConfigChanged();
+}
+
+void Config::setSceneFrustumCulling(bool inSceneFrustumCulling)
+{
+    m_SceneFrustumCulling = inSceneFrustumCulling;
+    if(m_SceneFrustumCulling == inSceneFrustumCulling) return;
+    m_SceneFrustumCulling = inSceneFrustumCulling;
+    m_Settings->setValue("Scene/FrustumCulling", m_SceneFrustumCulling);
+    Q_EMIT signalConfigChanged();
 }
 
 void Config::setSceneDepth(int inSceneDepth)
@@ -230,6 +280,8 @@ void Config::setDrawSceneBoxes(bool inDrawSceneBoxes)
     Q_EMIT signalDrawSceneBoxes(m_DrawSceneBoxes);
 }
 
+float Config::SceneBoxExcess() const { return m_SceneBoxExcess; }
+bool Config::SceneFrustumCulling() const { return m_SceneFrustumCulling; }
 int Config::SceneDepth() const { return m_SceneDepth; }
 int Config::SceneWidth() const { return m_SceneWidth; }
 int Config::SceneHeight() const { return m_SceneHeight; }
@@ -243,8 +295,8 @@ int Config::RotationAcceleration() const { return m_RotationAcceleration; }
 int Config::MoveSpeed() const { return m_MoveSpeed; }
 int Config::RotationSpeed() const { return m_RotationSpeed; }
 QString Config::DateTimeFormat() const { return m_DateTimeFormat; }
-QString Config::PathApp() const { return pathAppDir; }
-QString Config::PathAppLogDir() const { return pathAppLogDir; }
-QString Config::PathAppConfig() const { return pathAppConfig; }
-QString Config::PathAssetsDir() const { return pathAssetsDir; }
-
+QString Config::PathApp() const { return m_PathAppDir; }
+QString Config::PathAppLogDir() const { return m_PathAppLogDir; }
+QString Config::PathAppConfig() const { return m_PathAppConfig; }
+QString Config::PathAssetsDir() const { return m_PathAssetsDir; }
+QString Config::SceneColorBG() const { return m_SceneColorBG; }

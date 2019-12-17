@@ -15,7 +15,8 @@ SceneView::SceneView(QScreen *screen):
     Qt3DExtras::Qt3DWindow(screen),
     m_Scene(nullptr)
 {
-    defaultFrameGraph()->setClearColor(QColor(COLOR_SCENE_BG));
+    defaultFrameGraph()->setClearColor(QColor(config->SceneColorBG()));
+    defaultFrameGraph()->setFrustumCullingEnabled(config->SceneFrustumCulling());
     renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
     renderSettings()->setRenderPolicy(Qt3DRender::QRenderSettings::OnDemand);
 }

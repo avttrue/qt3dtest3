@@ -23,17 +23,16 @@ const QString DEF_MODELS = ":/models";
 const QString MATERIAL_EXTENSION = "*.material";
 const QString GEOMETRY_EXTENSION = "*.obj";
 const QString DEFAULT_TEXTURE = ":/models/default_texture.png";
-const QString COLOR_SELECT = "#1047C7";     // синий
-const QString COLOR_SCENE_BOX = "#000000";  // чёрный
-const QString COLOR_SCENE_BG = "#DCDCDC";   // светлосерый
-const QString COLOR_SCENE_GREED = "#FFFAFA";// тёмнобелый
+const QString SCENE_COLOR_SELECT = "#1047C7";     // синий
+const QString SCENE_COLOR_BOX = "#000000";  // чёрный
+const QString SCENE_COLOR_BG = "#DCDCDC";   // светлосерый
+const QString SCENE_COLOR_GREED = "#FFFAFA";// тёмнобелый
 const QString RE_FIRST_LAST_SPACES = "^\\s+|\\s+$"; // регексп на наличие стартовых и финальных пробелов
-const QVector3D BOX_EXCESS = QVector3D(0.01f, 0.01f, 0.01f);
-
-
+const QString SCENE_BOX_EXCESS = "0.03";
 const auto DIALOG_SIZE = QSize(400, 400);
 const auto SCENE_DRAW_BOXES = false;
 const auto REWRITE_RESOURCES = false;
+const auto SCENE_FRUSTRUM_CULLING = false;
 const auto FRAME_RATE_COUNT_CALC = 50;
 const auto WINDOW_HEIGHT = 700;
 const auto WINDOW_WIDTH = 900;
