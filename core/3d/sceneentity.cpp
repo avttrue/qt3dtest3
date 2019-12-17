@@ -46,14 +46,14 @@ void SceneEntity::slotClicked(Qt3DRender::QPickEvent *event)
 
 void SceneEntity::createSelectionBox()
 {
-    auto max = m_Geometry->geometry()->maxExtent() + QVector3D(config->SceneBoxExcess(), config->SceneBoxExcess(), config->SceneBoxExcess());
-    auto min = m_Geometry->geometry()->minExtent() - QVector3D(config->SceneBoxExcess(), config->SceneBoxExcess(), config->SceneBoxExcess());
+    auto max = m_Geometry->geometry()->maxExtent() + QVector3D(config->SceneExcess(), config->SceneExcess(), config->SceneExcess());
+    auto min = m_Geometry->geometry()->minExtent() - QVector3D(config->SceneExcess(), config->SceneExcess(), config->SceneExcess());
     if(m_SelectionBox)
     {
         m_SelectionBox->setEnabled(false);
         m_SelectionBox->deleteLater();
     }
-    m_SelectionBox = createEntityBox(min, max, QColor(SCENE_COLOR_SELECT), this);
+    m_SelectionBox = createEntityBox(min, max, QColor(config->SceneColorSelect()), this);
 }
 
 void SceneEntity::applySize(const QVector3D &size)

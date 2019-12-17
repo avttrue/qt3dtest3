@@ -58,8 +58,10 @@ public:
     void setSceneFrustumCulling(bool inSceneFrustumCulling);
     QString SceneColorBG() const;
     void setSceneColorBG(const QString &inSceneColorBG);
-    float SceneBoxExcess() const;
-    void setSceneBoxExcess(float inSceneBoxExcess);
+    float SceneExcess() const;
+    void setSceneExcess(float inSceneExcess);
+    QString SceneColorSelect() const;
+    void setSceneColorSelect(const QString &inSceneColorSelect);
 
 protected:
     void load();
@@ -71,10 +73,11 @@ private:
     QString m_PathAppLogDir;            // путь до логов приложения
     QString m_PathAssetsDir;            // путь до ресурсов
     QString m_DateTimeFormat;           // формат даты и времени
-    QString m_SceneColorBG;               // цвет задника сцены
+    QString m_SceneColorBG;             // цвет задника сцены
+    QString m_SceneColorSelect;         // цвет рамки выделения
     bool m_RewriteResources;            // переписывать при копировании файлы ресурсов
     bool m_DrawSceneBoxes;              // отображать контуры сцены и служебных объектов
-    bool m_SceneFrustumCulling;              // FrameGraph()->frustumCullingEnabled
+    bool m_SceneFrustumCulling;         // FrameGraph()->frustumCullingEnabled
     int m_SplashTime;                   // время отображения сплеш-заставки
     int m_ButtonAcceleration;           // кнопка ускорения перемещения
     int m_MoveAcceleration;             // ускорение линейного перемещения
@@ -85,7 +88,7 @@ private:
     int m_SceneHeight;                  // размер сцены высота
     int m_SceneWidth;                   // размер сцены ширина
     int m_SceneDepth;                   // размер сцены глубина
-    float m_SceneBoxExcess;             // отступы при отображении рамки выделения
+    float m_SceneExcess;                // отступы при отображении служебных сущностей
 
 
     const QHash<QString, QString> captions =

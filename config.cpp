@@ -93,9 +93,13 @@ void Config::load()
         m_Settings->setValue("Scene/ColorBG", SCENE_COLOR_BG);
     m_SceneColorBG = m_Settings->value("Scene/ColorBG").toString();
 
-    if(!m_Settings->contains("Scene/BoxExcess"))
-        m_Settings->setValue("Scene/BoxExcess", SCENE_BOX_EXCESS);
-    m_SceneBoxExcess = m_Settings->value("Scene/BoxExcess").toFloat();
+    if(!m_Settings->contains("Scene/ColorSelect"))
+        m_Settings->setValue("Scene/ColorSelect", SCENE_COLOR_SELECT);
+    m_SceneColorSelect = m_Settings->value("Scene/ColorSelect").toString();
+
+    if(!m_Settings->contains("Scene/Excess"))
+        m_Settings->setValue("Scene/Excess", SCENE_EXCESS);
+    m_SceneExcess = m_Settings->value("Scene/Excess").toFloat();
 }
 
 void Config::setDefaults()
@@ -145,24 +149,33 @@ void Config::setDefaults()
     m_Settings->setValue("Scene/ColorBG", SCENE_COLOR_BG);
     m_SceneColorBG = SCENE_COLOR_BG;
 
-    m_Settings->setValue("Scene/BoxExcess", QString(SCENE_BOX_EXCESS).toFloat());
-    m_SceneBoxExcess = QString(SCENE_BOX_EXCESS).toFloat();
+    m_Settings->setValue("Scene/Excess", QString(SCENE_EXCESS).toFloat());
+    m_SceneExcess = QString(SCENE_EXCESS).toFloat();
+
+    m_Settings->setValue("Scene/ColorSelect", SCENE_COLOR_SELECT);
+    m_SceneColorSelect = SCENE_COLOR_SELECT;
 
     Q_EMIT signalConfigChanged();
 }
 
-void Config::setSceneBoxExcess(float inSceneBoxExcess)
+void Config::setSceneColorSelect(const QString &inSceneColorSelect)
 {
-    m_SceneBoxExcess = inSceneBoxExcess;
-    if(abs(m_SceneBoxExcess - inSceneBoxExcess) < 0.0001f) return;
-    m_SceneBoxExcess = inSceneBoxExcess;
-    m_Settings->setValue("Scene/ColorBG", m_SceneBoxExcess);
+    if(m_SceneColorSelect == inSceneColorSelect) return;
+    m_SceneColorSelect = inSceneColorSelect;
+    m_Settings->setValue("Scene/ColorSelect", m_SceneColorSelect);
+    Q_EMIT signalConfigChanged();
+}
+
+void Config::setSceneExcess(float inSceneExcess)
+{
+    if(abs(m_SceneExcess - inSceneExcess) < 0.0001f) return;
+    m_SceneExcess = inSceneExcess;
+    m_Settings->setValue("Scene/ColorBG", m_SceneExcess);
     Q_EMIT signalConfigChanged();
 }
 
 void Config::setSceneColorBG(const QString &inSceneColorBG)
 {
-    m_SceneColorBG = inSceneColorBG;
     if(m_SceneColorBG == inSceneColorBG) return;
     m_SceneColorBG = inSceneColorBG;
     m_Settings->setValue("Scene/ColorBG", m_SceneColorBG);
@@ -171,7 +184,6 @@ void Config::setSceneColorBG(const QString &inSceneColorBG)
 
 void Config::setSceneFrustumCulling(bool inSceneFrustumCulling)
 {
-    m_SceneFrustumCulling = inSceneFrustumCulling;
     if(m_SceneFrustumCulling == inSceneFrustumCulling) return;
     m_SceneFrustumCulling = inSceneFrustumCulling;
     m_Settings->setValue("Scene/FrustumCulling", m_SceneFrustumCulling);
@@ -280,7 +292,7 @@ void Config::setDrawSceneBoxes(bool inDrawSceneBoxes)
     Q_EMIT signalDrawSceneBoxes(m_DrawSceneBoxes);
 }
 
-float Config::SceneBoxExcess() const { return m_SceneBoxExcess; }
+float Config::SceneExcess() const { return m_SceneExcess; }
 bool Config::SceneFrustumCulling() const { return m_SceneFrustumCulling; }
 int Config::SceneDepth() const { return m_SceneDepth; }
 int Config::SceneWidth() const { return m_SceneWidth; }
@@ -300,3 +312,4 @@ QString Config::PathAppLogDir() const { return m_PathAppLogDir; }
 QString Config::PathAppConfig() const { return m_PathAppConfig; }
 QString Config::PathAssetsDir() const { return m_PathAssetsDir; }
 QString Config::SceneColorBG() const { return m_SceneColorBG; }
+QString Config::SceneColorSelect() const { return m_SceneColorSelect; }

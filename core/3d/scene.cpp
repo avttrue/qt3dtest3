@@ -207,7 +207,7 @@ void Scene::createCamera()
 
     m_Camera->setUpVector(QVector3D(0.0f, 1.0f, 0.0f));
     m_Camera->setPosition(QVector3D(w, h, d) -
-                          QVector3D(config->SceneBoxExcess(), config->SceneBoxExcess(), config->SceneBoxExcess()));
+                          QVector3D(config->SceneExcess(), config->SceneExcess(), config->SceneExcess()));
     m_Camera->setViewCenter(QVector3D(0.0f, 0.0f, 0.0f));
 
     m_CameraController = new CameraController(this);
@@ -403,8 +403,8 @@ void Scene::slotShowBoxes(bool value)
     }
     if(!value) return;
 
-    m_Box = createEntityBox(QVector3D(0.0, 0.0, 0.0) + QVector3D(config->SceneBoxExcess(), config->SceneBoxExcess(), config->SceneBoxExcess()),
-                            RealSize() - QVector3D(config->SceneBoxExcess(), config->SceneBoxExcess(), config->SceneBoxExcess()),
+    m_Box = createEntityBox(QVector3D(0.0, 0.0, 0.0) + QVector3D(config->SceneExcess(), config->SceneExcess(), config->SceneExcess()),
+                            RealSize() - QVector3D(config->SceneExcess(), config->SceneExcess(), config->SceneExcess()),
                             SCENE_COLOR_BOX, this);
     applyEntityName(m_Box, "box", "scene_box");
     createEntityBottomGrid(QVector3D(0.0, 0.0, 0.0), QVector3D(RealSize().x(), 0.0, RealSize().z()), m_CellSize, SCENE_COLOR_GREED, m_Box);
