@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>res/trash.txt</file>
+        <file>res/memory.txt</file>
     </qresource>
 </RCC>

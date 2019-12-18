@@ -1,0 +1,1 @@
+https://stackoverflow.com/questions/55001233/qt3d-draw-transparent-qspheremesh-over-triangles

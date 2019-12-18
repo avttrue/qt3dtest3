@@ -7,14 +7,12 @@
 #include <Qt3DRender/QMaterial>
 #include <Qt3DRender/QGeometryRenderer>
 #include <Qt3DRender/QPickEvent>
-#include <Qt3DRender/QCamera>
 #include <Qt3DRender/QAbstractLight>
 
 const int LOADING_STEPS = 2;
 
 class SceneEntity;
 class SceneObject;
-class CameraController;
 class FrameRateCalculator;
 class Light;
 
@@ -42,9 +40,11 @@ public:
     SceneEntity *SelectedEntity() const;
     FrameRateCalculator *FRC() const;
     float CellSize() const;
+    float Height() const;
+    float Width() const;
+    float Depth() const;
     QVector3D Size() const;
     QVector3D RealSize() const;
-    float CameraFarPlane() const;
     void SelectEntity(SceneEntity* entity);
     QString EntityGeometry(SceneEntity* entity) const;
     QString EntityMaterial(SceneEntity* entity) const;
@@ -55,8 +55,9 @@ public:
     void setEntityGeometry(SceneEntity* entity, const QString& name);
     void setEntityMaterial(SceneEntity* entity, const QString& name);
 
+
+
 protected:
-    void createCamera();
     void loadGeometry(const QString& path);
     void loadMaterial(const QString& path);
     void loadGeometries();
@@ -68,8 +69,6 @@ protected:
 private:
     Qt3DExtras::Qt3DWindow* m_View;
     Qt3DLogic::QFrameAction* m_FrameAction;
-    CameraController* m_CameraController;
-    Qt3DRender::QCamera* m_Camera;
     SceneEntity* m_SelectedEntity;
     FrameRateCalculator* m_FRC;
     Qt3DCore::QEntity* m_Box;
@@ -81,7 +80,6 @@ private:
     float m_Height;
     float m_Width;
     float m_Depth;
-    float m_CameraFarPlane;
     int m_LoadingSteps;
 
 Q_SIGNALS:

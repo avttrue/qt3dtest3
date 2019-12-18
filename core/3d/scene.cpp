@@ -3,7 +3,6 @@
 #include "light.h"
 #include "material.h"
 #include "helpers3d.h"
-#include "cameracontroller.h"
 #include "frameratecalculator.h"
 #include "properties.h"
 
@@ -24,8 +23,6 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *view,
     Qt3DCore::QEntity(nullptr),
     m_View(view),
     m_FrameAction(nullptr),
-    m_CameraController(nullptr),
-    m_Camera(nullptr),
     m_SelectedEntity(nullptr),
     m_FRC(nullptr),
     m_Box(nullptr),
@@ -60,7 +57,7 @@ void Scene::slotLoaded()
         m_FRC = new FrameRateCalculator(FRAME_RATE_COUNT_CALC, this);
         m_FrameAction = new Qt3DLogic::QFrameAction(this);
         QObject::connect(m_FrameAction, &Qt3DLogic::QFrameAction::triggered, this, &Scene::slotFrameActionTriggered);
-        createCamera();
+
         qDebug() << objectName() << ": Resources loaded";
         Q_EMIT signalLoaded();
     }
@@ -192,28 +189,6 @@ void Scene::loadMaterials()
         loadMaterial(config->PathAssetsDir() + QDir::separator() + f);
 }
 
-void Scene::createCamera()
-{
-    auto w = m_CellSize * m_Width;
-    auto h = m_CellSize * m_Height;
-    auto d = m_CellSize * m_Depth;
-
-    m_Camera = m_View->camera();
-    m_CameraFarPlane = static_cast<float>(sqrt(pow(static_cast<double>(w), 2) +
-                                               pow(static_cast<double>(h), 2) +
-                                               pow(static_cast<double>(d), 2)));
-    auto camera_aspect = static_cast<float>(m_View->width()) / m_View->height();
-    m_Camera->lens()->setPerspectiveProjection(45.0f, camera_aspect, 0.1f, m_CameraFarPlane);
-
-    m_Camera->setUpVector(QVector3D(0.0f, 1.0f, 0.0f));
-    m_Camera->setPosition(QVector3D(w, h, d) -
-                          QVector3D(config->SceneExcess(), config->SceneExcess(), config->SceneExcess()));
-    m_Camera->setViewCenter(QVector3D(0.0f, 0.0f, 0.0f));
-
-    m_CameraController = new CameraController(this);
-    m_CameraController->setCamera(m_Camera);
-}
-
 Light* Scene::addLight(Qt3DRender::QAbstractLight *light,
                        const QString &name)
 {
@@ -264,6 +239,21 @@ SceneObject* Scene::addObject(Qt3DRender::QGeometryRenderer *geometry,
     Q_EMIT signalObjectChanged(name);
 
     return entity;
+}
+
+float Scene::Depth() const
+{
+    return m_Depth;
+}
+
+float Scene::Width() const
+{
+    return m_Width;
+}
+
+float Scene::Height() const
+{
+    return m_Height;
 }
 
 SceneObject *Scene::addObject(const QString &geometry,
@@ -410,7 +400,6 @@ void Scene::slotShowBoxes(bool value)
     createEntityBottomGrid(QVector3D(0.0, 0.0, 0.0), QVector3D(RealSize().x(), 0.0, RealSize().z()), m_CellSize, SCENE_COLOR_GREED, m_Box);
 }
 
-float Scene::CameraFarPlane() const { return m_CameraFarPlane; }
 float Scene::CellSize() const { return m_CellSize; }
 QVector3D Scene::Size() const { return QVector3D(m_Width, m_Height, m_Depth); }
 QVector3D Scene::RealSize() const { return m_CellSize * QVector3D(m_Width, m_Height, m_Depth); }

@@ -5,6 +5,7 @@
 #include <Qt3DExtras/Qt3DWindow>
 
 class Scene;
+class CameraController;
 
 class SceneView : public Qt3DExtras::Qt3DWindow
 {
@@ -20,9 +21,15 @@ Q_SIGNALS:
 protected:
     void keyPressEvent(QKeyEvent *e);
     void resizeEvent(QResizeEvent *e);
+    void applyBackToFrontSortPolicy();  // Устанавливает порядок отрисовки объектов относительно камеры;
+                             // нужно для корректного отображения объектов с прозрачностью/
+    void applySceneCamera(); // устанавливает параметры и управление камеры для сцены
 
 private:
     Scene* m_Scene;
+    Qt3DRender::QCamera* m_Camera;
+    CameraController* m_CameraController;
+    float m_CameraFarPlane;
 };
 
 #endif // VIEW_H

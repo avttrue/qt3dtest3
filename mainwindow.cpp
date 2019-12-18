@@ -412,7 +412,7 @@ void MainWindow::slotTest()
                 auto e = s->addObject("cube", matname,
                                       QString("object-%1").arg(QString::number(100 * i + 10 * j + k)));
                 s->setEntitySize(e, QVector3D(1.0, 1.0, 1.0));
-                s->setEntityPosition(e, 2 * QVector3D(i, j, k));
+                s->setEntityPosition(e, 1 * QVector3D(i, j, k));
             }
     s->setEnabled(true);
 
