@@ -1,1 +1,5 @@
 https://stackoverflow.com/questions/55001233/qt3d-draw-transparent-qspheremesh-over-triangles
+https://stackoverflow.com/questions/51818584/2d-meshes-in-qt3d/51839858#51839858
+https://github.com/GarageGames/Qt/blob/master/qt-5/qt3d/examples/qt3d/assimp-cpp/main.cpp
+https://github.com/florianblume/Qt3D-BackgroundImage/blob/4aec37e85e80a9b52ab60954c8c8c90f9a9de095/mainwindow.cpp
+

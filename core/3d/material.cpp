@@ -7,7 +7,8 @@
 #include <QSettings>
 
 Material::Material(Scene *parent) :
-    Qt3DExtras::QDiffuseSpecularMaterial(parent)
+    Qt3DExtras::QDiffuseSpecularMaterial(parent),
+    m_MapsCount(0)
 {   
     QObject::connect(this, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": Material" << objectName() << " destroyed"; });
     QObject::connect(this, &Material::signalTextureDone, this, &Material::slotTextureDone, Qt::DirectConnection);

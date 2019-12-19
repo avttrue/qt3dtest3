@@ -29,7 +29,8 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *view,
     m_CellSize(abs(ceilf(cell))),
     m_Height(abs(ceilf(height))),
     m_Width(abs(ceilf(width))),
-    m_Depth(abs(ceilf(depth)))
+    m_Depth(abs(ceilf(depth))),
+    m_LoadingSteps(0)
 {
     applyEntityName(this, "scene", name);
 
@@ -45,7 +46,6 @@ Scene::Scene(Qt3DExtras::Qt3DWindow *view,
     */
 
     QObject::connect(this, &QObject::destroyed, [=](QObject* o){ qDebug() << o->objectName() << ": destroyed"; });
-
     qDebug() << objectName() << ": Scene created";
 }
 
@@ -65,7 +65,6 @@ void Scene::slotLoaded()
 
 void Scene::load()
 {
-    m_LoadingSteps = 0;
     QObject::connect(this, &Scene::signalMaterialsLoaded, this, &Scene::slotLoaded);
     QObject::connect(this, &Scene::signalGeometriesLoaded, this, &Scene::slotLoaded);
     loadMaterials();
@@ -385,6 +384,7 @@ void Scene::slotFrameActionTriggered(float dt)
 void Scene::slotShowBoxes(bool value)
 {
     for(Light* l: m_Lights) l->slotShowGeometry(value);
+
     if(m_Box)
     {
         m_Box->setEnabled(false);
@@ -397,7 +397,10 @@ void Scene::slotShowBoxes(bool value)
                             RealSize() - QVector3D(config->SceneExcess(), config->SceneExcess(), config->SceneExcess()),
                             SCENE_COLOR_BOX, this);
     applyEntityName(m_Box, "box", "scene_box");
-    createEntityBottomGrid(QVector3D(0.0, 0.0, 0.0), QVector3D(RealSize().x(), 0.0, RealSize().z()), m_CellSize, SCENE_COLOR_GREED, m_Box);
+
+    createEntityBottomGrid(QVector3D(0.0, 0.0, 0.0),
+                           QVector3D(RealSize().x(), 0.0, RealSize().z()), m_CellSize,
+                           SCENE_COLOR_GREED, m_Box);
 }
 
 float Scene::CellSize() const { return m_CellSize; }

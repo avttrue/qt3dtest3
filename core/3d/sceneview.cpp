@@ -33,15 +33,15 @@ void SceneView::createScene(float cell, float width, float height, float depth, 
     if(m_Scene) m_Scene->deleteLater();
 
     m_Scene = new Scene(this, cell, width, height, depth, name);
-    applyBackToFrontSortPolicy();
     m_Scene->setEnabled(false);
+    applyBackToFrontSortPolicy();
     setRootEntity(m_Scene);
 
     auto func = [=]()
     {
         applySceneCamera();
-        m_Scene->setEnabled(true);
         m_Scene->slotShowBoxes(config->DrawSceneBoxes());
+        m_Scene->setEnabled(true);       
         Q_EMIT signalSceneChanged(m_Scene);
     };
     QObject::connect(m_Scene, &Scene::signalLoaded, func);
@@ -63,8 +63,7 @@ void SceneView::resizeEvent(QResizeEvent *e)
 
 void SceneView::applySceneCamera()
 {
-    if(!m_Scene) return;
-
+    if(!m_Scene) { qCritical() << __func__  << "Scene is empty"; return; }
     auto w = m_Scene->CellSize()* m_Scene->Width();
     auto h = m_Scene->CellSize()* m_Scene->Height();
     auto d = m_Scene->CellSize()* m_Scene->Depth();
@@ -86,14 +85,15 @@ void SceneView::applySceneCamera()
 
 void SceneView::applyBackToFrontSortPolicy()
 {
-    if(!m_Scene) return;
+    if(!m_Scene) { qCritical() << __func__  << "Scene is empty"; return; }
 
     auto sortPolicy = new Qt3DRender::QSortPolicy(m_Scene);
     QVector<Qt3DRender::QSortPolicy::SortType> sortTypes;
     sortTypes << Qt3DRender::QSortPolicy::BackToFront;
     sortPolicy->setSortTypes(sortTypes);
+
     auto framegraph = activeFrameGraph();
-    framegraph->setParent(sortPolicy); // вот в этом месте может падать
+    framegraph->setParent(sortPolicy); // TODO: не верное решение, в этом месте может падать
     setActiveFrameGraph(framegraph);
 }
 

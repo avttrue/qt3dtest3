@@ -9,6 +9,9 @@
 #include <Qt3DRender/QPickEvent>
 #include <Qt3DRender/QAbstractLight>
 
+/*!
+ * \brief LOADING_STEPS - количество этапов загрузки сцены, используется в slotLoaded
+ */
 const int LOADING_STEPS = 2;
 
 class SceneEntity;
@@ -25,6 +28,9 @@ public:
           float cell,
           float width, float height, float depth,
           const QString &name = "");
+    /*!
+     * \brief load - загрузить ресурсы сцены, запускает loadGeometries, loadMaterials
+     */
     void load();
     Light *addLight(Qt3DRender::QAbstractLight* light,
                     const QString &name = "");
@@ -55,12 +61,22 @@ public:
     void setEntityGeometry(SceneEntity* entity, const QString& name);
     void setEntityMaterial(SceneEntity* entity, const QString& name);
 
-
-
 protected:
+    /*!
+     * \brief loadGeometry - загрузить единичную геометрию, только в составе loadGeometries
+     */
     void loadGeometry(const QString& path);
+    /*!
+     * \brief loadMaterial - загрузить единичный материал, только в составе loadMaterials
+     */
     void loadMaterial(const QString& path);
+    /*!
+     * \brief loadGeometries - загрузить все геометрии, только в составе load
+     */
     void loadGeometries();
+    /*!
+     * \brief loadMaterials - загрузить все материалы, только в составе load
+     */
     void loadMaterials();
     SceneObject* addObject(Qt3DRender::QGeometryRenderer *geometry,
                            Qt3DRender::QMaterial *material,
@@ -86,18 +102,40 @@ Q_SIGNALS:
     void signalSelectedEntityChanged(SceneEntity* entity);
     void signalObjectChanged(const QString& name);
     void signalLightChanged(const QString& name);
-    void signalGeometryLoaded(const QString& name);
-    void signalMaterialLoaded(const QString& name);
-    void signalGeometriesLoaded(int count);
-    void signalMaterialsLoaded(int count);
-    void signalLoaded();
     void signalEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity *entity);
+    /*!
+     * \brief signalGeometryLoaded - испускается при загрузке единичной геометрии
+     */
+    void signalGeometryLoaded(const QString& name);
+    /*!
+     * \brief signalMaterialLoaded - испускается при загрузке единичного материала,
+     * как реакция на Material::signalReady
+     */
+    void signalMaterialLoaded(const QString& name);
+    /*!
+     * \brief signalGeometriesLoaded - испускается при загрузке всех геометрий
+     */
+    void signalGeometriesLoaded(int count);
+    /*!
+     * \brief signalMaterialsLoaded - испускается при загрузке всех материалов
+     */
+    void signalMaterialsLoaded(int count);
+    /*!
+     * \brief signalLoaded - испускается при загрузке всех ресурсов сцены
+     */
+    void signalLoaded();
+
 
 public Q_SLOTS:
     void slotFrameActionTriggered(float dt);
     void slotShowBoxes(bool value);
 
 private Q_SLOTS:
+    /*!
+     * \brief slotLoaded - обрабатывает готовность загрузки сцены;
+     * реагирует на signalGeometriesLoaded, signalGeometriesLoaded;
+     * испускает signalLoaded.
+     */
     void slotLoaded();
 
 };
