@@ -395,12 +395,12 @@ void Scene::slotShowBoxes(bool value)
 
     m_Box = createEntityBox(QVector3D(0.0, 0.0, 0.0) + QVector3D(config->SceneExcess(), config->SceneExcess(), config->SceneExcess()),
                             RealSize() - QVector3D(config->SceneExcess(), config->SceneExcess(), config->SceneExcess()),
-                            SCENE_COLOR_BOX, this);
+                            config->SceneColorBox(), this);
     applyEntityName(m_Box, "box", "scene_box");
 
     createEntityBottomGrid(QVector3D(0.0, 0.0, 0.0),
                            QVector3D(RealSize().x(), 0.0, RealSize().z()), m_CellSize,
-                           SCENE_COLOR_GREED, m_Box);
+                           config->SceneColorGrid(), m_Box);
 }
 
 float Scene::CellSize() const { return m_CellSize; }

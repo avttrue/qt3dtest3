@@ -97,6 +97,14 @@ void Config::load()
         m_Settings->setValue("Scene/ColorSelect", SCENE_COLOR_SELECT);
     m_SceneColorSelect = m_Settings->value("Scene/ColorSelect").toString();
 
+    if(!m_Settings->contains("Scene/ColorBox"))
+        m_Settings->setValue("Scene/ColorBox", SCENE_COLOR_BOX);
+    m_SceneColorBox = m_Settings->value("Scene/ColorBox").toString();
+
+    if(!m_Settings->contains("Scene/ColorGrid"))
+        m_Settings->setValue("Scene/ColorGrid", SCENE_COLOR_GRID);
+    m_SceneColorGrid = m_Settings->value("Scene/ColorGrid").toString();
+
     if(!m_Settings->contains("Scene/Excess"))
         m_Settings->setValue("Scene/Excess", SCENE_EXCESS);
     m_SceneExcess = m_Settings->value("Scene/Excess").toFloat();
@@ -155,6 +163,28 @@ void Config::setDefaults()
     m_Settings->setValue("Scene/ColorSelect", SCENE_COLOR_SELECT);
     m_SceneColorSelect = SCENE_COLOR_SELECT;
 
+    m_Settings->setValue("Scene/ColorBox", SCENE_COLOR_BOX);
+    m_SceneColorBox = SCENE_COLOR_BOX;
+
+    m_Settings->setValue("Scene/ColorGrid", SCENE_COLOR_GRID);
+    m_SceneColorGrid = SCENE_COLOR_GRID;
+
+    Q_EMIT signalConfigChanged();
+}
+
+void Config::setSceneColorGrid(const QString &inSceneColorGrid)
+{
+    if(m_SceneColorGrid == inSceneColorGrid) return;
+    m_SceneColorGrid = inSceneColorGrid;
+    m_Settings->setValue("Scene/ColorGrid", m_SceneColorGrid);
+    Q_EMIT signalConfigChanged();
+}
+
+void Config::setSceneColorBox(const QString &inSceneColorBox)
+{
+    if(m_SceneColorBox == inSceneColorBox) return;
+    m_SceneColorBox = inSceneColorBox;
+    m_Settings->setValue("Scene/ColorBox", m_SceneColorBox);
     Q_EMIT signalConfigChanged();
 }
 
@@ -313,3 +343,5 @@ QString Config::PathAppConfig() const { return m_PathAppConfig; }
 QString Config::PathAssetsDir() const { return m_PathAssetsDir; }
 QString Config::SceneColorBG() const { return m_SceneColorBG; }
 QString Config::SceneColorSelect() const { return m_SceneColorSelect; }
+QString Config::SceneColorBox() const { return m_SceneColorBox; }
+QString Config::SceneColorGrid() const { return m_SceneColorGrid; }

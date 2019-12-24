@@ -62,6 +62,10 @@ public:
     void setSceneExcess(float inSceneExcess);
     QString SceneColorSelect() const;
     void setSceneColorSelect(const QString &inSceneColorSelect);
+    QString SceneColorBox() const;
+    void setSceneColorBox(const QString &inSceneColorBox);
+    QString SceneColorGrid() const;
+    void setSceneColorGrid(const QString &inSceneColorGrid);
 
 protected:
     void load();
@@ -75,6 +79,8 @@ private:
     QString m_DateTimeFormat;           // формат даты и времени
     QString m_SceneColorBG;             // цвет задника сцены
     QString m_SceneColorSelect;         // цвет рамки выделения
+    QString m_SceneColorBox;            // цвет границ сцены
+    QString m_SceneColorGrid;           // цвет координатной сетки
     bool m_RewriteResources;            // переписывать при копировании файлы ресурсов
     bool m_DrawSceneBoxes;              // отображать контуры сцены и служебных объектов
     bool m_SceneFrustumCulling;         // FrameGraph()->frustumCullingEnabled
