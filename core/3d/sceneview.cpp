@@ -34,7 +34,7 @@ void SceneView::createScene(float cell, float width, float height, float depth, 
 
     m_Scene = new Scene(this, cell, width, height, depth, name);
     m_Scene->setEnabled(false);
-    applyBackToFrontSortPolicy();
+    if(config->SceneBackToFrontSortPolicy()) applyBackToFrontSortPolicy();
     setRootEntity(m_Scene);
 
     auto func = [=]()
@@ -92,8 +92,9 @@ void SceneView::applyBackToFrontSortPolicy()
     sortTypes << Qt3DRender::QSortPolicy::BackToFront;
     sortPolicy->setSortTypes(sortTypes);
 
+    // TODO: сильно похоже на трюк
     auto framegraph = activeFrameGraph();
-    framegraph->setParent(sortPolicy); // TODO: не верное решение, в этом месте может падать
+    framegraph->setParent(sortPolicy);
     setActiveFrameGraph(framegraph);
 }
 

@@ -1,0 +1,10 @@
+AmbientColor=#FFFFFF
+Shininess=150.0
+Scale=1.0
+SpecularColor=#FFFFFF
+SpecularMap=barrel_s.png
+DiffuseMap=barrel.png
+NormalMap=barrel_n.png
+MapMirrored=true
+AlphaBlending=false
+Name=Barrel

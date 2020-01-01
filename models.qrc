@@ -48,5 +48,10 @@
         <file>models/cube12.png</file>
         <file>models/cube3_s.png</file>
         <file>models/cube9_n.png</file>
+        <file>models/barrel_n.png</file>
+        <file>models/barrel_s.png</file>
+        <file>models/barrel.material</file>
+        <file>models/barrel.obj</file>
+        <file>models/barrel.png</file>
     </qresource>
 </RCC>

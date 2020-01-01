@@ -33,6 +33,7 @@ const auto DIALOG_SIZE = QSize(400, 400);
 const auto SCENE_DRAW_BOXES = false;
 const auto REWRITE_RESOURCES = false;
 const auto SCENE_FRUSTRUM_CULLING = false;
+const auto SCENE_BTF_SORT_POLICY = true; // TODO: SCENE_BTF_SORT_POLICY изменить на false
 const auto FRAME_RATE_COUNT_CALC = 50;
 const auto WINDOW_HEIGHT = 700;
 const auto WINDOW_WIDTH = 900;

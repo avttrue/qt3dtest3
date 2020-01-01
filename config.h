@@ -66,6 +66,8 @@ public:
     void setSceneColorBox(const QString &inSceneColorBox);
     QString SceneColorGrid() const;
     void setSceneColorGrid(const QString &inSceneColorGrid);
+    bool SceneBackToFrontSortPolicy() const;
+    void setSceneBackToFrontSortPolicy(bool inSceneBackToFrontSortPolicy);
 
 protected:
     void load();
@@ -84,6 +86,7 @@ private:
     bool m_RewriteResources;            // переписывать при копировании файлы ресурсов
     bool m_DrawSceneBoxes;              // отображать контуры сцены и служебных объектов
     bool m_SceneFrustumCulling;         // FrameGraph()->frustumCullingEnabled
+    bool m_SceneBackToFrontSortPolicy;  // включает пересортировку объектов относительно камеры, требуется пересоздание сцены
     int m_SplashTime;                   // время отображения сплеш-заставки
     int m_ButtonAcceleration;           // кнопка ускорения перемещения
     int m_MoveAcceleration;             // ускорение линейного перемещения

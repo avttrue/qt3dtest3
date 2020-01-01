@@ -108,6 +108,10 @@ void Config::load()
     if(!m_Settings->contains("Scene/Excess"))
         m_Settings->setValue("Scene/Excess", SCENE_EXCESS);
     m_SceneExcess = m_Settings->value("Scene/Excess").toFloat();
+
+    if(!m_Settings->contains("Scene/BackToFrontSortPolicy"))
+        m_Settings->setValue("Scene/BackToFrontSortPolicy", SCENE_BTF_SORT_POLICY);
+    m_SceneBackToFrontSortPolicy = m_Settings->value("Scene/BackToFrontSortPolicy").toBool();
 }
 
 void Config::setDefaults()
@@ -169,6 +173,17 @@ void Config::setDefaults()
     m_Settings->setValue("Scene/ColorGrid", SCENE_COLOR_GRID);
     m_SceneColorGrid = SCENE_COLOR_GRID;
 
+    m_Settings->setValue("Scene/BackToFrontSortPolicy", SCENE_BTF_SORT_POLICY);
+    m_SceneBackToFrontSortPolicy = SCENE_BTF_SORT_POLICY;
+
+    Q_EMIT signalConfigChanged();
+}
+
+void Config::setSceneBackToFrontSortPolicy(bool inSceneBackToFrontSortPolicy)
+{
+    if(m_SceneBackToFrontSortPolicy == inSceneBackToFrontSortPolicy) return;
+    m_SceneBackToFrontSortPolicy = inSceneBackToFrontSortPolicy;
+    m_Settings->setValue("Scene/BackToFrontSortPolicy", m_SceneBackToFrontSortPolicy);
     Q_EMIT signalConfigChanged();
 }
 
@@ -330,6 +345,7 @@ int Config::SceneHeight() const { return m_SceneHeight; }
 int Config::SceneCellSize() const { return m_SceneCellSize; }
 bool Config::RewriteResources() const { return m_RewriteResources; }
 bool Config::DrawSceneBoxes() const { return m_DrawSceneBoxes; }
+bool Config::SceneBackToFrontSortPolicy() const { return m_SceneBackToFrontSortPolicy; }
 int Config::SplashTime() const { return m_SplashTime; }
 int Config::ButtonAcceleration() const { return m_ButtonAcceleration; }
 int Config::MoveAcceleration() const { return m_MoveAcceleration; }

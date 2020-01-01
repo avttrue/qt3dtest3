@@ -21,8 +21,11 @@ Q_SIGNALS:
 protected:
     void keyPressEvent(QKeyEvent *e);
     void resizeEvent(QResizeEvent *e);
-    void applyBackToFrontSortPolicy();  // Устанавливает порядок отрисовки объектов относительно камеры;
-                             // нужно для корректного отображения объектов с прозрачностью/
+    /*!
+     * \brief applyBackToFrontSortPolicy - Устанавливает порядок отрисовки объектов относительно камеры;
+     * используется для корректного отображения объектов с прозрачностью.
+     */
+    void applyBackToFrontSortPolicy();
     void applySceneCamera(); // устанавливает параметры и управление камеры для сцены
 
 private:
