@@ -13,16 +13,46 @@
 #include <Qt3DRender/QPointLight>
 #include <Qt3DRender/QRenderSettings>
 #include <Qt3DRender/QSortPolicy>
+#include <Qt3DRender/QCameraSelector>
+#include <Qt3DRender/QRenderSurfaceSelector>
+#include <Qt3DRender/QClearBuffers>
+#include <Qt3DRender/QViewport>
+#include <Qt3DRender/QLayerFilter>
 
 SceneView::SceneView(QScreen *screen):
     Qt3DExtras::Qt3DWindow(screen),
     m_Scene(nullptr),
     m_Camera(nullptr),
-    m_CameraController(nullptr)
+    m_CameraController(nullptr),
+    m_TransparentLayer(nullptr),
+    m_OpaqueLayer(nullptr)
 {
-    m_Camera = camera();
-    defaultFrameGraph()->setClearColor(QColor(config->SceneColorBG()));
-    defaultFrameGraph()->setFrustumCullingEnabled(config->SceneFrustumCulling());
+    auto renderSurfaceSelector = new Qt3DRender::QRenderSurfaceSelector;
+    renderSurfaceSelector->setSurface(this);
+
+    auto viewport = new Qt3DRender::QViewport(renderSurfaceSelector);
+    auto cameraSelector = new Qt3DRender::QCameraSelector(viewport);
+
+    auto clearBuffers = new Qt3DRender::QClearBuffers(cameraSelector);
+    clearBuffers->setBuffers(Qt3DRender::QClearBuffers::AllBuffers);
+    clearBuffers->setClearColor(config->SceneColorBG());
+
+    m_Camera = new Qt3DRender::QCamera(cameraSelector);
+
+    cameraSelector->setCamera(m_Camera);
+
+    // именно в таком порядке: m_OpaqueLayer, m_TransparentLayer
+    m_OpaqueLayer = new Qt3DRender::QLayer;
+    auto opaqueFilter = new Qt3DRender::QLayerFilter(m_Camera);
+    m_OpaqueLayer->setObjectName("OpaqueLayer");
+    opaqueFilter->addLayer(m_OpaqueLayer);
+
+    m_TransparentLayer = new Qt3DRender::QLayer;
+    auto transparentFilter = new Qt3DRender::QLayerFilter(m_Camera);
+    m_TransparentLayer->setObjectName("TransparentLayer");
+    transparentFilter->addLayer(m_TransparentLayer);
+
+    setActiveFrameGraph(renderSurfaceSelector);
 
     renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
     renderSettings()->setRenderPolicy(Qt3DRender::QRenderSettings::OnDemand);
@@ -99,3 +129,5 @@ void SceneView::applyBackToFrontSortPolicy()
 }
 
 Scene* SceneView::getScene() const { return m_Scene; }
+Qt3DRender::QLayer *SceneView::TransparentLayer() const { return m_TransparentLayer; }
+Qt3DRender::QLayer *SceneView::OpaqueLayer() const { return m_OpaqueLayer; }

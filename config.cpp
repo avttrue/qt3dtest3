@@ -85,10 +85,6 @@ void Config::load()
     m_Settings->setValue("Scene/CellSize", SCENE_CELL_SIZE);
     m_SceneCellSize = m_Settings->value("Scene/CellSize").toInt();
 
-    if(!m_Settings->contains("Scene/FrustumCulling"))
-        m_Settings->setValue("Scene/FrustumCulling", SCENE_FRUSTRUM_CULLING);
-    m_SceneFrustumCulling = m_Settings->value("Scene/FrustumCulling").toBool();
-
     if(!m_Settings->contains("Scene/ColorBG"))
         m_Settings->setValue("Scene/ColorBG", SCENE_COLOR_BG);
     m_SceneColorBG = m_Settings->value("Scene/ColorBG").toString();
@@ -154,9 +150,6 @@ void Config::setDefaults()
 
     m_Settings->setValue("Scene/CellSize", SCENE_CELL_SIZE);
     m_SceneCellSize = SCENE_CELL_SIZE;
-
-    m_Settings->setValue("Scene/FrustumCulling", SCENE_FRUSTRUM_CULLING);
-    m_SceneFrustumCulling = SCENE_FRUSTRUM_CULLING;
 
     m_Settings->setValue("Scene/ColorBG", SCENE_COLOR_BG);
     m_SceneColorBG = SCENE_COLOR_BG;
@@ -224,14 +217,6 @@ void Config::setSceneColorBG(const QString &inSceneColorBG)
     if(m_SceneColorBG == inSceneColorBG) return;
     m_SceneColorBG = inSceneColorBG;
     m_Settings->setValue("Scene/ColorBG", m_SceneColorBG);
-    Q_EMIT signalConfigChanged();
-}
-
-void Config::setSceneFrustumCulling(bool inSceneFrustumCulling)
-{
-    if(m_SceneFrustumCulling == inSceneFrustumCulling) return;
-    m_SceneFrustumCulling = inSceneFrustumCulling;
-    m_Settings->setValue("Scene/FrustumCulling", m_SceneFrustumCulling);
     Q_EMIT signalConfigChanged();
 }
 
@@ -338,7 +323,6 @@ void Config::setDrawSceneBoxes(bool inDrawSceneBoxes)
 }
 
 float Config::SceneExcess() const { return m_SceneExcess; }
-bool Config::SceneFrustumCulling() const { return m_SceneFrustumCulling; }
 int Config::SceneDepth() const { return m_SceneDepth; }
 int Config::SceneWidth() const { return m_SceneWidth; }
 int Config::SceneHeight() const { return m_SceneHeight; }

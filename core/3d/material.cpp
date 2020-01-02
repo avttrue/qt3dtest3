@@ -8,7 +8,8 @@
 
 Material::Material(Scene *parent) :
     Qt3DExtras::QDiffuseSpecularMaterial(parent),
-    m_MapsCount(0)
+    m_MapsCount(0),
+    m_Transparent(false)
 {   
     QObject::connect(this, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": Material" << objectName() << " destroyed"; });
     QObject::connect(this, &Material::signalTextureDone, this, &Material::slotTextureDone, Qt::DirectConnection);
@@ -94,7 +95,10 @@ void Material::load(const QString &path)
     auto cfg = new QSettings(path, QSettings::IniFormat);
 
     setObjectName(cfg->value("Name", "material").toString());
-    setAlphaBlendingEnabled(cfg->value("AlphaBlending", ALPHA_BLENDING).toBool());
+
+    // AlphaBlending
+    m_Transparent = cfg->value("AlphaBlending", ALPHA_BLENDING).toBool();
+    setAlphaBlendingEnabled(m_Transparent);
     setShininess(cfg->value("Shininess", SHININESS).toFloat());
     setTextureScale(cfg->value("Scale", SCALE).toFloat());
 

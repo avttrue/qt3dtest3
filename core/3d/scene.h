@@ -15,6 +15,7 @@
 const int LOADING_STEPS = 2;
 
 class SceneEntity;
+class SceneView;
 class SceneObject;
 class FrameRateCalculator;
 class Light;
@@ -24,7 +25,7 @@ class Scene : public Qt3DCore::QEntity
     Q_OBJECT
 
 public:
-    Scene(Qt3DExtras::Qt3DWindow* view,
+    Scene(SceneView* view,
           float cell,
           float width, float height, float depth,
           const QString &name = "");
@@ -60,6 +61,7 @@ public:
     QVector3D EntitySize(SceneEntity* entity) const;
     void setEntityGeometry(SceneEntity* entity, const QString& name);
     void setEntityMaterial(SceneEntity* entity, const QString& name);
+    void applyEntityRenderLayer(SceneEntity* entity);
 
 protected:
     /*!
@@ -83,7 +85,7 @@ protected:
                            const QString &name = "");
 
 private:
-    Qt3DExtras::Qt3DWindow* m_View;
+    SceneView* m_View;
     Qt3DLogic::QFrameAction* m_FrameAction;
     SceneEntity* m_SelectedEntity;
     FrameRateCalculator* m_FRC;

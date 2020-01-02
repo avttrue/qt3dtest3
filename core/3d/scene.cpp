@@ -1,4 +1,5 @@
 #include "scene.h"
+#include "sceneview.h"
 #include "sceneobject.h"
 #include "light.h"
 #include "material.h"
@@ -8,6 +9,7 @@
 
 #include <QDir>
 #include <QFileInfo>
+#include <QMetaProperty>
 #include <cmath>
 
 #include <Qt3DCore/QTransform>
@@ -16,7 +18,7 @@
 #include <Qt3DRender/QPointLight>
 #include <Qt3DRender/QMesh>
 
-Scene::Scene(Qt3DExtras::Qt3DWindow *view,
+Scene::Scene(SceneView *view,
              float cell,
              float width, float height, float depth,
              const QString &name):
@@ -193,6 +195,7 @@ Light* Scene::addLight(Qt3DRender::QAbstractLight *light,
 {
     auto l = new Light(this, light);
     applyEntityName(l, "light", name);
+    l->addComponent(m_View->OpaqueLayer());
     l->slotShowGeometry(config->DrawSceneBoxes());
 
     delLight(l->objectName());
@@ -231,6 +234,7 @@ SceneObject* Scene::addObject(Qt3DRender::QGeometryRenderer *geometry,
 {
     auto entity = new SceneObject(this, geometry, material, name);
 
+    applyEntityRenderLayer(entity);
     delObject(entity->objectName());
     m_Objects.insert(entity->objectName(), entity);
 
@@ -238,21 +242,6 @@ SceneObject* Scene::addObject(Qt3DRender::QGeometryRenderer *geometry,
     Q_EMIT signalObjectChanged(name);
 
     return entity;
-}
-
-float Scene::Depth() const
-{
-    return m_Depth;
-}
-
-float Scene::Width() const
-{
-    return m_Width;
-}
-
-float Scene::Height() const
-{
-    return m_Height;
 }
 
 SceneObject *Scene::addObject(const QString &geometry,
@@ -361,6 +350,8 @@ QVector3D Scene::EntitySize(SceneEntity *entity) const
 
 void Scene::setEntityGeometry(SceneEntity* entity, const QString &name)
 {
+    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity"; return; }
+
     auto gr = Geometries().value(name);
     if(!gr){ qCritical() << objectName() << "(" << __func__ << "): Wrong geometry name:" << name;  return; }
 
@@ -369,10 +360,38 @@ void Scene::setEntityGeometry(SceneEntity* entity, const QString &name)
 
 void Scene::setEntityMaterial(SceneEntity *entity, const QString &name)
 {
+    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity"; return; }
+
     auto m = Materials().value(name);
     if(!m) { qCritical() << objectName() << "(" << __func__ << "): Wrong material name" << name;  return; }
 
     entity->applyMaterial(m);
+    applyEntityRenderLayer(entity);
+}
+
+void Scene::applyEntityRenderLayer(SceneEntity *entity)
+{
+    if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity"; return; }
+
+    auto material = entity->Material();
+    if(!material) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity material";  return; }
+
+    auto property = material->property("Transparent");
+    if(!property.isValid()) { qCritical() << objectName() << "(" << __func__ << "): 'Transparent' property is absent";  return; }
+
+    auto layer = property.toBool() ? m_View->TransparentLayer() : m_View->OpaqueLayer();
+
+    QVector<Qt3DCore::QComponent*> vc;
+    for(Qt3DCore::QComponent* c: entity->components())
+        if(qobject_cast<Qt3DRender::QLayer*>(c)) vc.append(c);
+
+    entity->addComponent(layer);
+    for(Qt3DCore::QComponent* c: vc)
+    {
+        if(c == layer) continue; // тот же самый
+        entity->removeComponent(c);
+    }
+    qDebug() << entity->objectName() << ": RenderLayer applied" << layer->objectName();
 }
 
 void Scene::slotFrameActionTriggered(float dt)
@@ -396,11 +415,14 @@ void Scene::slotShowBoxes(bool value)
     m_Box = createEntityBox(QVector3D(0.0, 0.0, 0.0) + QVector3D(config->SceneExcess(), config->SceneExcess(), config->SceneExcess()),
                             RealSize() - QVector3D(config->SceneExcess(), config->SceneExcess(), config->SceneExcess()),
                             config->SceneColorBox(), this);
+    m_Box->addComponent(m_View->OpaqueLayer());
     applyEntityName(m_Box, "box", "scene_box");
 
-    createEntityBottomGrid(QVector3D(0.0, 0.0, 0.0),
-                           QVector3D(RealSize().x(), 0.0, RealSize().z()), m_CellSize,
-                           config->SceneColorGrid(), m_Box);
+    auto grid = createEntityBottomGrid(QVector3D(0.0, 0.0, 0.0),
+                                       QVector3D(RealSize().x(), 0.0, RealSize().z()), m_CellSize,
+                                       config->SceneColorGrid(), m_Box);
+    applyEntityName(grid, "grid", "scene_grid");
+    grid->addComponent(m_View->OpaqueLayer());
 }
 
 float Scene::CellSize() const { return m_CellSize; }
@@ -412,3 +434,6 @@ QHash<QString, SceneObject* > Scene::Objects() const { return m_Objects; }
 QHash<QString, Light* > Scene::Lights() const { return m_Lights; }
 QHash<QString, Qt3DRender::QGeometryRenderer *> Scene::Geometries() const { return m_Geometries; }
 QHash<QString, Qt3DRender::QMaterial* > Scene::Materials() const { return m_Materials; }
+float Scene::Depth() const { return m_Depth; }
+float Scene::Width() const { return m_Width; }
+float Scene::Height() const { return m_Height; }

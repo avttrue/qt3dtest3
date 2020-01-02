@@ -29,6 +29,7 @@ class Scene;
 class Material : public Qt3DExtras::QDiffuseSpecularMaterial
 {
     Q_OBJECT
+    Q_PROPERTY(bool Transparent READ Transparent FINAL)
 
 public:
     Material(Scene *parent);
@@ -40,6 +41,9 @@ public:
      */
     void load(const QString& path);
 
+    //Q_PROPERTY
+    bool Transparent() const { return m_Transparent; }
+
 protected:
     /*!
      * \brief loadTexture - загрузка единичной текстуры вматериал, только в составе load
@@ -48,6 +52,7 @@ protected:
 
 private:
     int m_MapsCount;
+    bool m_Transparent;
 
 private Q_SLOTS:
     /*!

@@ -3,6 +3,7 @@
 
 #include <QKeyEvent>
 #include <Qt3DExtras/Qt3DWindow>
+#include <Qt3DRender/QLayer>
 
 class Scene;
 class CameraController;
@@ -14,6 +15,8 @@ public:
     SceneView(QScreen *screen = nullptr);
     void createScene(float cell, float width, float height, float depth, const QString& name = "");
     Scene *getScene() const;
+    Qt3DRender::QLayer *TransparentLayer() const;
+    Qt3DRender::QLayer *OpaqueLayer() const;
 
 Q_SIGNALS:
     void signalSceneChanged(Scene* scene);
@@ -32,6 +35,9 @@ private:
     Scene* m_Scene;
     Qt3DRender::QCamera* m_Camera;
     CameraController* m_CameraController;
+    Qt3DRender::QLayer *m_TransparentLayer;
+    Qt3DRender::QLayer *m_OpaqueLayer;
+
     float m_CameraFarPlane;
 };
 

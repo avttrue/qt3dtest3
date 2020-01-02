@@ -54,8 +54,6 @@ public:
     void setSceneWidth(int inSceneWidth);
     int SceneDepth() const;
     void setSceneDepth(int inSceneDepth);
-    bool SceneFrustumCulling() const;
-    void setSceneFrustumCulling(bool inSceneFrustumCulling);
     QString SceneColorBG() const;
     void setSceneColorBG(const QString &inSceneColorBG);
     float SceneExcess() const;
@@ -85,7 +83,6 @@ private:
     QString m_SceneColorGrid;           // цвет координатной сетки
     bool m_RewriteResources;            // переписывать при копировании файлы ресурсов
     bool m_DrawSceneBoxes;              // отображать контуры сцены и служебных объектов
-    bool m_SceneFrustumCulling;         // FrameGraph()->frustumCullingEnabled
     bool m_SceneBackToFrontSortPolicy;  // включает пересортировку объектов относительно камеры, требуется пересоздание сцены
     int m_SplashTime;                   // время отображения сплеш-заставки
     int m_ButtonAcceleration;           // кнопка ускорения перемещения
