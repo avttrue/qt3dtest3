@@ -36,9 +36,9 @@ private:
     Scene* m_Scene;
     Qt3DRender::QCamera* m_Camera;
     CameraController* m_CameraController;
-    Qt3DRender::QLayer *m_TransparentLayer;
-    Qt3DRender::QLayer *m_OpaqueLayer;
-    Qt3DRender::QLayer *m_InterfaceLayer;
+    Qt3DRender::QLayer *m_TransparentLayer; // слой рендеринга прозрачных объектов
+    Qt3DRender::QLayer *m_OpaqueLayer;      // слой рендеринга непрозрачных объектов
+    Qt3DRender::QLayer *m_InterfaceLayer;   // слой рендеринга интерфейса
 
     float m_CameraFarPlane;
 };
