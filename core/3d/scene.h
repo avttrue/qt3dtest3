@@ -1,6 +1,8 @@
 ﻿#ifndef SCENE_H
 #define SCENE_H
 
+#include "sceneview.h"
+
 #include <Qt3DCore/QEntity>
 #include <Qt3DExtras/Qt3DWindow>
 #include <Qt3DLogic/QFrameAction>
@@ -15,7 +17,6 @@
 const int LOADING_STEPS = 2;
 
 class SceneEntity;
-class SceneView;
 class SceneObject;
 class FrameRateCalculator;
 class Light;
@@ -62,6 +63,7 @@ public:
     void setEntityGeometry(SceneEntity* entity, const QString& name);
     void setEntityMaterial(SceneEntity* entity, const QString& name);
     void applyEntityRenderLayer(SceneEntity* entity);
+    SceneView *View() const;
 
 protected:
     /*!

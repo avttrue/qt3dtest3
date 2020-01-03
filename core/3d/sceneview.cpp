@@ -19,13 +19,18 @@
 #include <Qt3DRender/QViewport>
 #include <Qt3DRender/QLayerFilter>
 
+#include <Qt3DRender/QRenderStateSet>
+#include <Qt3DRender/QCullFace>
+//#include <Qt3DRender/QDepthTest>
+
 SceneView::SceneView(QScreen *screen):
     Qt3DExtras::Qt3DWindow(screen),
     m_Scene(nullptr),
     m_Camera(nullptr),
     m_CameraController(nullptr),
     m_TransparentLayer(nullptr),
-    m_OpaqueLayer(nullptr)
+    m_OpaqueLayer(nullptr),
+    m_InterfaceLayer(nullptr)
 {
     auto renderSurfaceSelector = new Qt3DRender::QRenderSurfaceSelector;
     renderSurfaceSelector->setSurface(this);
@@ -37,11 +42,23 @@ SceneView::SceneView(QScreen *screen):
     clearBuffers->setBuffers(Qt3DRender::QClearBuffers::AllBuffers);
     clearBuffers->setClearColor(config->SceneColorBG());
 
+    auto renderStateSet = new Qt3DRender::QRenderStateSet(clearBuffers);
+    auto cullFace = new Qt3DRender::QCullFace(renderStateSet);
+
+    cullFace->setMode(config->RendererCullFaceMode()
+                          ? Qt3DRender::QCullFace::Back
+                          : Qt3DRender::QCullFace::NoCulling);
+    renderStateSet->addRenderState(cullFace);
+
+    //    auto depthTest = new Qt3DRender::QDepthTest;
+    //    depthTest->setDepthFunction(Qt3DRender::QDepthTest::Less);
+    //    renderStateSet->addRenderState(depthTest);
+
     m_Camera = new Qt3DRender::QCamera(cameraSelector);
 
     cameraSelector->setCamera(m_Camera);
 
-    // именно в таком порядке: m_OpaqueLayer, m_TransparentLayer
+    // именно в таком порядке: m_OpaqueLayer, m_TransparentLayer, последний - m_InterfaceLayer
     m_OpaqueLayer = new Qt3DRender::QLayer;
     auto opaqueFilter = new Qt3DRender::QLayerFilter(m_Camera);
     m_OpaqueLayer->setObjectName("OpaqueLayer");
@@ -51,6 +68,11 @@ SceneView::SceneView(QScreen *screen):
     auto transparentFilter = new Qt3DRender::QLayerFilter(m_Camera);
     m_TransparentLayer->setObjectName("TransparentLayer");
     transparentFilter->addLayer(m_TransparentLayer);
+
+    m_InterfaceLayer = new Qt3DRender::QLayer;
+    auto interfaceFilter = new Qt3DRender::QLayerFilter(m_Camera);
+    m_InterfaceLayer->setObjectName("InterfaceLayer");
+    interfaceFilter->addLayer(m_InterfaceLayer);
 
     setActiveFrameGraph(renderSurfaceSelector);
 
@@ -64,7 +86,7 @@ void SceneView::createScene(float cell, float width, float height, float depth, 
 
     m_Scene = new Scene(this, cell, width, height, depth, name);
     m_Scene->setEnabled(false);
-    if(config->SceneBackToFrontSortPolicy()) applyBackToFrontSortPolicy();
+    if(config->RendererBackToFrontSortPolicy()) applyBackToFrontSortPolicy();
     setRootEntity(m_Scene);
 
     auto func = [=]()
@@ -131,3 +153,4 @@ void SceneView::applyBackToFrontSortPolicy()
 Scene* SceneView::getScene() const { return m_Scene; }
 Qt3DRender::QLayer *SceneView::TransparentLayer() const { return m_TransparentLayer; }
 Qt3DRender::QLayer *SceneView::OpaqueLayer() const { return m_OpaqueLayer; }
+Qt3DRender::QLayer *SceneView::InterfaceLayer() const { return m_InterfaceLayer; }

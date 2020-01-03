@@ -1,5 +1,4 @@
 #include "scene.h"
-#include "sceneview.h"
 #include "sceneobject.h"
 #include "light.h"
 #include "material.h"
@@ -437,3 +436,4 @@ QHash<QString, Qt3DRender::QMaterial* > Scene::Materials() const { return m_Mate
 float Scene::Depth() const { return m_Depth; }
 float Scene::Width() const { return m_Width; }
 float Scene::Height() const { return m_Height; }
+SceneView *Scene::View() const { return m_View; }

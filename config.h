@@ -64,8 +64,10 @@ public:
     void setSceneColorBox(const QString &inSceneColorBox);
     QString SceneColorGrid() const;
     void setSceneColorGrid(const QString &inSceneColorGrid);
-    bool SceneBackToFrontSortPolicy() const;
-    void setSceneBackToFrontSortPolicy(bool inSceneBackToFrontSortPolicy);
+    bool RendererBackToFrontSortPolicy() const;
+    void setRendererBackToFrontSortPolicy(bool inRendererBackToFrontSortPolicy);
+    bool RendererCullFaceMode() const;
+    void setRendererCullFaceMode(bool inRendererCullFaceMode);
 
 protected:
     void load();
@@ -83,7 +85,8 @@ private:
     QString m_SceneColorGrid;           // цвет координатной сетки
     bool m_RewriteResources;            // переписывать при копировании файлы ресурсов
     bool m_DrawSceneBoxes;              // отображать контуры сцены и служебных объектов
-    bool m_SceneBackToFrontSortPolicy;  // включает пересортировку объектов относительно камеры, требуется пересоздание сцены
+    bool m_RendererBackToFrontSortPolicy;// включает пересортировку объектов относительно камеры, требуется пересоздание сцены
+    bool m_RendererCullFaceMode;        // включает Face Culling
     int m_SplashTime;                   // время отображения сплеш-заставки
     int m_ButtonAcceleration;           // кнопка ускорения перемещения
     int m_MoveAcceleration;             // ускорение линейного перемещения

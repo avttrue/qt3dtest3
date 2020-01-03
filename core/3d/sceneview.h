@@ -17,6 +17,7 @@ public:
     Scene *getScene() const;
     Qt3DRender::QLayer *TransparentLayer() const;
     Qt3DRender::QLayer *OpaqueLayer() const;
+    Qt3DRender::QLayer *InterfaceLayer() const;
 
 Q_SIGNALS:
     void signalSceneChanged(Scene* scene);
@@ -37,6 +38,7 @@ private:
     CameraController* m_CameraController;
     Qt3DRender::QLayer *m_TransparentLayer;
     Qt3DRender::QLayer *m_OpaqueLayer;
+    Qt3DRender::QLayer *m_InterfaceLayer;
 
     float m_CameraFarPlane;
 };

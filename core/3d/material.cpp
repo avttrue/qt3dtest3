@@ -96,10 +96,11 @@ void Material::load(const QString &path)
 
     setObjectName(cfg->value("Name", "material").toString());
 
-    // AlphaBlending
     m_Transparent = cfg->value("AlphaBlending", ALPHA_BLENDING).toBool();
     setAlphaBlendingEnabled(m_Transparent);
+
     setShininess(cfg->value("Shininess", SHININESS).toFloat());
+
     setTextureScale(cfg->value("Scale", SCALE).toFloat());
 
     auto map_mirrored = cfg->value("MapMirrored", MAP_MIRRORED).toBool();

@@ -54,6 +54,7 @@ void SceneEntity::createSelectionBox()
         m_SelectionBox->deleteLater();
     }
     m_SelectionBox = createEntityBox(min, max, QColor(config->SceneColorSelect()), this);
+    m_SelectionBox->addComponent(m_Scene->View()->InterfaceLayer());
 }
 
 void SceneEntity::applySize(const QVector3D &size)
