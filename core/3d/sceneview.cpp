@@ -18,19 +18,14 @@
 #include <Qt3DRender/QClearBuffers>
 #include <Qt3DRender/QViewport>
 #include <Qt3DRender/QLayerFilter>
-
 #include <Qt3DRender/QRenderStateSet>
-#include <Qt3DRender/QCullFace>
 //#include <Qt3DRender/QDepthTest>
 
 SceneView::SceneView(QScreen *screen):
     Qt3DExtras::Qt3DWindow(screen),
     m_Scene(nullptr),
     m_Camera(nullptr),
-    m_CameraController(nullptr),
-    m_TransparentLayer(nullptr),
-    m_OpaqueLayer(nullptr),
-    m_InterfaceLayer(nullptr)
+    m_CameraController(nullptr)
 {
     auto renderSurfaceSelector = new Qt3DRender::QRenderSurfaceSelector;
     renderSurfaceSelector->setSurface(this);
@@ -43,12 +38,9 @@ SceneView::SceneView(QScreen *screen):
     clearBuffers->setClearColor(config->SceneColorBG());
 
     auto renderStateSet = new Qt3DRender::QRenderStateSet(clearBuffers);
-    auto cullFace = new Qt3DRender::QCullFace(renderStateSet);
-
-    cullFace->setMode(config->RendererCullFaceMode()
-                          ? Qt3DRender::QCullFace::Back
-                          : Qt3DRender::QCullFace::NoCulling);
-    renderStateSet->addRenderState(cullFace);
+    m_CullFace = new Qt3DRender::QCullFace(renderStateSet);
+    slotCullFace(config->RendererCullFaceMode());
+    renderStateSet->addRenderState(m_CullFace);
 
     //    auto depthTest = new Qt3DRender::QDepthTest;
     //    depthTest->setDepthFunction(Qt3DRender::QDepthTest::Less);
@@ -103,6 +95,8 @@ void SceneView::createScene(float cell, float width, float height, float depth, 
 void SceneView::keyPressEvent(QKeyEvent *e)
 {
     qDebug() << "Button:" << e->key();
+    //if(e->key() == Qt::Key_Q) slotCullFace(true);
+    //if(e->key() == Qt::Key_A) slotCullFace(false);
 }
 
 void SceneView::resizeEvent(QResizeEvent *e)
@@ -148,6 +142,11 @@ void SceneView::applyBackToFrontSortPolicy()
     auto framegraph = activeFrameGraph();
     framegraph->setParent(sortPolicy);
     setActiveFrameGraph(framegraph);
+}
+
+void SceneView::slotCullFace(bool mode)
+{
+    m_CullFace->setMode(mode ? Qt3DRender::QCullFace::Back : Qt3DRender::QCullFace::NoCulling);
 }
 
 Scene* SceneView::getScene() const { return m_Scene; }

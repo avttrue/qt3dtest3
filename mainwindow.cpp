@@ -132,6 +132,7 @@ void MainWindow::createGUI()
     QObject::connect(view, &SceneView::signalSceneChanged, [=](Scene* scene){ btnNewLight->setEnabled(scene); });
     QObject::connect(view, &SceneView::signalSceneChanged, this, &MainWindow::slotSceneChanged);
     QObject::connect(view, &SceneView::signalSceneChanged, this, &MainWindow::slotWriteSceneStat);
+    QObject::connect(config, &Config::signalDrawSceneBoxes, view, &SceneView::slotCullFace);
 }
 
 void MainWindow::addControlWidget(QWidget *widget)

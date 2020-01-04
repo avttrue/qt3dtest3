@@ -109,7 +109,8 @@ private:
 
 signals:
     void signalConfigChanged();         // сигнал изменения параметров
-    void signalDrawSceneBoxes(bool DrawSceneBoxes);
+    void signalDrawSceneBoxes(bool out); // сигнал изменения параметров отрисовки контуров сцены и служебных объектов
+    void signalRendererCullFaceMode(bool out); // сигнал изменения параметров Face Culling
 };
 
 #endif // CONFIG_H

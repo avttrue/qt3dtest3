@@ -177,6 +177,8 @@ void Config::setDefaults()
     m_RendererCullFaceMode = RENDERER_CULL_FACE_MODE;
 
     Q_EMIT signalConfigChanged();
+    Q_EMIT signalDrawSceneBoxes(m_DrawSceneBoxes);
+    Q_EMIT signalRendererCullFaceMode(m_RendererCullFaceMode);
 }
 
 void Config::setRendererCullFaceMode(bool inRendererCullFaceMode)
@@ -185,6 +187,7 @@ void Config::setRendererCullFaceMode(bool inRendererCullFaceMode)
     m_RendererCullFaceMode = inRendererCullFaceMode;
     m_Settings->setValue("Renderer/CullFaceMode", m_RendererCullFaceMode);
     Q_EMIT signalConfigChanged();
+    Q_EMIT signalRendererCullFaceMode(m_RendererCullFaceMode);
 }
 
 
