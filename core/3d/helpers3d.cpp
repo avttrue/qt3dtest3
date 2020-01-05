@@ -329,7 +329,7 @@ void applyEntityLight(Qt3DCore::QEntity *entity, Qt3DRender::QAbstractLight *lig
 
 void deleteEntity(Qt3DCore::QEntity *entity)
 {
-    if(!entity) {qWarning() << __func__ << ": entity is empty";  return; }
+    if(!entity) {qCritical() << __func__ << ": entity is empty";  return; }
 
     qDebug() << entity << ": deleting...";
     entity->setEnabled(false);
