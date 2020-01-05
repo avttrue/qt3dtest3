@@ -14,6 +14,7 @@
 #include <Qt3DCore/QTransform>
 #include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DExtras/QCuboidMesh>
+#include <Qt3DExtras/QSkyboxEntity>
 #include <Qt3DRender/QPointLight>
 #include <Qt3DRender/QMesh>
 
@@ -35,16 +36,15 @@ Scene::Scene(SceneView *view,
 {
     applyEntityName(this, "scene", name);
 
-    /* обещают исправить в 5.14
-    m_SkyBox = new Qt3DExtras::QSkyboxEntity(this);
-    m_SkyBox->setGammaCorrectEnabled(true);
-    m_SkyBox->setBaseName(config->PathAssetsDir() + QDir::separator() + QStringLiteral("default_sky"));
-    m_SkyBox->setExtension(QStringLiteral(".png"));
-    auto skytrfm = new Qt3DCore::QTransform();
-    skytrfm->setTranslation(QVector3D( 0.0f, 0.0f, 0.0f));
-    skytrfm->setScale3D(QVector3D(SCENE_WIDTH, SCENE_HEIGHT, SCENE_DEPTH));
-    m_SkyBox->addComponent(skytrfm);
-    */
+//    auto m_SkyBox = new Qt3DExtras::QSkyboxEntity(this);
+//    m_SkyBox->setGammaCorrectEnabled(true);
+//    m_SkyBox->setBaseName(config->PathAssetsDir() + QDir::separator() + QStringLiteral("default_sky"));
+//    m_SkyBox->setExtension(QStringLiteral(".png"));
+//    auto skytrfm = new Qt3DCore::QTransform();
+//    skytrfm->setTranslation(QVector3D( 0.0f, 0.0f, 0.0f));
+//    skytrfm->setScale3D(QVector3D(SCENE_WIDTH, SCENE_HEIGHT, SCENE_DEPTH));
+//    m_SkyBox->addComponent(skytrfm);
+
 
     QObject::connect(this, &QObject::destroyed, [=](QObject* o){ qDebug() << o->objectName() << ": destroyed"; });
     qDebug() << objectName() << ": Scene created";

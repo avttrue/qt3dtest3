@@ -21,7 +21,6 @@ void Material::loadTexture(MapTypes type, const QString &path, bool mirrored)
     auto fi = QFileInfo(path);
     auto texture2d = new Qt3DRender::QTexture2D(parentNode());
     auto textureImage = new Qt3DRender::QTextureImage(texture2d);
-    qDebug() << texture2d->parentNode();
 
     texture2d->setMinificationFilter(Qt3DRender::QAbstractTexture::LinearMipMapLinear);
     texture2d->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
