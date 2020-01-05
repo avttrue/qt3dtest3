@@ -18,8 +18,7 @@ SceneEntity::SceneEntity(Scene *parent) :
     m_Transform->setScale3D(m_Size);
 
     m_Picker = new Qt3DRender::QObjectPicker;
-    m_Picker->setHoverEnabled(false);
-    m_Picker->setEnabled(true);
+    m_Picker->setHoverEnabled(true); // NOTE: с 5.14 необходимо для перехвата клика
 
     if(m_Geometry)
     {
@@ -40,19 +39,16 @@ void SceneEntity::slotClicked(Qt3DRender::QPickEvent *event)
 {
     qDebug() << objectName() << ": clicked";
 
-    if(m_Scene) Q_EMIT m_Scene->signalEntityClicked(event, this);
-    Q_EMIT signalClicked(event, this);
+    Q_EMIT m_Scene->signalEntityClicked(event, this);
 }
 
 void SceneEntity::createSelectionBox()
 {
     auto max = m_Geometry->geometry()->maxExtent() + QVector3D(config->SceneExcess(), config->SceneExcess(), config->SceneExcess());
     auto min = m_Geometry->geometry()->minExtent() - QVector3D(config->SceneExcess(), config->SceneExcess(), config->SceneExcess());
-    if(m_SelectionBox)
-    {
-        m_SelectionBox->setEnabled(false);
-        m_SelectionBox->deleteLater();
-    }
+
+   if(m_SelectionBox) deleteEntity(m_SelectionBox);
+
     m_SelectionBox = createEntityBox(min, max, QColor(config->SceneColorSelect()), this);
     m_SelectionBox->addComponent(m_Scene->View()->InterfaceLayer());
 }
@@ -89,12 +85,7 @@ void SceneEntity::applyMaterial(Qt3DRender::QMaterial *material)
 
 void SceneEntity::slotSelect(bool value)
 {
-    if(m_SelectionBox)
-    {
-        m_SelectionBox->setEnabled(false);
-        m_SelectionBox->deleteLater();
-        m_SelectionBox = nullptr;
-    }
+    if(m_SelectionBox) m_SelectionBox->setEnabled(false);
 
     if(value) createSelectionBox();
 

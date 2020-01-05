@@ -208,11 +208,11 @@ Light* Scene::addLight(Qt3DRender::QAbstractLight *light,
 
 bool Scene::delLight(const QString &name)
 {
-    auto l = m_Lights.take(name);
-    if(l)
+    auto light = m_Lights.take(name);
+    if(light)
     {
-        if(m_SelectedEntity == l) m_SelectedEntity = nullptr;
-        l->deleteLater();
+        if(m_SelectedEntity == light) m_SelectedEntity = nullptr;
+        deleteEntity(light);
         Q_EMIT signalSelectedEntityChanged(m_SelectedEntity);
         Q_EMIT signalLightChanged(name);
         qDebug() << objectName() << ": Lights count" << m_Lights.count();
@@ -262,7 +262,7 @@ bool Scene::delObject(const QString &name)
     if(entity)
     {
         if(m_SelectedEntity == entity) m_SelectedEntity = nullptr;
-        entity->deleteLater();
+        deleteEntity(entity);
         Q_EMIT signalSelectedEntityChanged(m_SelectedEntity);
         Q_EMIT signalObjectChanged(name);
         qDebug() << objectName() << ": Objects count" << m_Objects.count();
@@ -289,7 +289,7 @@ void Scene::SelectEntity(SceneEntity *entity)
     {
         if(m_SelectedEntity == entity)
         {
-            m_SelectedEntity->slotSelect(false);
+            entity->slotSelect(false);
             m_SelectedEntity = nullptr;
         }
         else

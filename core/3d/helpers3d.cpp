@@ -1,5 +1,6 @@
 #include "helpers3d.h"
 
+
 #include <QUuid>
 #include <Qt3DRender/QGeometry>
 #include <Qt3DRender/QMesh>
@@ -324,4 +325,37 @@ void applyEntityLight(Qt3DCore::QEntity *entity, Qt3DRender::QAbstractLight *lig
         if(c->parent() == entity) c->deleteLater();
     }
     qDebug() << entity->objectName() << ": Light applied";
+}
+
+void deleteEntity(Qt3DCore::QEntity *entity)
+{
+    if(!entity) {qWarning() << __func__ << ": entity is empty";  return; }
+
+    qDebug() << entity << ": deleting...";
+    entity->setEnabled(false);
+
+    qDebug() << entity << "components count: " << entity->components().count();
+    for(auto c: entity->components())
+    {
+        if(c->parent() == entity)
+        {
+            c->setEnabled(false);
+            c->deleteLater();
+        }
+        entity->removeComponent(c);
+    }
+
+    QVector<Qt3DCore::QEntity*> ve;
+    qDebug() << entity << "child nodes count: " << entity->childNodes().count();
+    for(auto n: entity->childNodes())
+    {
+        auto e = qobject_cast<Qt3DCore::QEntity*>(n);
+        if(e) ve.append(e);
+        else n->deleteLater();
+    }
+
+    qDebug() << entity << "child entities count: " << ve.count();
+    for(auto e: ve) deleteEntity(e);
+
+    entity->deleteLater();
 }

@@ -28,7 +28,6 @@ public:
     void applySize(const QVector3D &size);
 
 Q_SIGNALS:
-    void signalClicked(Qt3DRender::QPickEvent *event, SceneEntity* entity);
 
 public Q_SLOTS:
     void slotClicked(Qt3DRender::QPickEvent *event);

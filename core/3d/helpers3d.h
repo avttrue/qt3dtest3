@@ -51,4 +51,6 @@ void applyEntityMaterial(Qt3DCore::QEntity* entity, Qt3DRender::QMaterial* mater
 
 void applyEntityLight(Qt3DCore::QEntity* entity, Qt3DRender::QAbstractLight* light);
 
+void deleteEntity(Qt3DCore::QEntity *entity);
+
 #endif // HELPERS_H

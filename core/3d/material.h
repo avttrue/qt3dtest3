@@ -2,7 +2,6 @@
 #define MATERIAL_H
 
 #include <Qt3DExtras/QDiffuseSpecularMaterial>
-#include <Qt3DRender/QTexture>
 
 const QString AMBIENT_COLOR = "#FFFFFF";
 const float SHININESS = 150.0f;
