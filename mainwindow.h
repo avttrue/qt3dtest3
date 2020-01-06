@@ -4,7 +4,6 @@
 #include <Qt3DRender/QPickEvent>
 #include <QGridLayout>
 #include <QLabel>
-#include <QCheckBox>
 #include <QMainWindow>
 
 class SceneView;
@@ -32,7 +31,7 @@ private:
     QLabel* labelSceneFPS;
     QGridLayout* glControls;
     ControlButton* btnEditEntity;
-    QCheckBox* cbShowSceneBoxes;
+    ControlButton* btnOptions;
     QAction* actionDelObject;
 
 public Q_SLOTS:
@@ -43,6 +42,7 @@ public Q_SLOTS:
     void slotCreateObject();
     void slotDeleteSelectedEntity();
     void slotEditSelectedEntity();
+    void slotOptions();
     void slotTest();
     void slotSceneEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity *entity);
 };

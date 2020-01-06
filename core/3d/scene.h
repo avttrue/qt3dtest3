@@ -77,11 +77,11 @@ protected:
     /*!
      * \brief loadGeometries - загрузить все геометрии, только в составе load
      */
-    void loadGeometries();
+    void loadGeometries(const QStringList& filters);
     /*!
      * \brief loadMaterials - загрузить все материалы, только в составе load
      */
-    void loadMaterials();
+    void loadMaterials(const QStringList& filters);
     SceneObject* addObject(Qt3DRender::QGeometryRenderer *geometry,
                            Qt3DRender::QMaterial *material,
                            const QString &name = "");

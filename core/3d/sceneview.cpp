@@ -5,7 +5,6 @@
 #include "sceneobject.h"
 #include "cameracontroller.h"
 
-#include <QDebug>
 #include <cmath>
 
 #include <Qt3DExtras/QForwardRenderer>
@@ -78,7 +77,7 @@ void SceneView::createScene(float cell, float width, float height, float depth, 
 
     m_Scene = new Scene(this, cell, width, height, depth, name);
     m_Scene->setEnabled(false);
-    if(config->RendererBackToFrontSortPolicy()) applyBackToFrontSortPolicy();
+    slotBackToFrontSortPolicy(config->RendererBackToFrontSortPolicy());
     setRootEntity(m_Scene);
 
     auto func = [=]()
@@ -95,8 +94,7 @@ void SceneView::createScene(float cell, float width, float height, float depth, 
 void SceneView::keyPressEvent(QKeyEvent *e)
 {
     qDebug() << "Button:" << e->key();
-    //if(e->key() == Qt::Key_Q) slotCullFace(true);
-    //if(e->key() == Qt::Key_A) slotCullFace(false);
+    if(e->key() == Qt::Key_B) config->setRendererBackToFrontSortPolicy(!config->RendererBackToFrontSortPolicy());
 }
 
 void SceneView::resizeEvent(QResizeEvent *e)
@@ -129,19 +127,17 @@ void SceneView::applySceneCamera()
     m_CameraController->setCamera(m_Camera);
 }
 
-void SceneView::applyBackToFrontSortPolicy()
+// TODO: slotBackToFrontSortPolicy переделать под полный список параметров
+void SceneView::slotBackToFrontSortPolicy(bool value)
 {
     if(!m_Scene) { qCritical() << __func__  << "Scene is empty"; return; }
 
-    auto sortPolicy = new Qt3DRender::QSortPolicy(m_Scene);
-    QVector<Qt3DRender::QSortPolicy::SortType> sortTypes;
-    sortTypes << Qt3DRender::QSortPolicy::BackToFront;
-    sortPolicy->setSortTypes(sortTypes);
+    m_SortPolicy = new Qt3DRender::QSortPolicy(m_Scene);
+    activeFrameGraph()->setParent(m_SortPolicy);
 
-    // TODO: сильно похоже на трюк
-    auto framegraph = activeFrameGraph();
-    framegraph->setParent(sortPolicy);
-    setActiveFrameGraph(framegraph);
+    QVector<Qt3DRender::QSortPolicy::SortType> sortTypes;
+    if(value) sortTypes << Qt3DRender::QSortPolicy::BackToFront << Qt3DRender::QSortPolicy::Texture;
+    m_SortPolicy->setSortTypes(sortTypes);
 }
 
 void SceneView::slotCullFace(bool mode)

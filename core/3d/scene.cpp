@@ -14,7 +14,6 @@
 #include <Qt3DCore/QTransform>
 #include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DExtras/QCuboidMesh>
-#include <Qt3DExtras/QSkyboxEntity>
 #include <Qt3DRender/QPointLight>
 #include <Qt3DRender/QMesh>
 
@@ -57,7 +56,11 @@ void Scene::slotLoaded()
     {
         m_FRC = new FrameRateCalculator(FRAME_RATE_COUNT_CALC, this);
         m_FrameAction = new Qt3DLogic::QFrameAction(this);
+
+        QObject::connect(config, &Config::signalRendererBackToFrontSortPolicy, m_View, &SceneView::slotBackToFrontSortPolicy);
+        QObject::connect(config, &Config::signalRendererCullFaceMode, m_View, &SceneView::slotCullFace);
         QObject::connect(m_FrameAction, &Qt3DLogic::QFrameAction::triggered, this, &Scene::slotFrameActionTriggered);
+        QObject::connect(config, &Config::signalDrawSceneBoxes, this, &Scene::slotShowBoxes);
 
         qDebug() << objectName() << ": Resources loaded";
         Q_EMIT signalLoaded();
@@ -68,8 +71,8 @@ void Scene::load()
 {
     QObject::connect(this, &Scene::signalMaterialsLoaded, this, &Scene::slotLoaded);
     QObject::connect(this, &Scene::signalGeometriesLoaded, this, &Scene::slotLoaded);
-    loadMaterials();
-    loadGeometries();
+    loadMaterials({MATERIAL_EXTENSION});
+    loadGeometries({GEOMETRY_EXTENSION});
 }
 
 void Scene::loadGeometry(const QString &path)
@@ -108,7 +111,7 @@ void Scene::loadGeometry(const QString &path)
     mesh->setSource(QUrl::fromLocalFile(path));
 }
 
-void Scene::loadGeometries()
+void Scene::loadGeometries(const QStringList &filters)
 {
     QDir resdir(config->PathAssetsDir());
     if(!resdir.exists())
@@ -118,7 +121,7 @@ void Scene::loadGeometries()
         return;
     }
 
-    auto fileList = resdir.entryList({GEOMETRY_EXTENSION}, QDir::Files);
+    auto fileList = resdir.entryList(filters, QDir::Files);
     if(fileList.count() <= 0)
     {
         Q_EMIT signalGeometriesLoaded(0);
@@ -157,7 +160,7 @@ void Scene::loadMaterial(const QString& path)
     material->load(path);
 }
 
-void Scene::loadMaterials()
+void Scene::loadMaterials(const QStringList& filters)
 {
     QDir resdir(config->PathAssetsDir());
     if(!resdir.exists())
@@ -167,7 +170,7 @@ void Scene::loadMaterials()
         return;
     }
 
-    auto fileList = resdir.entryList({MATERIAL_EXTENSION}, QDir::Files);
+    auto fileList = resdir.entryList(filters, QDir::Files);
     if(fileList.count() <= 0)
     {
         Q_EMIT signalMaterialsLoaded(0);

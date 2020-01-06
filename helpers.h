@@ -1,6 +1,7 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
+#include <QMetaProperty>
 #include <QString>
 
 /*!
@@ -11,7 +12,7 @@ QString getTextFromRes(const QString& path);
 /*!
  * \brief getSystemInfo - получить информацию об ОС.
  */
-QString getSystemInfo();
+extern QString getSystemInfo();
 
 /*!
  * \brief humanReadableByteCount
@@ -36,20 +37,5 @@ QString fileToText(const QString& path);
  */
 bool copyResources(const QString& outPath, const QString& inPath, bool rewrite = false);
 
-/*!
- * \brief numDigits - получить количество знаков в числе.
- */
-template <class T>
-int numDigits(T number)
-{
-    int digits = 0;
-    if (number < 0) digits = 1;
-    while (number)
-    {
-        number /= 10;
-        digits++;
-    }
-    return digits;
-}
 
 #endif // HELPERS_H

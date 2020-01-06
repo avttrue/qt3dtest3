@@ -85,7 +85,7 @@ private:
     QString m_SceneColorGrid;           // цвет координатной сетки
     bool m_RewriteResources;            // переписывать при копировании файлы ресурсов
     bool m_DrawSceneBoxes;              // отображать контуры сцены и служебных объектов
-    bool m_RendererBackToFrontSortPolicy;// включает пересортировку объектов относительно камеры, требуется пересоздание сцены
+    bool m_RendererBackToFrontSortPolicy;// включает пересортировку объектов относительно камеры
     bool m_RendererCullFaceMode;        // включает Face Culling
     int m_SplashTime;                   // время отображения сплеш-заставки
     int m_ButtonAcceleration;           // кнопка ускорения перемещения
@@ -110,7 +110,8 @@ private:
 signals:
     void signalConfigChanged();         // сигнал изменения параметров
     void signalDrawSceneBoxes(bool out); // сигнал изменения параметров отрисовки контуров сцены и служебных объектов
-    void signalRendererCullFaceMode(bool out); // сигнал изменения параметров Face Culling
+    void signalRendererCullFaceMode(bool out); // сигнал изменения параметра Face Culling
+    void signalRendererBackToFrontSortPolicy(bool out); // сигнал изменения параметра BackToFrontSortPolicy
 };
 
 #endif // CONFIG_H

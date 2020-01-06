@@ -1,6 +1,7 @@
 #include "controls.h"
 #include "mainwindow.h"
 #include "properties.h"
+#include "helpers.h"
 #include "helperswidget.h"
 #include "dialogs/dialogvalueslist.h"
 #include "core/3d/scene.h"
@@ -19,6 +20,7 @@
 #include <QScrollArea>
 #include <QSplitter>
 #include <QStatusBar>
+#include <QCloseEvent>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
@@ -74,12 +76,11 @@ void MainWindow::createGUI()
     QObject::connect(btnNewScene, &QPushButton::clicked, this, &MainWindow::slotCreateScene);
     addControlWidget(btnNewScene);
 
-    // отображение контуров
-    cbShowSceneBoxes = new QCheckBox(tr("Show grid, lights, etc."), this);
-    cbShowSceneBoxes->setChecked(config->DrawSceneBoxes());
-    cbShowSceneBoxes->setEnabled(false);
-    QObject::connect(cbShowSceneBoxes, &QCheckBox::stateChanged, [=](int value){ config->setDrawSceneBoxes(value); });
-    addControlWidget(cbShowSceneBoxes);
+    // настройки
+    btnOptions = new ControlButton(QIcon(":/res/icons/setup.svg"), tr("Options"), this);
+    btnOptions->setEnabled(false);
+    QObject::connect(btnOptions, &QPushButton::clicked, this, &MainWindow::slotOptions);
+    addControlWidget(btnOptions);
 
     // новый объект
     auto btnNewObject = new ControlButton(QIcon(":/res/icons/cube.svg"), tr("Add object"), this);
@@ -151,7 +152,7 @@ void MainWindow::slotWriteSceneStat()
 
 void MainWindow::slotSceneChanged(Scene *scene)
 {
-    cbShowSceneBoxes->setEnabled(true);
+    btnOptions->setEnabled(true);
 
     QObject::connect(scene, &Scene::signalLightChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene, &Scene::signalObjectChanged, this, &MainWindow::slotWriteSceneStat);
@@ -163,7 +164,6 @@ void MainWindow::slotSceneChanged(Scene *scene)
                      { labelSceneFPS->setText(tr("<b>FPS:</b>%1 | ").arg(QString::number(value, 'f', 1))); });
     QObject::connect(scene, &Scene::signalSelectedEntityChanged, [=](SceneEntity* se) { btnEditEntity->setEnabled(se); });
     QObject::connect(scene, &Scene::signalSelectedEntityChanged, [=](SceneEntity* se) { actionDelObject->setEnabled(se); });
-    QObject::connect(config, &Config::signalDrawSceneBoxes, scene, &Scene::slotShowBoxes);
 }
 
 void MainWindow::slotCreateScene()
@@ -187,10 +187,10 @@ void MainWindow::slotCreateScene()
     if(!dvl->exec()) return;
 
     view->createScene(map.value(keys.at(1)).value.toInt(),
-                           map.value(keys.at(2)).value.toInt(),
-                           map.value(keys.at(3)).value.toInt(),
-                           map.value(keys.at(4)).value.toInt(),
-                           map.value(keys.at(0)).value.toString());
+                      map.value(keys.at(2)).value.toInt(),
+                      map.value(keys.at(3)).value.toInt(),
+                      map.value(keys.at(4)).value.toInt(),
+                      map.value(keys.at(0)).value.toString());
     config->setSceneCellSize(map.value(keys.at(1)).value.toInt());
     config->setSceneWidth(map.value(keys.at(2)).value.toInt());
     config->setSceneHeight(map.value(keys.at(3)).value.toInt());
@@ -390,6 +390,43 @@ void MainWindow::slotEditSelectedEntity()
                                       map.value(keys.at(3)).value.toInt()));
 
     viewContainer->setFocus();
+}
+
+void MainWindow::slotOptions()
+{
+    QMap<QString, int> mapSortPolicy;
+    {
+        int index = Qt3DRender::QSortPolicy::staticMetaObject.indexOfEnumerator("SortType");
+        auto me = Qt3DRender::QSortPolicy::staticMetaObject.enumerator(index);
+        for(int i = 0; i < me.keyCount(); i++) mapSortPolicy.insert(QString(me.key(i)), me.value(i));
+    } // test
+
+    const QVector<QString> keys =
+        {tr("Show grid, lights, etc."),
+         tr("Render: Face Culling"),
+         tr("Overwrite resources at start"),
+         tr("Render: Sort Policy (test)")
+        };
+    QMap<QString, DialogValue> map =
+        {{keys.at(0), {QVariant::Bool, config->DrawSceneBoxes()}},
+         {keys.at(1), {QVariant::Bool, config->RendererCullFaceMode()}},
+         {keys.at(2), {QVariant::Bool, config->RewriteResources()}},
+         {keys.at(3), {QVariant::StringList, "", "",
+                       QStringList(mapSortPolicy.keys()), DialogValueMode::ManyFromList}}
+        };
+    auto dvl = new DialogValuesList(":/res/icons/setup.svg", tr("Options"), true, &map, this);
+
+    if(!dvl->exec()) return;
+
+    config->setDrawSceneBoxes(map.value(keys.at(0)).value.toBool());
+    config->setRendererCullFaceMode(map.value(keys.at(1)).value.toBool());
+    config->setRewriteResources(map.value(keys.at(2)).value.toBool());
+
+    // test
+    QVector<Qt3DRender::QSortPolicy::SortType> sortTypes;
+    for(auto s: map.value(keys.at(3)).value.toStringList())
+        sortTypes << static_cast<Qt3DRender::QSortPolicy::SortType>(mapSortPolicy.value(s));
+    qDebug() << sortTypes;
 }
 
 void MainWindow::slotTest()

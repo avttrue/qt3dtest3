@@ -179,6 +179,7 @@ void Config::setDefaults()
     Q_EMIT signalConfigChanged();
     Q_EMIT signalDrawSceneBoxes(m_DrawSceneBoxes);
     Q_EMIT signalRendererCullFaceMode(m_RendererCullFaceMode);
+    Q_EMIT signalRendererBackToFrontSortPolicy(m_RendererBackToFrontSortPolicy);
 }
 
 void Config::setRendererCullFaceMode(bool inRendererCullFaceMode)
@@ -197,6 +198,7 @@ void Config::setRendererBackToFrontSortPolicy(bool inRendererBackToFrontSortPoli
     m_RendererBackToFrontSortPolicy = inRendererBackToFrontSortPolicy;
     m_Settings->setValue("Renderer/BackToFrontSortPolicy", m_RendererBackToFrontSortPolicy);
     Q_EMIT signalConfigChanged();
+    Q_EMIT signalRendererBackToFrontSortPolicy(m_RendererBackToFrontSortPolicy);
 }
 
 void Config::setSceneColorGrid(const QString &inSceneColorGrid)

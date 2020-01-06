@@ -1,10 +1,10 @@
 #ifndef VIEW_H
 #define VIEW_H
 
-#include <QKeyEvent>
 #include <Qt3DExtras/Qt3DWindow>
 #include <Qt3DRender/QLayer>
 #include <Qt3DRender/QCullFace>
+#include <Qt3DRender/QSortPolicy>
 
 class Scene;
 class CameraController;
@@ -23,11 +23,6 @@ public:
 protected:
     void keyPressEvent(QKeyEvent *e);
     void resizeEvent(QResizeEvent *e);
-    /*!
-     * \brief applyBackToFrontSortPolicy - Устанавливает порядок отрисовки объектов относительно камеры;
-     * используется для корректного отображения объектов с прозрачностью.
-     */
-    void applyBackToFrontSortPolicy();
     void applySceneCamera(); // устанавливает параметры и управление камеры для сцены
 
 private:
@@ -38,11 +33,17 @@ private:
     Qt3DRender::QLayer* m_OpaqueLayer;      // слой рендеринга непрозрачных объектов
     Qt3DRender::QLayer* m_InterfaceLayer;   // слой рендеринга интерфейса
     Qt3DRender::QCullFace* m_CullFace;
+    Qt3DRender::QSortPolicy* m_SortPolicy;
 
     float m_CameraFarPlane;
 
 public Q_SLOTS:
     void slotCullFace(bool mode);
+    /*!
+     * \brief slotBackToFrontSortPolicy - Устанавливает порядок отрисовки объектов относительно камеры;
+     * используется для корректного отображения объектов с прозрачностью.
+     */
+    void slotBackToFrontSortPolicy(bool value);
 
 Q_SIGNALS:
     void signalSceneChanged(Scene* scene);
