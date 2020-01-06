@@ -78,7 +78,6 @@ void MainWindow::createGUI()
 
     // настройки
     btnOptions = new ControlButton(QIcon(":/res/icons/setup.svg"), tr("Options"), this);
-    btnOptions->setEnabled(false);
     QObject::connect(btnOptions, &QPushButton::clicked, this, &MainWindow::slotOptions);
     addControlWidget(btnOptions);
 
@@ -152,8 +151,6 @@ void MainWindow::slotWriteSceneStat()
 
 void MainWindow::slotSceneChanged(Scene *scene)
 {
-    btnOptions->setEnabled(true);
-
     QObject::connect(scene, &Scene::signalLightChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene, &Scene::signalObjectChanged, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene, &Scene::signalGeometriesLoaded, this, &MainWindow::slotWriteSceneStat);
