@@ -28,6 +28,7 @@ class Scene;
 class Material : public Qt3DExtras::QDiffuseSpecularMaterial
 {
     Q_OBJECT
+    // Transparent - используется как флаг при загрузке в сцену и размещении в TransparentLayer
     Q_PROPERTY(bool Transparent READ Transparent FINAL)
 
 public:

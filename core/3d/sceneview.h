@@ -43,7 +43,7 @@ public Q_SLOTS:
      * \brief slotBackToFrontSortPolicy - Устанавливает порядок отрисовки объектов относительно камеры;
      * используется для корректного отображения объектов с прозрачностью.
      */
-    void slotBackToFrontSortPolicy(bool value);
+    void slotRenderSortPolicyType(const QString &value);
 
 Q_SIGNALS:
     void signalSceneChanged(Scene* scene);

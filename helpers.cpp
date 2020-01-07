@@ -35,20 +35,6 @@ QString getSystemInfo()
     return "unknown";
 }
 
-QString readableByteCount(qint64 bytes, bool si)
-{
-    int unit = si ? 1000 : 1024;
-    if (bytes < unit) return QString("%1B").arg(QString::number(bytes));
-
-    int exp = static_cast<int>(qLn(bytes) / qLn(unit));
-    QString pre = si ? "kMGTPE" : "KMGTPE";
-
-    return QString("%1%2%3B").
-        arg(bytes / qPow(unit, exp), 0, 'f', 1, '0').
-        arg(pre[exp - 1]).
-        arg(si ? "" : "i");
-}
-
 bool textToFile(const QString& text, const QString& path)
 {
     QFile file(path);

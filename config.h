@@ -64,8 +64,8 @@ public:
     void setSceneColorBox(const QString &inSceneColorBox);
     QString SceneColorGrid() const;
     void setSceneColorGrid(const QString &inSceneColorGrid);
-    bool RendererBackToFrontSortPolicy() const;
-    void setRendererBackToFrontSortPolicy(bool inRendererBackToFrontSortPolicy);
+    QString RendererSortPolicyType() const;
+    void setRendererSortPolicyType(const QString& inRendererSortPolicyType);
     bool RendererCullFaceMode() const;
     void setRendererCullFaceMode(bool inRendererCullFaceMode);
 
@@ -83,9 +83,9 @@ private:
     QString m_SceneColorSelect;         // цвет рамки выделения
     QString m_SceneColorBox;            // цвет границ сцены
     QString m_SceneColorGrid;           // цвет координатной сетки
+    QString m_RendererSortPolicyType;   // пересортировка объектов относительно камеры
     bool m_RewriteResources;            // переписывать при копировании файлы ресурсов
     bool m_DrawSceneBoxes;              // отображать контуры сцены и служебных объектов
-    bool m_RendererBackToFrontSortPolicy;// включает пересортировку объектов относительно камеры
     bool m_RendererCullFaceMode;        // включает Face Culling
     int m_SplashTime;                   // время отображения сплеш-заставки
     int m_ButtonAcceleration;           // кнопка ускорения перемещения
@@ -99,7 +99,7 @@ private:
     int m_SceneDepth;                   // размер сцены глубина
     float m_SceneExcess;                // отступы при отображении служебных сущностей
 
-
+    // TODO: config.captions
     const QHash<QString, QString> captions =
         {
             {"DateTimeFormat", tr("формат времени")},
@@ -109,9 +109,9 @@ private:
 
 signals:
     void signalConfigChanged();         // сигнал изменения параметров
-    void signalDrawSceneBoxes(bool out); // сигнал изменения параметров отрисовки контуров сцены и служебных объектов
-    void signalRendererCullFaceMode(bool out); // сигнал изменения параметра Face Culling
-    void signalRendererBackToFrontSortPolicy(bool out); // сигнал изменения параметра BackToFrontSortPolicy
+    void signalDrawSceneBoxes(bool value); // сигнал изменения параметров отрисовки контуров сцены и служебных объектов
+    void signalRendererCullFaceMode(bool value); // сигнал изменения параметра Face Culling
+    void signalRendererSortPolicyType(const QString& value ); // сигнал изменения параметра RendererSortPolicy
 };
 
 #endif // CONFIG_H

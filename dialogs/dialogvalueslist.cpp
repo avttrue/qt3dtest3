@@ -98,6 +98,7 @@ void DialogValuesList::slotLoadContent(QMap<QString, DialogValue>* values)
             bl->setSpacing(1);
             auto label = new QLabel(widget);
             label->setText(QString(key));
+            label->setWordWrap(true);
             bl->addWidget(label, 0);
             auto le = new QLineEdit(v.toString(), widget);
             le->setReadOnly(true);
@@ -118,6 +119,7 @@ void DialogValuesList::slotLoadContent(QMap<QString, DialogValue>* values)
             bl->setMargin(0);
             bl->setSpacing(1);
             auto label = new QLabel(widget);
+            label->setWordWrap(true);
             label->setText(QString(key));
             bl->addWidget(label, 0);
             auto le = new QLineEdit(v.toString(), widget);
@@ -161,6 +163,7 @@ void DialogValuesList::slotLoadContent(QMap<QString, DialogValue>* values)
             auto widget = new QWidget();
             auto label = new QLabel();
             label->setText(QString(key));
+            label->setWordWrap(true);
             auto bl = new QHBoxLayout();
             bl->setMargin(0);
             bl->setSpacing(2);

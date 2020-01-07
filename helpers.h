@@ -1,7 +1,6 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
-#include <QMetaProperty>
 #include <QString>
 
 /*!
@@ -13,14 +12,6 @@ QString getTextFromRes(const QString& path);
  * \brief getSystemInfo - получить информацию об ОС.
  */
 extern QString getSystemInfo();
-
-/*!
- * \brief humanReadableByteCount
- * \param bytes - количество байт для пересчёта
- * \param si - SI или BINARY формат
- * \return количество байт в виде строки
- */
-QString readableByteCount(qint64 bytes, bool si = false);
 
 /*!
  * \brief textToFile - записать текст в файл.

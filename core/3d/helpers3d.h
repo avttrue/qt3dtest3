@@ -5,6 +5,7 @@
 #include <Qt3DCore/QTransform>
 #include <Qt3DRender/QGeometryRenderer>
 #include <Qt3DRender/QMaterial>
+#include <Qt3DRender/QSortPolicy>
 
 #include <QAbstractLight>
 #include <QColor>
@@ -55,5 +56,9 @@ void applyEntityLight(Qt3DCore::QEntity* entity, Qt3DRender::QAbstractLight* lig
  * \brief deleteEntity - корректное удаление сущности
  */
 void deleteEntity(Qt3DCore::QEntity *entity);
+
+QMap<QString, int> RenderSortPolicyTypeToMap();
+
+QVector<Qt3DRender::QSortPolicy::SortType> StringListToRenderSortPolicyType(const QStringList& list);
 
 #endif // HELPERS_H

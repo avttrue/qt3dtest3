@@ -57,7 +57,7 @@ void Scene::slotLoaded()
         m_FRC = new FrameRateCalculator(FRAME_RATE_COUNT_CALC, this);
         m_FrameAction = new Qt3DLogic::QFrameAction(this);
 
-        QObject::connect(config, &Config::signalRendererBackToFrontSortPolicy, m_View, &SceneView::slotBackToFrontSortPolicy);
+        QObject::connect(config, &Config::signalRendererSortPolicyType, m_View, &SceneView::slotRenderSortPolicyType);
         QObject::connect(config, &Config::signalRendererCullFaceMode, m_View, &SceneView::slotCullFace);
         QObject::connect(m_FrameAction, &Qt3DLogic::QFrameAction::triggered, this, &Scene::slotFrameActionTriggered);
         QObject::connect(config, &Config::signalDrawSceneBoxes, this, &Scene::slotShowBoxes);

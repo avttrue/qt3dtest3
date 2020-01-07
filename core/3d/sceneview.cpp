@@ -77,7 +77,7 @@ void SceneView::createScene(float cell, float width, float height, float depth, 
 
     m_Scene = new Scene(this, cell, width, height, depth, name);
     m_Scene->setEnabled(false);
-    slotBackToFrontSortPolicy(config->RendererBackToFrontSortPolicy());
+    slotRenderSortPolicyType(config->RendererSortPolicyType());
     setRootEntity(m_Scene);
 
     auto func = [=]()
@@ -95,7 +95,6 @@ void SceneView::createScene(float cell, float width, float height, float depth, 
 void SceneView::keyPressEvent(QKeyEvent *e)
 {
     qDebug() << "Button:" << e->key();
-    if(e->key() == Qt::Key_B) config->setRendererBackToFrontSortPolicy(!config->RendererBackToFrontSortPolicy());
 }
 
 void SceneView::resizeEvent(QResizeEvent *e)
@@ -128,17 +127,16 @@ void SceneView::applySceneCamera()
     m_CameraController->setCamera(m_Camera);
 }
 
-// TODO: slotBackToFrontSortPolicy переделать под полный список параметров
-void SceneView::slotBackToFrontSortPolicy(bool value)
+void SceneView::slotRenderSortPolicyType(const QString& value)
 {
     if(!m_Scene) { qCritical() << __func__  << "Scene is empty"; return; }
+
+    auto vector = StringListToRenderSortPolicyType(value.split(',', QString::SkipEmptyParts));
 
     m_SortPolicy = new Qt3DRender::QSortPolicy(m_Scene);
     activeFrameGraph()->setParent(m_SortPolicy);
 
-    QVector<Qt3DRender::QSortPolicy::SortType> sortTypes;
-    if(value) sortTypes << Qt3DRender::QSortPolicy::BackToFront << Qt3DRender::QSortPolicy::Texture;
-    m_SortPolicy->setSortTypes(sortTypes);
+    m_SortPolicy->setSortTypes(vector);
 }
 
 void SceneView::slotCullFace(bool mode)

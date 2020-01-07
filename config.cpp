@@ -105,9 +105,9 @@ void Config::load()
         m_Settings->setValue("Scene/Excess", SCENE_EXCESS);
     m_SceneExcess = m_Settings->value("Scene/Excess").toFloat();
 
-    if(!m_Settings->contains("Renderer/BackToFrontSortPolicy"))
-        m_Settings->setValue("Renderer/BackToFrontSortPolicy", RENDERER_BTF_SORT_POLICY);
-    m_RendererBackToFrontSortPolicy = m_Settings->value("Renderer/BackToFrontSortPolicy").toBool();
+    if(!m_Settings->contains("Renderer/SortPolicyType"))
+        m_Settings->setValue("Renderer/SortPolicyType", RENDERER_SORT_POLICY_TYPE);
+    m_RendererSortPolicyType = m_Settings->value("Renderer/SortPolicyType").toString();
 
     if(!m_Settings->contains("Renderer/CullFaceMode"))
         m_Settings->setValue("Renderer/CullFaceMode", RENDERER_CULL_FACE_MODE);
@@ -170,8 +170,8 @@ void Config::setDefaults()
     m_Settings->setValue("Scene/ColorGrid", SCENE_COLOR_GRID);
     m_SceneColorGrid = SCENE_COLOR_GRID;
 
-    m_Settings->setValue("Renderer/BackToFrontSortPolicy", RENDERER_BTF_SORT_POLICY);
-    m_RendererBackToFrontSortPolicy = RENDERER_BTF_SORT_POLICY;
+    m_Settings->setValue("Renderer/SortPolicyType", RENDERER_SORT_POLICY_TYPE);
+    m_RendererSortPolicyType = RENDERER_SORT_POLICY_TYPE;
 
     m_Settings->setValue("Renderer/CullFaceMode", RENDERER_CULL_FACE_MODE);
     m_RendererCullFaceMode = RENDERER_CULL_FACE_MODE;
@@ -179,7 +179,7 @@ void Config::setDefaults()
     Q_EMIT signalConfigChanged();
     Q_EMIT signalDrawSceneBoxes(m_DrawSceneBoxes);
     Q_EMIT signalRendererCullFaceMode(m_RendererCullFaceMode);
-    Q_EMIT signalRendererBackToFrontSortPolicy(m_RendererBackToFrontSortPolicy);
+    Q_EMIT signalRendererSortPolicyType(m_RendererSortPolicyType);
 }
 
 void Config::setRendererCullFaceMode(bool inRendererCullFaceMode)
@@ -192,13 +192,13 @@ void Config::setRendererCullFaceMode(bool inRendererCullFaceMode)
 }
 
 
-void Config::setRendererBackToFrontSortPolicy(bool inRendererBackToFrontSortPolicy)
+void Config::setRendererSortPolicyType(const QString &inRendererSortPolicyType)
 {
-    if(m_RendererBackToFrontSortPolicy == inRendererBackToFrontSortPolicy) return;
-    m_RendererBackToFrontSortPolicy = inRendererBackToFrontSortPolicy;
-    m_Settings->setValue("Renderer/BackToFrontSortPolicy", m_RendererBackToFrontSortPolicy);
+    if(m_RendererSortPolicyType == inRendererSortPolicyType) return;
+    m_RendererSortPolicyType = inRendererSortPolicyType;
+    m_Settings->setValue("Renderer/SortPolicyType", m_RendererSortPolicyType);
     Q_EMIT signalConfigChanged();
-    Q_EMIT signalRendererBackToFrontSortPolicy(m_RendererBackToFrontSortPolicy);
+    Q_EMIT signalRendererSortPolicyType(m_RendererSortPolicyType);
 }
 
 void Config::setSceneColorGrid(const QString &inSceneColorGrid)
@@ -351,7 +351,7 @@ int Config::SceneCellSize() const { return m_SceneCellSize; }
 bool Config::RendererCullFaceMode() const { return m_RendererCullFaceMode; }
 bool Config::RewriteResources() const { return m_RewriteResources; }
 bool Config::DrawSceneBoxes() const { return m_DrawSceneBoxes; }
-bool Config::RendererBackToFrontSortPolicy() const { return m_RendererBackToFrontSortPolicy; }
+QString Config::RendererSortPolicyType() const { return m_RendererSortPolicyType; }
 int Config::SplashTime() const { return m_SplashTime; }
 int Config::ButtonAcceleration() const { return m_ButtonAcceleration; }
 int Config::MoveAcceleration() const { return m_MoveAcceleration; }

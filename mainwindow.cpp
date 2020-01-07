@@ -1,7 +1,6 @@
 #include "controls.h"
 #include "mainwindow.h"
 #include "properties.h"
-#include "helpers.h"
 #include "helperswidget.h"
 #include "dialogs/dialogvalueslist.h"
 #include "core/3d/scene.h"
@@ -391,25 +390,21 @@ void MainWindow::slotEditSelectedEntity()
 
 void MainWindow::slotOptions()
 {
-    QMap<QString, int> mapSortPolicy;
-    {
-        int index = Qt3DRender::QSortPolicy::staticMetaObject.indexOfEnumerator("SortType");
-        auto me = Qt3DRender::QSortPolicy::staticMetaObject.enumerator(index);
-        for(int i = 0; i < me.keyCount(); i++) mapSortPolicy.insert(QString(me.key(i)), me.value(i));
-    } // test
+    QMap<QString, int> mapSortPolicy = RenderSortPolicyTypeToMap();
 
     const QVector<QString> keys =
         {tr("Show grid, lights, etc."),
          tr("Render: Face Culling"),
          tr("Overwrite resources at start"),
-         tr("Render: Sort Policy (test)")
+         tr("Render:\nSort Policy")
         };
     QMap<QString, DialogValue> map =
         {{keys.at(0), {QVariant::Bool, config->DrawSceneBoxes()}},
          {keys.at(1), {QVariant::Bool, config->RendererCullFaceMode()}},
          {keys.at(2), {QVariant::Bool, config->RewriteResources()}},
-         {keys.at(3), {QVariant::StringList, "", "",
-                       QStringList(mapSortPolicy.keys()), DialogValueMode::ManyFromList}}
+         {keys.at(3), {QVariant::StringList,
+                       config->RendererSortPolicyType().split(',', QString::SkipEmptyParts),
+                       "", QStringList(mapSortPolicy.keys()), DialogValueMode::ManyFromList}}
         };
     auto dvl = new DialogValuesList(":/res/icons/setup.svg", tr("Options"), true, &map, this);
 
@@ -418,12 +413,7 @@ void MainWindow::slotOptions()
     config->setDrawSceneBoxes(map.value(keys.at(0)).value.toBool());
     config->setRendererCullFaceMode(map.value(keys.at(1)).value.toBool());
     config->setRewriteResources(map.value(keys.at(2)).value.toBool());
-
-    // test
-    QVector<Qt3DRender::QSortPolicy::SortType> sortTypes;
-    for(auto s: map.value(keys.at(3)).value.toStringList())
-        sortTypes << static_cast<Qt3DRender::QSortPolicy::SortType>(mapSortPolicy.value(s));
-    qDebug() << sortTypes;
+    config->setRendererSortPolicyType(map.value(keys.at(3)).value.toStringList().join(','));
 }
 
 void MainWindow::slotTest()

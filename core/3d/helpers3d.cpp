@@ -2,6 +2,8 @@
 
 
 #include <QUuid>
+#include <QMetaEnum>
+
 #include <Qt3DRender/QGeometry>
 #include <Qt3DRender/QMesh>
 #include <Qt3DRender/QBuffer>
@@ -358,4 +360,31 @@ void deleteEntity(Qt3DCore::QEntity *entity)
     for(auto e: ve) deleteEntity(e);
 
     entity->deleteLater();
+}
+
+QMap<QString, int> RenderSortPolicyTypeToMap()
+{
+    QMap<QString, int> map;
+
+    int index = Qt3DRender::QSortPolicy::staticMetaObject.indexOfEnumerator("SortType");
+    auto me = Qt3DRender::QSortPolicy::staticMetaObject.enumerator(index);
+    for(int i = 0; i < me.keyCount(); i++)
+        map.insert(QString(me.key(i)), me.value(i));
+
+    return map;
+}
+
+QVector<Qt3DRender::QSortPolicy::SortType> StringListToRenderSortPolicyType(const QStringList &list)
+{
+    auto map = RenderSortPolicyTypeToMap();
+    QVector<Qt3DRender::QSortPolicy::SortType> vector;
+
+    for(auto s: list)
+    {
+        auto value = map.value(s, -1);
+        if(value > -1)
+            vector << static_cast<Qt3DRender::QSortPolicy::SortType>(value);
+    }
+
+    return vector;
 }
