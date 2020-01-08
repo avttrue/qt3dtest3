@@ -2,43 +2,38 @@
 
 #include <QDateTime>
 
-FrameRateCalculator::FrameRateCalculator(int frameCount, QObject *parent) :
+FrameRateCalculator::FrameRateCalculator(int period, QObject *parent) :
     QObject(parent),
     m_FramesPerSecond(0.0),
-    m_CurrentFrameCount(0)
+    m_Period(abs(period))
 {
     m_Time = QDateTime::currentDateTime().toMSecsSinceEpoch();
-    if(frameCount <= 0) m_FrameCount = 1;
-    else m_FrameCount = frameCount;
 }
 
 void FrameRateCalculator::calculate()
 {
     m_CurrentFrameCount++;
-    if(m_CurrentFrameCount >= m_FrameCount)
+    auto time = QDateTime::currentDateTime().toMSecsSinceEpoch();
+    auto timedelta = time - m_Time;
+    if(timedelta > 500)
     {
-        auto time = QDateTime::currentDateTime().toMSecsSinceEpoch();
-        if(time > m_Time)
+
+        auto fps = 1000 * static_cast<float>(m_CurrentFrameCount) / (timedelta);
+        if(abs(m_FramesPerSecond - fps) > 0.09f)
         {
-            auto fps = 1000 * static_cast<float>(m_CurrentFrameCount) / (time - m_Time);
-            if(abs(m_FramesPerSecond - fps) > 0.09f)
-            {
-                m_FramesPerSecond = fps;
-                Q_EMIT signalFramesPerSecondChanged(m_FramesPerSecond);
-            }
+            m_FramesPerSecond = fps;
+            Q_EMIT signalFramesPerSecondChanged(m_FramesPerSecond);
         }
+
         m_Time = time;
         m_CurrentFrameCount = 0;
     }
 }
 
-void FrameRateCalculator::setFrameCount(int fc)
+void FrameRateCalculator::setPeriod(int Period)
 {
-    if (m_FrameCount == fc) return;
-
-    m_FrameCount = fc;
-    Q_EMIT signalFrameCountChanged(m_FrameCount);
+    if(Period != m_Period) m_Period = Period;
 }
 
+int FrameRateCalculator::Period() const { return m_Period; }
 float FrameRateCalculator::FramesPerSecond() const { return m_FramesPerSecond; }
-int FrameRateCalculator::FrameCount() const { return m_FrameCount; }

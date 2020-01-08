@@ -70,15 +70,20 @@ void MainWindow::createGUI()
     setCentralWidget(vertSplitter);
 
     // управление
-    // новая сцена
-    auto btnNewScene = new ControlButton(QIcon(":/res/icons/matrix.svg"), tr("New scene"), this);
-    QObject::connect(btnNewScene, &QPushButton::clicked, this, &MainWindow::slotCreateScene);
-    addControlWidget(btnNewScene);
 
     // настройки
     btnOptions = new ControlButton(QIcon(":/res/icons/setup.svg"), tr("Options"), this);
     QObject::connect(btnOptions, &QPushButton::clicked, this, &MainWindow::slotOptions);
     addControlWidget(btnOptions);
+
+    auto separator1 = new QFrame(this);
+    separator1->setFrameStyle(QFrame::Raised | QFrame::HLine);
+    addControlWidget(separator1);
+
+    // новая сцена
+    auto btnNewScene = new ControlButton(QIcon(":/res/icons/matrix.svg"), tr("New scene"), this);
+    QObject::connect(btnNewScene, &QPushButton::clicked, this, &MainWindow::slotCreateScene);
+    addControlWidget(btnNewScene);
 
     // новый объект
     auto btnNewObject = new ControlButton(QIcon(":/res/icons/cube.svg"), tr("Add object"), this);
@@ -167,9 +172,9 @@ void MainWindow::slotCreateScene()
     const QVector<QString> keys =
         {tr("1. Name (m.b. empty):"),
          tr("2. Scene: cell size"),
-         tr("3. Scene: width (in cells)"),
-         tr("4. Scene: height (in cells)"),
-         tr("5. Scene: depth (in cells)")
+         tr("3. Scene: width (cells)"),
+         tr("4. Scene: height (cells)"),
+         tr("5. Scene: depth (cells)")
         };
     QMap<QString, DialogValue> map =
         {{keys.at(0), {QVariant::String, ""}},
@@ -201,9 +206,9 @@ void MainWindow::slotCreatePointLight()
 
     const QVector<QString> keys =
         {tr("1. Name (m.b. empty):"),
-         tr("2. Position: X (in cells)"),
-         tr("3. Position: Y (in cells)"),
-         tr("4. Position: Z (in cells)"),
+         tr("2. Position: X (cells)"),
+         tr("3. Position: Y (cells)"),
+         tr("4. Position: Z (cells)"),
          tr("5. Intensity (N/100):"),
          tr("6. Color (#XXXXXX):")
         };
@@ -242,12 +247,12 @@ void MainWindow::slotCreateObject()
 
     const QVector<QString> keys =
         {tr("1. Name (m.b. empty):"),
-         tr("2. Position: X (in cells)"),
-         tr("3. Position: Y (in cells)"),
-         tr("4. Position: Z (in cells)"),
-         tr("5. Size: X (in cells)"),
-         tr("6. Size: Y (in cells)"),
-         tr("7. Size: Z (in cells)"),
+         tr("2. Position: X (cells)"),
+         tr("3. Position: Y (cells)"),
+         tr("4. Position: Z (cells)"),
+         tr("5. Size: X (cells)"),
+         tr("6. Size: Y (cells)"),
+         tr("7. Size: Z (cells)"),
          tr("8. Material:"),
          tr("9. Geometry:")
         };
@@ -309,9 +314,9 @@ void MainWindow::slotEditSelectedEntity()
 
     QVector<QString> keys = {
         tr("1. Name:"),
-        tr("2. Position: X (in cells)"),
-        tr("3. Position: Y (in cells)"),
-        tr("4. Position: Z (in cells)")
+        tr("2. Position: X (cells)"),
+        tr("3. Position: Y (cells)"),
+        tr("4. Position: Z (cells)")
     };
     QMap<QString, DialogValue> map = {
         {keys.at(0), {QVariant::String, e->objectName(), "", ',', DialogValueMode::Disabled}},
@@ -333,9 +338,9 @@ void MainWindow::slotEditSelectedEntity()
     }    
     else if(so)
     {
-        keys.append(tr("5. Size: X (in cells)"));
-        keys.append(tr("6. Size: Y (in cells)"));
-        keys.append(tr("7. Size: Z (in cells)"));
+        keys.append(tr("5. Size: X (cells)"));
+        keys.append(tr("6. Size: Y (cells)"));
+        keys.append(tr("7. Size: Z (cells)"));
         keys.append(tr("8. Material:"));
         keys.append(tr("9. Geometry:"));
 

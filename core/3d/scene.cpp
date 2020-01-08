@@ -54,7 +54,7 @@ void Scene::slotLoaded()
     m_LoadingSteps++;
     if(m_LoadingSteps >= LOADING_STEPS)
     {
-        m_FRC = new FrameRateCalculator(FRAME_RATE_COUNT_CALC, this);
+        m_FRC = new FrameRateCalculator(FRAME_RATE_PERIOD, this);
         m_FrameAction = new Qt3DLogic::QFrameAction(this);
 
         QObject::connect(config, &Config::signalRendererSortPolicyType, m_View, &SceneView::slotRenderSortPolicyType);

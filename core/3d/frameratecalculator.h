@@ -6,26 +6,24 @@
 class FrameRateCalculator : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int FrameCount READ FrameCount WRITE setFrameCount NOTIFY signalFrameCountChanged)
+    Q_PROPERTY(int Period READ Period WRITE setPeriod)
 
 private:
     long long m_Time;
     float m_FramesPerSecond;
-    int m_FrameCount;
-    int m_CurrentFrameCount;
+    int m_CurrentFrameCount;    
+    int m_Period;
 
 public:
-    explicit FrameRateCalculator(int frameCount, QObject *parent = nullptr);
+    explicit FrameRateCalculator(int period, QObject *parent = nullptr);
     float FramesPerSecond() const;
-    int FrameCount() const;
     void calculate();
+    int Period() const;
+    void setPeriod(int Period);
 
 Q_SIGNALS:
     void signalFramesPerSecondChanged(float FramesPerSecond);
-    void signalFrameCountChanged(int FrameCount);
 
-public Q_SLOTS:
-    void setFrameCount(int fc);
 };
 
 #endif // FRAMERATECALCULATOR_H
