@@ -44,7 +44,6 @@ Scene::Scene(SceneView *view,
 //    skytrfm->setScale3D(QVector3D(SCENE_WIDTH, SCENE_HEIGHT, SCENE_DEPTH));
 //    m_SkyBox->addComponent(skytrfm);
 
-
     QObject::connect(this, &QObject::destroyed, [=](QObject* o){ qDebug() << o->objectName() << ": destroyed"; });
     qDebug() << objectName() << ": Scene created";
 }
