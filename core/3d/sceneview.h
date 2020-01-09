@@ -1,5 +1,5 @@
-#ifndef VIEW_H
-#define VIEW_H
+#ifndef SCENEVIEW_H
+#define SCENEVIEW_H
 
 #include <Qt3DExtras/Qt3DWindow>
 #include <Qt3DRender/QLayer>
@@ -23,7 +23,7 @@ public:
 protected:
     void keyPressEvent(QKeyEvent *e);
     void resizeEvent(QResizeEvent *e);
-    void applySceneCamera(); // устанавливает параметры и управление камеры для сцены
+    void applySceneCamera(); // устанавливает параметры и управление камерой для сцены
 
 private:
     Scene* m_Scene;
@@ -38,9 +38,12 @@ private:
     float m_CameraFarPlane;
 
 public Q_SLOTS:
+    /*!
+     * \brief slotCullFace - вкл-откл режим Cull Face
+     */
     void slotCullFace(bool mode);
     /*!
-     * \brief slotBackToFrontSortPolicy - Устанавливает порядок отрисовки объектов относительно камеры;
+     * \brief slotRenderSortPolicyType - Устанавливает порядок отрисовки объектов относительно камеры;
      * используется для корректного отображения объектов с прозрачностью.
      */
     void slotRenderSortPolicyType(const QString &value);
@@ -50,4 +53,4 @@ Q_SIGNALS:
 
 };
 
-#endif // VIEW_H
+#endif // SCENEVIEW_H
