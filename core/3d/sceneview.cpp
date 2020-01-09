@@ -115,6 +115,7 @@ void SceneView::applySceneCamera()
     m_CameraFarPlane = static_cast<float>(sqrt(pow(static_cast<double>(w), 2) +
                                                pow(static_cast<double>(h), 2) +
                                                pow(static_cast<double>(d), 2)));
+
     auto camera_aspect = static_cast<float>(width()) / height();
     m_Camera->lens()->setPerspectiveProjection(45.0f, camera_aspect, 0.1f, m_CameraFarPlane);
 

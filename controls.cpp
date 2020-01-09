@@ -1,8 +1,6 @@
 #include "controls.h"
 #include "helpers.h"
 
-#include <QCoreApplication>
-#include <QVBoxLayout>
 
 ControlButton::ControlButton(QWidget *parent):
     QPushButton(parent)
@@ -32,27 +30,4 @@ SeparatorH::SeparatorH(QWidget *parent):
     setMidLineWidth(2);
     setLineWidth(1);
     setFocusPolicy(Qt::NoFocus);
-}
-
-LoadingPage::LoadingPage(const QString &caption, QWidget *parent):
-QWidget(parent)
-{
-    m_LabelCaption = new QLabel(caption, this);
-
-    setSizePolicy(QSizePolicy::Maximum, QSizePolicy::MinimumExpanding);
-
-    auto vblForm = new QVBoxLayout();
-    vblForm->setAlignment(Qt::AlignAbsolute);
-    vblForm->setMargin(0);
-    vblForm->setSpacing(0);
-    setLayout(vblForm);
-
-    vblForm->addWidget(m_LabelCaption);
-}
-
-void LoadingPage::slotStep(const QString &text)
-{
-    m_LabelCaption->setText(text);
-
-    QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 }

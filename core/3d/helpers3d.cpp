@@ -4,7 +4,8 @@
 #include <QUuid>
 #include <QMetaEnum>
 
-#include <Qt3DCore//QTransform>
+
+#include <Qt3DCore/QTransform>
 #include <Qt3DRender/QGeometry>
 #include <Qt3DRender/QMesh>
 #include <Qt3DRender/QBuffer>
@@ -235,11 +236,11 @@ Qt3DCore::QEntity *createEntityBox(const QVector3D &min,
 Qt3DExtras::QText2DEntity* createEntityText(Qt3DCore::QEntity* parent,
                                             int size,
                                             const QString& text,
-                                            Qt3DCore::QTransform *transform,
                                             const QColor &color,
                                             const QString& family)
 {
     auto text2D = new Qt3DExtras::QText2DEntity(parent);
+    text2D->setObjectName("EntityText");
     QObject::connect(text2D, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityText destroyed"; });
 
     QFont font;
@@ -250,8 +251,6 @@ Qt3DExtras::QText2DEntity* createEntityText(Qt3DCore::QEntity* parent,
     text2D->setWidth(text.length() * font.pointSize() * 2);
     text2D->setText(text);
     text2D->setColor(color);
-
-    text2D->addComponent(transform);
 
     qDebug() << parent->objectName() << ": EntityText created";
     return text2D;

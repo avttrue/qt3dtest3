@@ -42,7 +42,6 @@ Qt3DCore::QEntity* createEntityBox(const QVector3D& min,
 Qt3DExtras::QText2DEntity *createEntityText(Qt3DCore::QEntity* parent,
                                             int size,
                                             const QString& text,
-                                            Qt3DCore::QTransform* transform,
                                             const QColor &color =Qt::white,
                                             const QString &family = "monospace");
 
