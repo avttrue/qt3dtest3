@@ -4,6 +4,7 @@
 #include "sceneview.h"
 
 #include <Qt3DCore/QEntity>
+#include <Qt3DExtras/QText2DEntity>
 #include <Qt3DExtras/Qt3DWindow>
 #include <Qt3DLogic/QFrameAction>
 #include <Qt3DRender/QMaterial>
@@ -96,6 +97,7 @@ private:
     QHash <QString, SceneObject*> m_Objects;
     QHash <QString, Qt3DRender::QGeometryRenderer*> m_Geometries;
     QHash <QString, Qt3DRender::QMaterial*> m_Materials;
+    Qt3DExtras::QText2DEntity* m_TextInfo;
     float m_CellSize;
     float m_Height;
     float m_Width;

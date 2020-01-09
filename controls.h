@@ -1,6 +1,8 @@
 #ifndef CONTROLS_H
 #define CONTROLS_H
 
+#include <QFrame>
+#include <QLabel>
 #include <QPushButton>
 #include <QWidget>
 
@@ -19,6 +21,24 @@ class WidgetSpacer: public QWidget
 
 public:
     explicit WidgetSpacer(QWidget* parent = nullptr);
+};
+
+class SeparatorH:  public QFrame
+{
+public:
+    explicit SeparatorH(QWidget* parent = nullptr);
+};
+
+class LoadingPage: public QWidget
+{
+public:
+    explicit LoadingPage(const QString &caption, QWidget* parent = nullptr);
+
+private:
+    QLabel* m_LabelCaption;
+
+    public Q_SLOTS:
+        void slotStep(const QString &text);
 };
 
 #endif // CONTROLS_H

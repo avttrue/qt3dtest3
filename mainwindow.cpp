@@ -76,9 +76,7 @@ void MainWindow::createGUI()
     QObject::connect(btnOptions, &QPushButton::clicked, this, &MainWindow::slotOptions);
     addControlWidget(btnOptions);
 
-    auto separator1 = new QFrame(this);
-    separator1->setFrameStyle(QFrame::Raised | QFrame::HLine);
-    addControlWidget(separator1);
+    addControlWidget(new SeparatorH(this));
 
     // новая сцена
     auto btnNewScene = new ControlButton(QIcon(":/res/icons/matrix.svg"), tr("New scene"), this);
@@ -187,17 +185,18 @@ void MainWindow::slotCreateScene()
 
     if(!dvl->exec()) return;
 
+    viewContainer->setFocus();
+
     view->createScene(map.value(keys.at(1)).value.toInt(),
                       map.value(keys.at(2)).value.toInt(),
                       map.value(keys.at(3)).value.toInt(),
                       map.value(keys.at(4)).value.toInt(),
                       map.value(keys.at(0)).value.toString());
+
     config->setSceneCellSize(map.value(keys.at(1)).value.toInt());
     config->setSceneWidth(map.value(keys.at(2)).value.toInt());
     config->setSceneHeight(map.value(keys.at(3)).value.toInt());
     config->setSceneDepth(map.value(keys.at(4)).value.toInt());
-
-    viewContainer->setFocus();
 }
 
 void MainWindow::slotCreatePointLight()

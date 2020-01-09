@@ -1,6 +1,7 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
+#include <Qt3DExtras/QText2DEntity>
 #include <Qt3DCore/QEntity>
 #include <Qt3DCore/QTransform>
 #include <Qt3DRender/QGeometryRenderer>
@@ -38,11 +39,12 @@ Qt3DCore::QEntity* createEntityBox(const QVector3D& min,
                                    const QColor& color,
                                    Qt3DCore::QEntity* parent);
 
-Qt3DCore::QEntity* createEntityText(Qt3DCore::QEntity* parent,
-                                    int size,
-                                    const QString& text,
-                                    const QColor &color =Qt::white,
-                                    const QString &family = "monospace");
+Qt3DExtras::QText2DEntity *createEntityText(Qt3DCore::QEntity* parent,
+                                            int size,
+                                            const QString& text,
+                                            Qt3DCore::QTransform* transform,
+                                            const QColor &color =Qt::white,
+                                            const QString &family = "monospace");
 
 void applyEntityName(Qt3DCore::QEntity* entity, const QString &prefix, const QString& name = "");
 

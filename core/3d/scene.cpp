@@ -44,6 +44,9 @@ Scene::Scene(SceneView *view,
 //    skytrfm->setScale3D(QVector3D(SCENE_WIDTH, SCENE_HEIGHT, SCENE_DEPTH));
 //    m_SkyBox->addComponent(skytrfm);
 
+    m_TextInfo = createEntityText(this, 20, "TEST", new Qt3DCore::QTransform);
+    m_TextInfo->addComponent(view->InterfaceLayer());
+
     QObject::connect(this, &QObject::destroyed, [=](QObject* o){ qDebug() << o->objectName() << ": destroyed"; });
     qDebug() << objectName() << ": Scene created";
 }
@@ -70,6 +73,7 @@ void Scene::load()
 {
     QObject::connect(this, &Scene::signalMaterialsLoaded, this, &Scene::slotLoaded);
     QObject::connect(this, &Scene::signalGeometriesLoaded, this, &Scene::slotLoaded);
+
     loadMaterials({MATERIAL_EXTENSION});
     loadGeometries({GEOMETRY_EXTENSION});
 }
@@ -131,7 +135,7 @@ void Scene::loadGeometries(const QStringList &filters)
     {
         if(m_Geometries.count() == fileList.count())
         {
-            QObject::disconnect(this, &Scene::signalGeometryLoaded, nullptr, nullptr);
+            QObject::disconnect(this, &Scene::signalGeometryLoaded, this, nullptr);
             qDebug() << objectName() << "All geometries loaded:" << m_Geometries.count();
             Q_EMIT signalGeometriesLoaded(m_Geometries.count());
         }
@@ -147,7 +151,7 @@ void Scene::loadMaterial(const QString& path)
     auto material = new Material(this);
     auto func = [=]()
     {
-        QObject::disconnect(material, &Material::signalReady, nullptr, nullptr);
+        QObject::disconnect(material, &Material::signalReady, this, nullptr);
         auto m = m_Materials.take(material->objectName());
         if(m) m->deleteLater();
 
@@ -301,6 +305,7 @@ void Scene::SelectEntity(SceneEntity *entity)
             m_SelectedEntity = entity;
         }
     }
+
     Q_EMIT signalSelectedEntityChanged(m_SelectedEntity);
 }
 
