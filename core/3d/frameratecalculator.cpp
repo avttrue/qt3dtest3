@@ -15,7 +15,7 @@ void FrameRateCalculator::calculate()
     m_CurrentFrameCount++;
     auto time = QDateTime::currentDateTime().toMSecsSinceEpoch();
     auto timedelta = time - m_Time;
-    if(timedelta > 500)
+    if(timedelta >= m_Period)
     {
 
         auto fps = 1000 * static_cast<float>(m_CurrentFrameCount) / (timedelta);
