@@ -4,8 +4,6 @@
 #include <QUuid>
 #include <QMetaEnum>
 
-
-#include <Qt3DCore/QTransform>
 #include <Qt3DRender/QGeometry>
 #include <Qt3DRender/QMesh>
 #include <Qt3DRender/QBuffer>
@@ -239,7 +237,7 @@ Qt3DExtras::QText2DEntity* createEntityText(Qt3DCore::QEntity* parent,
                                             const QColor &color,
                                             const QString& family)
 {
-    auto text2D = new Qt3DExtras::QText2DEntity(parent);
+    auto text2D = new Qt3DExtras::QText2DEntity;
     text2D->setObjectName("EntityText");
     QObject::connect(text2D, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityText destroyed"; });
 
@@ -251,6 +249,9 @@ Qt3DExtras::QText2DEntity* createEntityText(Qt3DCore::QEntity* parent,
     text2D->setWidth(text.length() * font.pointSize() * 2);
     text2D->setText(text);
     text2D->setColor(color);
+
+     // обход бага, описано: https://forum.qt.io/topic/92944/qt3d-how-to-print-text-qtext2dentity/7
+    text2D->setParent(parent);
 
     qDebug() << parent->objectName() << ": EntityText created";
     return text2D;
