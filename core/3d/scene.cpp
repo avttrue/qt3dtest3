@@ -44,9 +44,6 @@ Scene::Scene(SceneView *view,
 //    skytrfm->setScale3D(QVector3D(SCENE_WIDTH, SCENE_HEIGHT, SCENE_DEPTH));
 //    m_SkyBox->addComponent(skytrfm);
 
-    m_TextInfo = createEntityText(this, 20, "TEST", new Qt3DCore::QTransform);
-    m_TextInfo->addComponent(view->InterfaceLayer());
-
     QObject::connect(this, &QObject::destroyed, [=](QObject* o){ qDebug() << o->objectName() << ": destroyed"; });
     qDebug() << objectName() << ": Scene created";
 }
@@ -151,7 +148,7 @@ void Scene::loadMaterial(const QString& path)
     auto material = new Material(this);
     auto func = [=]()
     {
-        QObject::disconnect(material, &Material::signalReady, this, nullptr);
+        QObject::disconnect(material, &Material::signalReady, nullptr, nullptr);
         auto m = m_Materials.take(material->objectName());
         if(m) m->deleteLater();
 
@@ -184,7 +181,7 @@ void Scene::loadMaterials(const QStringList& filters)
     {
         if(m_Materials.count() == fileList.count())
         {
-            QObject::disconnect(this, &Scene::signalMaterialLoaded, nullptr, nullptr);
+            QObject::disconnect(this, &Scene::signalMaterialLoaded, this, nullptr);
             qDebug() << objectName() << "All materials loaded:" << m_Materials.count();
             Q_EMIT signalMaterialsLoaded(m_Materials.count());
         }

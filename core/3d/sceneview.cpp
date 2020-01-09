@@ -76,16 +76,16 @@ void SceneView::createScene(float cell, float width, float height, float depth, 
     if(m_Scene) m_Scene->deleteLater();
 
     m_Scene = new Scene(this, cell, width, height, depth, name);
-    //m_Scene->setEnabled(false);
+    m_Scene->setEnabled(false);
     slotRenderSortPolicyType(config->RendererSortPolicyType());
     setRootEntity(m_Scene);
 
     auto func = [=]()
     {
-        qDebug() << QObject::disconnect(m_Scene, &Scene::signalLoaded, this, nullptr);
+        QObject::disconnect(m_Scene, &Scene::signalLoaded, nullptr, nullptr);
         applySceneCamera();
         m_Scene->slotShowBoxes(config->DrawSceneBoxes());
-        //m_Scene->setEnabled(true);
+        m_Scene->setEnabled(true);
         Q_EMIT signalSceneChanged(m_Scene);
     };
     QObject::connect(m_Scene, &Scene::signalLoaded, func);
