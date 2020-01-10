@@ -20,8 +20,8 @@ class SceneEntity;
 class SceneObject;
 class FrameRateCalculator;
 class Light;
-class TextEntity;
-class GuiEntity;
+class EntityText;
+class EntityTransform;
 
 class Scene : public Qt3DCore::QEntity
 {
@@ -94,7 +94,7 @@ private:
     SceneEntity* m_SelectedEntity;
     FrameRateCalculator* m_FRC;
     Qt3DCore::QEntity* m_Box;
-    TextEntity* m_InterfaceText1; //test
+    EntityText* m_InterfaceText1; //test
     QHash <QString, Light*> m_Lights;
     QHash <QString, SceneObject*> m_Objects;
     QHash <QString, Qt3DRender::QGeometryRenderer*> m_Geometries;

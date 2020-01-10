@@ -71,11 +71,11 @@ Qt3DCore::QEntity *createEntityLine(const QVector3D& start,
     return lineEntity;
 }
 
-Qt3DCore::QEntity *createEntityBottomGrid(const QVector3D& start,
+Qt3DCore::QEntity *createEntityBottomGrid(Qt3DCore::QEntity* parent,
+                                          const QVector3D& start,
                                           const QVector3D& end,
                                           float cell,
-                                          const QColor& color,
-                                          Qt3DCore::QEntity* parent)
+                                          const QColor& color)
 {
     auto lineEntity = new Qt3DCore::QEntity(parent);
     QObject::connect(lineEntity, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityHGrid destroyed"; });
@@ -150,10 +150,10 @@ Qt3DCore::QEntity *createEntityBottomGrid(const QVector3D& start,
     return lineEntity;
 }
 
-Qt3DCore::QEntity *createEntityBox(const QVector3D &min,
+Qt3DCore::QEntity *createEntityBox(Qt3DCore::QEntity *parent,
+                                   const QVector3D &min,
                                    const QVector3D &max,
-                                   const QColor &color,
-                                   Qt3DCore::QEntity *parent)
+                                   const QColor &color)
 {
     // position vertices
     QByteArray bufferBytes;
@@ -186,9 +186,7 @@ Qt3DCore::QEntity *createEntityBox(const QVector3D &min,
     *indices++ = 6; *indices++ = 7;
     *indices++ = 7; *indices++ = 4;
 
-    auto lineEntity = new Qt3DCore::QEntity(parent);
-    QObject::connect(lineEntity, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityBox destroyed"; });
-
+    auto lineEntity = new Qt3DCore::QEntity(parent); 
     auto geometry = new Qt3DRender::QGeometry(lineEntity);
 
     auto indexBuffer = new Qt3DRender::QBuffer(geometry);

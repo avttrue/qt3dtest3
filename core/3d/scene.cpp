@@ -46,7 +46,7 @@ Scene::Scene(SceneView *view,
 //    m_SkyBox->addComponent(skytrfm);
 
     // test
-    m_InterfaceText1 = new TextEntity(this, 5, "");
+    m_InterfaceText1 = new EntityText(this, 5, "");
     m_InterfaceText1->setEnabled(false);
     m_InterfaceText1->Transform()->setTranslation(cell * QVector3D( 0.0f, height - 1,  0.0f));
     m_InterfaceText1->addComponent(View()->InterfaceLayer());
@@ -435,15 +435,21 @@ void Scene::slotShowBoxes(bool value)
     }
     if(!value) return;
 
-    m_Box = createEntityBox(QVector3D(0.0, 0.0, 0.0) + QVector3D(config->SceneExcess(), config->SceneExcess(), config->SceneExcess()),
-                            RealSize() - QVector3D(config->SceneExcess(), config->SceneExcess(), config->SceneExcess()),
-                            config->SceneColorBox(), this);
+    m_Box = createEntityBox(this,
+                            QVector3D(0.0, 0.0, 0.0) + QVector3D(config->SceneExcess(),
+                                                                 config->SceneExcess(),
+                                                                 config->SceneExcess()),
+                            RealSize() - QVector3D(config->SceneExcess(),
+                                                   config->SceneExcess(),
+                                                   config->SceneExcess()),
+                            config->SceneColorBox());
     m_Box->addComponent(m_View->OpaqueLayer());
     applyEntityName(m_Box, "box", "scene_box");
 
-    auto grid = createEntityBottomGrid(QVector3D(0.0, 0.0, 0.0),
+    auto grid = createEntityBottomGrid(m_Box,
+                                       QVector3D(0.0, 0.0, 0.0),
                                        QVector3D(RealSize().x(), 0.0, RealSize().z()), m_CellSize,
-                                       config->SceneColorGrid(), m_Box);
+                                       config->SceneColorGrid());
     applyEntityName(grid, "grid", "scene_grid");
     grid->addComponent(m_View->OpaqueLayer());
 }

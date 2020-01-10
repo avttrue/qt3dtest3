@@ -1,65 +1,80 @@
 #include "guientity.h"
+#include "helpers3d.h"
+#include "sceneentity.h"
 
 #include <QFontMetrics>
 
-GuiEntity::GuiEntity(Qt3DCore::QEntity *parent):
+EntityTransform::EntityTransform(Qt3DCore::QEntity *parent):
     Qt3DCore::QEntity(parent)
 {
    m_Transform = new Qt3DCore::QTransform;
    addComponent(m_Transform);
+   QObject::connect(this, &QObject::destroyed,
+                    [=]() { qDebug() << parent->objectName() << ":" << objectName() << "destroyed"; });
 }
 
-void GuiEntity::slotMatrix(const QMatrix4x4 &matrix)
-{
-    //qDebug() << matrix;
+Qt3DCore::QTransform *EntityTransform::Transform() const { return m_Transform; }
 
-    m_Transform->setMatrix(matrix);
-}
-
-TextEntity::TextEntity(Qt3DCore::QEntity *parent,
+EntityText::EntityText(Qt3DCore::QEntity *parent,
                        int size,
                        const QString &text,
                        const QColor &color,
-                       const QString &family, int weight):
-    Qt3DCore::QEntity(parent)
+                       const QString &family,
+                       int weight):
+    EntityTransform(parent)
 {
-    setObjectName("TextEntity");
-    QObject::connect(this, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << objectName() << "destroyed"; });
+    setObjectName("EntityText");
 
-    m_Transform = new Qt3DCore::QTransform;
-    addComponent(m_Transform);
-
-    m_Text2D = new Qt3DExtras::QText2DEntity;
+    m_Text2DEntity = new Qt3DExtras::QText2DEntity;
     m_Font = QFont(family, size, weight);
 
-    m_Text2D->setFont(m_Font);
-    m_Text2D->setColor(color);
+    m_Text2DEntity->setFont(m_Font);
+    m_Text2DEntity->setColor(color);
 
     setText(text);
 
     // обход бага, описано: https://forum.qt.io/topic/92944/qt3d-how-to-print-text-qtext2dentity/7
-    m_Text2D->setParent(this);
+    m_Text2DEntity->setParent(this);
 }
 
-void TextEntity::setText(const QString &text)
+void EntityText::setText(const QString &text)
 {
-    m_Text2D->setText(text);
+    m_Text2DEntity->setText(text);
     resize();
 }
 
-void TextEntity::setTextWeight(int value)
+void EntityText::setTextWeight(int value)
 {
     m_Font.setWeight(value);
-    m_Text2D->setFont(m_Font);
+    m_Text2DEntity->setFont(m_Font);
     resize();
 }
 
-void TextEntity::resize()
+void EntityText::resize()
 {
     QFontMetrics fm(m_Font);
-    auto rect = fm.boundingRect(m_Text2D->text());
+    auto rect = fm.boundingRect(m_Text2DEntity->text());
 
-    m_Text2D->setHeight(rect.height());
-    m_Text2D->setWidth(rect.width());
+    m_Text2DEntity->setHeight(rect.height());
+    m_Text2DEntity->setWidth(rect.width());
 }
-Qt3DCore::QTransform *TextEntity::Transform() const { return m_Transform; }
+
+EntityBox::EntityBox(Qt3DCore::QEntity *parent,
+                     float excess,
+                     const QColor &color,
+                     const QVector3D &min,
+                     const QVector3D &max):
+    EntityTransform(parent),
+    m_Excess(excess)
+{
+    setObjectName("EntityBox");
+
+    m_Box = createEntityBox(this, min, max, color);
+}
+
+void EntityBox::applyToEntity(SceneEntity *entity)
+{
+    m_Transform->setTranslation(entity->Position());
+    m_Transform->setScale3D(m_Excess * QVector3D(1.0f, 1.0f, 1.0f) + entity->Size());
+    setEnabled(true);
+}

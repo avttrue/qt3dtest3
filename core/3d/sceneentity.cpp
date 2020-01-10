@@ -49,7 +49,7 @@ void SceneEntity::createSelectionBox()
     auto min = m_Geometry->geometry()->minExtent() - QVector3D(config->SceneExcess(), config->SceneExcess(), config->SceneExcess());
 
     if(m_SelectionBox) deleteEntity(m_SelectionBox);
-    m_SelectionBox = createEntityBox(min, max, QColor(config->SceneColorSelect()), this);
+    m_SelectionBox = createEntityBox(this, min, max, QColor(config->SceneColorSelect()));
     m_SelectionBox->setObjectName("SelectionBox");
     m_SelectionBox->addComponent(m_Scene->View()->InterfaceLayer());
 }
