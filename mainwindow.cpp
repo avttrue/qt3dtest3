@@ -197,6 +197,8 @@ void MainWindow::slotCreateScene()
     config->setSceneWidth(map.value(keys.at(2)).value.toInt());
     config->setSceneHeight(map.value(keys.at(3)).value.toInt());
     config->setSceneDepth(map.value(keys.at(4)).value.toInt());
+
+    btnEditEntity->setDisabled(true);
 }
 
 void MainWindow::slotCreatePointLight()

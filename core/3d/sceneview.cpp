@@ -95,6 +95,10 @@ void SceneView::createScene(float cell, float width, float height, float depth, 
 void SceneView::keyPressEvent(QKeyEvent *e)
 {
     qDebug() << "Button:" << e->key();
+    if(e->key() == Qt::Key_T)
+    {
+
+    }
 }
 
 void SceneView::resizeEvent(QResizeEvent *e)

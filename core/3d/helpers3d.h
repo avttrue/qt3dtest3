@@ -39,12 +39,6 @@ Qt3DCore::QEntity* createEntityBox(const QVector3D& min,
                                    const QColor& color,
                                    Qt3DCore::QEntity* parent);
 
-Qt3DExtras::QText2DEntity *createEntityText(Qt3DCore::QEntity* parent,
-                                            int size,
-                                            const QString& text,
-                                            const QColor &color =Qt::white,
-                                            const QString &family = "monospace");
-
 void applyEntityName(Qt3DCore::QEntity* entity, const QString &prefix, const QString& name = "");
 
 void applyEntityGeometry(Qt3DCore::QEntity* entity, Qt3DRender::QGeometryRenderer *geometryrenderer);

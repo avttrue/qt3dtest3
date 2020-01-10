@@ -1,5 +1,6 @@
 #include "sceneentity.h"
 #include "scene.h"
+#include "textentity.h"
 #include "properties.h"
 #include "helpers3d.h"
 #include "material.h"
@@ -47,8 +48,7 @@ void SceneEntity::createSelectionBox()
     auto max = m_Geometry->geometry()->maxExtent() + QVector3D(config->SceneExcess(), config->SceneExcess(), config->SceneExcess());
     auto min = m_Geometry->geometry()->minExtent() - QVector3D(config->SceneExcess(), config->SceneExcess(), config->SceneExcess());
 
-   if(m_SelectionBox) deleteEntity(m_SelectionBox);
-
+    if(m_SelectionBox) deleteEntity(m_SelectionBox);
     m_SelectionBox = createEntityBox(min, max, QColor(config->SceneColorSelect()), this);
     m_SelectionBox->setObjectName("SelectionBox");
     m_SelectionBox->addComponent(m_Scene->View()->InterfaceLayer());

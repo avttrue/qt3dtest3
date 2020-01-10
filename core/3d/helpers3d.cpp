@@ -9,7 +9,6 @@
 #include <Qt3DRender/QBuffer>
 #include <Qt3DRender/QAttribute>
 #include <Qt3DExtras/QDiffuseSpecularMaterial>
-#include <Qt3DExtras/QText2DEntity>
 
 Qt3DCore::QEntity *createEntityLine(const QVector3D& start,
                                     const QVector3D& end,
@@ -231,32 +230,6 @@ Qt3DCore::QEntity *createEntityBox(const QVector3D &min,
     return lineEntity;
 }
 
-Qt3DExtras::QText2DEntity* createEntityText(Qt3DCore::QEntity* parent,
-                                            int size,
-                                            const QString& text,
-                                            const QColor &color,
-                                            const QString& family)
-{
-    auto text2D = new Qt3DExtras::QText2DEntity;
-    text2D->setObjectName("EntityText");
-    QObject::connect(text2D, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityText destroyed"; });
-
-    QFont font;
-    font.setFamily(family);
-    font.setPointSize(size);
-    text2D->setFont(font);
-    text2D->setHeight(font.pointSize() * 4);
-    text2D->setWidth(text.length() * font.pointSize() * 2);
-    text2D->setText(text);
-    text2D->setColor(color);
-
-     // обход бага, описано: https://forum.qt.io/topic/92944/qt3d-how-to-print-text-qtext2dentity/7
-    text2D->setParent(parent);
-
-    qDebug() << parent->objectName() << ": EntityText created";
-    return text2D;
-}
-
 void applyEntityName(Qt3DCore::QEntity *entity, const QString& prefix, const QString &name)
 {
     auto newname = name;
@@ -336,33 +309,41 @@ void deleteEntity(Qt3DCore::QEntity *entity)
 {
     if(!entity) {qCritical() << __func__ << ": entity is empty";  return; }
 
-    qDebug() << entity << ": deleting...";
-    entity->setEnabled(false);
-
-    qDebug() << entity << "components count: " << entity->components().count();
-    for(auto c: entity->components())
-    {
-        if(c->parent() == entity)
-        {
-            c->setEnabled(false);
-            c->deleteLater();
-        }
-        entity->removeComponent(c);
-    }
-
-    QVector<Qt3DCore::QEntity*> ve;
-    qDebug() << entity << "child nodes count: " << entity->childNodes().count();
     for(auto n: entity->childNodes())
-    {
-        auto e = qobject_cast<Qt3DCore::QEntity*>(n);
-        if(e) ve.append(e);
-        else n->deleteLater();
-    }
+        n->setEnabled(false);
 
-    qDebug() << entity << "child entities count: " << ve.count();
-    for(auto e: ve) deleteEntity(e);
-
+    entity->setEnabled(false);
     entity->deleteLater();
+
+
+    //    qDebug() << entity << "components count: " << entity->components().count();
+    //    for(auto c: entity->components())
+    //    {
+    //        if(c->parent() == entity)
+    //        {
+    //            c->setEnabled(false);
+    //            c->deleteLater();
+    //        }
+    //        entity->removeComponent(c);
+    //    }
+
+    //    QVector<Qt3DCore::QEntity*> ve;
+    //    qDebug() << entity << "child nodes count: " << entity->childNodes().count();
+    //    for(auto n: entity->childNodes())
+    //    {
+    //        auto e = qobject_cast<Qt3DCore::QEntity*>(n);
+    //        if(e) ve.append(e);
+    //        else
+    //        {
+    //            n->setEnabled(false);
+    //            n->deleteLater();
+    //        }
+    //    }
+
+    //    qDebug() << entity << "child entities count: " << ve.count();
+    //    for(auto e: ve) deleteEntity(e);
+
+    //    entity->deleteLater();
 }
 
 QMap<QString, int> RenderSortPolicyTypeToMap()

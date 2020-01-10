@@ -1,5 +1,6 @@
 #include "scene.h"
 #include "sceneobject.h"
+#include "textentity.h"
 #include "light.h"
 #include "material.h"
 #include "helpers3d.h"
