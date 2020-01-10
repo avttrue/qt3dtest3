@@ -17,6 +17,7 @@ SOURCES += \
     controls.cpp \
     core/3d/cameracontroller.cpp \
     core/3d/frameratecalculator.cpp \
+    core/3d/guientity.cpp \
     core/3d/helpers3d.cpp \
     core/3d/light.cpp \
     core/3d/material.cpp \
@@ -24,7 +25,6 @@ SOURCES += \
     core/3d/sceneentity.cpp \
     core/3d/sceneobject.cpp \
     core/3d/sceneview.cpp \
-    core/3d/textentity.cpp \
     dialogs/dialogvalueslist.cpp \
     helpers.cpp \
     helperswidget.cpp \
@@ -37,6 +37,7 @@ HEADERS += \
     controls.h \
     core/3d/cameracontroller.h \
     core/3d/frameratecalculator.h \
+    core/3d/guientity.h \
     core/3d/helpers3d.h \
     core/3d/light.h \
     core/3d/material.h \
@@ -44,7 +45,6 @@ HEADERS += \
     core/3d/sceneentity.h \
     core/3d/sceneobject.h \
     core/3d/sceneview.h \
-    core/3d/textentity.h \
     dialogs/dialogvalueslist.h \
     helpers.h \
     helperswidget.h \

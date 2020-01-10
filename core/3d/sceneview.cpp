@@ -1,5 +1,6 @@
 ﻿#include "sceneview.h"
 #include "properties.h"
+#include "guientity.h"
 #include "helpers3d.h"
 #include "scene.h"
 #include "sceneobject.h"
@@ -112,6 +113,13 @@ void SceneView::resizeEvent(QResizeEvent *e)
 void SceneView::applySceneCamera()
 {
     if(!m_Scene) { qCritical() << __func__  << "Scene is empty"; return; }
+
+    // Test
+//    QObject::connect(m_Camera->transform(), &Qt3DCore::QTransform::matrixChanged,
+//                     [=]() { m_Scene->Gui()->slotMatrix(m_Camera->transform()->matrix());});
+//    m_Scene->Gui()->slotMatrix(m_Camera->transform()->matrix());
+    //
+
     auto w = m_Scene->CellSize()* m_Scene->Width();
     auto h = m_Scene->CellSize()* m_Scene->Height();
     auto d = m_Scene->CellSize()* m_Scene->Depth();

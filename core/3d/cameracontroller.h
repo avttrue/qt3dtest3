@@ -49,15 +49,14 @@ private:
     Qt3DInput::QAnalogAxisInput* m_MouseYInput;    
     Qt3DInput::QAnalogAxisInput *m_MouseZInput;
 
-    Qt3DRender::QCamera* m_Camera;
+    Qt3DRender::QCamera* m_Camera;    
 
     float m_dx;
     float m_dy;
     float m_dz;
 
     bool m_LeftButtonPressed;
-    bool m_ButtonAccelerationPressed;
-
+    bool m_ButtonAccelerationPressed;   
 };
 
 #endif // CAMERACONTROLLER_H

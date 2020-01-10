@@ -309,9 +309,6 @@ void deleteEntity(Qt3DCore::QEntity *entity)
 {
     if(!entity) {qCritical() << __func__ << ": entity is empty";  return; }
 
-    for(auto n: entity->childNodes())
-        n->setEnabled(false);
-
     entity->setEnabled(false);
     entity->deleteLater();
 

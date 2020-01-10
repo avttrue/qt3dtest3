@@ -20,6 +20,8 @@ class SceneEntity;
 class SceneObject;
 class FrameRateCalculator;
 class Light;
+class TextEntity;
+class GuiEntity;
 
 class Scene : public Qt3DCore::QEntity
 {
@@ -64,6 +66,7 @@ public:
     void setEntityMaterial(SceneEntity* entity, const QString& name);
     void applyEntityRenderLayer(SceneEntity* entity);
     SceneView *View() const;
+    GuiEntity *Gui() const;
 
 protected:
     /*!
@@ -92,6 +95,8 @@ private:
     SceneEntity* m_SelectedEntity;
     FrameRateCalculator* m_FRC;
     Qt3DCore::QEntity* m_Box;
+    GuiEntity* m_Gui;
+    TextEntity* m_InterfaceText1;
     QHash <QString, Light*> m_Lights;
     QHash <QString, SceneObject*> m_Objects;
     QHash <QString, Qt3DRender::QGeometryRenderer*> m_Geometries;

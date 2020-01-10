@@ -1,6 +1,20 @@
-#include "textentity.h"
+#include "guientity.h"
 
 #include <QFontMetrics>
+
+GuiEntity::GuiEntity(Qt3DCore::QEntity *parent):
+    Qt3DCore::QEntity(parent)
+{
+   m_Transform = new Qt3DCore::QTransform;
+   addComponent(m_Transform);
+}
+
+void GuiEntity::slotMatrix(const QMatrix4x4 &matrix)
+{
+    //qDebug() << matrix;
+
+    m_Transform->setMatrix(matrix);
+}
 
 TextEntity::TextEntity(Qt3DCore::QEntity *parent,
                        int size,
@@ -13,7 +27,6 @@ TextEntity::TextEntity(Qt3DCore::QEntity *parent,
     QObject::connect(this, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << objectName() << "destroyed"; });
 
     m_Transform = new Qt3DCore::QTransform;
-    m_Transform->setTranslation(QVector3D(0, 0, 0));
     addComponent(m_Transform);
 
     m_Text2D = new Qt3DExtras::QText2DEntity;

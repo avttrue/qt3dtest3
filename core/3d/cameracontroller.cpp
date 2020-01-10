@@ -73,11 +73,6 @@ CameraController::CameraController(Qt3DCore::QNode *parent):
     QObject::connect(m_FrameAction, &Qt3DLogic::QFrameAction::triggered, this, &CameraController::frameActionTriggered);
 }
 
-void CameraController::setCamera(Qt3DRender::QCamera *Camera)
-{
-    m_Camera = Camera;
-}
-
 void CameraController::activeChanged(bool isActiv)
 {
     if(sender()->objectName() == "LeftButton") m_LeftButtonPressed = isActiv;
@@ -106,3 +101,5 @@ void CameraController::frameActionTriggered(float dt)
 
     m_Camera->translate(QVector3D(0.0f, 0.0f, ma * m_dz * dt));
 }
+
+void CameraController::setCamera(Qt3DRender::QCamera *Camera) { m_Camera = Camera; }

@@ -1,6 +1,6 @@
 #include "scene.h"
 #include "sceneobject.h"
-#include "textentity.h"
+#include "guientity.h"
 #include "light.h"
 #include "material.h"
 #include "helpers3d.h"
@@ -44,6 +44,13 @@ Scene::Scene(SceneView *view,
 //    skytrfm->setTranslation(QVector3D( 0.0f, 0.0f, 0.0f));
 //    skytrfm->setScale3D(QVector3D(SCENE_WIDTH, SCENE_HEIGHT, SCENE_DEPTH));
 //    m_SkyBox->addComponent(skytrfm);
+
+    // test
+    m_Gui = new GuiEntity(this);
+    m_InterfaceText1 = new TextEntity(m_Gui, 1, "");
+    m_InterfaceText1->setEnabled(false);
+    m_InterfaceText1->addComponent(View()->InterfaceLayer());
+    //
 
     QObject::connect(this, &QObject::destroyed, [=](QObject* o){ qDebug() << o->objectName() << ": destroyed"; });
     qDebug() << objectName() << ": Scene created";
@@ -304,6 +311,17 @@ void Scene::SelectEntity(SceneEntity *entity)
         }
     }
 
+    if(m_SelectedEntity)
+    {
+        m_InterfaceText1->setText(m_SelectedEntity->objectName());
+        m_InterfaceText1->setEnabled(true);
+    }
+    else
+    {
+        m_InterfaceText1->setText("");
+        m_InterfaceText1->setEnabled(false);
+    }
+
     Q_EMIT signalSelectedEntityChanged(m_SelectedEntity);
 }
 
@@ -429,6 +447,7 @@ void Scene::slotShowBoxes(bool value)
     grid->addComponent(m_View->OpaqueLayer());
 }
 
+GuiEntity *Scene::Gui() const { return m_Gui; }
 float Scene::CellSize() const { return m_CellSize; }
 QVector3D Scene::Size() const { return QVector3D(m_Width, m_Height, m_Depth); }
 QVector3D Scene::RealSize() const { return m_CellSize * QVector3D(m_Width, m_Height, m_Depth); }

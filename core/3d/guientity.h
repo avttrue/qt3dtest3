@@ -1,9 +1,21 @@
-#ifndef TEXTENTITY_H
-#define TEXTENTITY_H
+#ifndef GUIENTITY_H
+#define GUIENTITY_H
 
 #include <Qt3DCore/QEntity>
 #include <Qt3DCore/QTransform>
 #include <Qt3DExtras/QText2DEntity>
+
+class GuiEntity : public Qt3DCore::QEntity
+{
+public:
+    GuiEntity(Qt3DCore::QEntity *parent);
+
+public Q_SLOT:
+        void slotMatrix(const QMatrix4x4 &matrix);
+
+private:
+    Qt3DCore::QTransform* m_Transform;
+};
 
 class TextEntity : public Qt3DCore::QEntity
 {
@@ -29,4 +41,4 @@ private:
     Qt3DExtras::QText2DEntity* m_Text2D;
 };
 
-#endif // TEXTENTITY_H
+#endif // GUIENTITY_H

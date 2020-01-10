@@ -1,6 +1,6 @@
 #include "sceneentity.h"
 #include "scene.h"
-#include "textentity.h"
+#include "guientity.h"
 #include "properties.h"
 #include "helpers3d.h"
 #include "material.h"
