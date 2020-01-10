@@ -29,7 +29,6 @@ public:
                const QString &family = "monospace",
                int weight = QFont::Bold);
     Qt3DCore::QTransform* Transform() const;
-    void setTransform(Qt3DCore::QTransform *transform);
     void setText(const QString& text);
     void setTextWeight(int value);
 

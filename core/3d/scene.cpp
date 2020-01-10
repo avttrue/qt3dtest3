@@ -46,9 +46,9 @@ Scene::Scene(SceneView *view,
 //    m_SkyBox->addComponent(skytrfm);
 
     // test
-    m_Gui = new GuiEntity(this);
-    m_InterfaceText1 = new TextEntity(m_Gui, 1, "");
+    m_InterfaceText1 = new TextEntity(this, 5, "");
     m_InterfaceText1->setEnabled(false);
+    m_InterfaceText1->Transform()->setTranslation(cell * QVector3D( 0.0f, height - 1,  0.0f));
     m_InterfaceText1->addComponent(View()->InterfaceLayer());
     //
 
@@ -311,6 +311,7 @@ void Scene::SelectEntity(SceneEntity *entity)
         }
     }
 
+    // test
     if(m_SelectedEntity)
     {
         m_InterfaceText1->setText(m_SelectedEntity->objectName());
@@ -318,7 +319,7 @@ void Scene::SelectEntity(SceneEntity *entity)
     }
     else
     {
-        m_InterfaceText1->setText("");
+        m_InterfaceText1->setText(" ");
         m_InterfaceText1->setEnabled(false);
     }
 
@@ -447,7 +448,6 @@ void Scene::slotShowBoxes(bool value)
     grid->addComponent(m_View->OpaqueLayer());
 }
 
-GuiEntity *Scene::Gui() const { return m_Gui; }
 float Scene::CellSize() const { return m_CellSize; }
 QVector3D Scene::Size() const { return QVector3D(m_Width, m_Height, m_Depth); }
 QVector3D Scene::RealSize() const { return m_CellSize * QVector3D(m_Width, m_Height, m_Depth); }

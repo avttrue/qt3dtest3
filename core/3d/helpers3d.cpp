@@ -155,11 +155,6 @@ Qt3DCore::QEntity *createEntityBox(const QVector3D &min,
                                    const QColor &color,
                                    Qt3DCore::QEntity *parent)
 {
-    auto lineEntity = new Qt3DCore::QEntity(parent);
-    QObject::connect(lineEntity, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityBox destroyed"; });
-
-    auto geometry = new Qt3DRender::QGeometry(lineEntity);
-
     // position vertices
     QByteArray bufferBytes;
     bufferBytes.resize(3 * 8 * sizeof(float));
@@ -172,19 +167,6 @@ Qt3DCore::QEntity *createEntityBox(const QVector3D &min,
     *positions++ = max.x(); *positions++ = max.y(); *positions++ = min.z();
     *positions++ = max.x(); *positions++ = max.y(); *positions++ = max.z();
     *positions++ = min.x(); *positions++ = max.y(); *positions++ = max.z();
-
-    auto *vertexBuffer = new Qt3DRender::QBuffer(geometry);
-    vertexBuffer->setData(bufferBytes);
-
-    auto *positionAttribute = new Qt3DRender::QAttribute(geometry);
-    positionAttribute->setName(Qt3DRender::QAttribute::defaultPositionAttributeName());
-    positionAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
-    positionAttribute->setVertexSize(3);
-    positionAttribute->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
-    positionAttribute->setBuffer(vertexBuffer);
-    positionAttribute->setByteStride(3 * sizeof(float));
-    positionAttribute->setCount(8);
-    geometry->addAttribute(positionAttribute);
 
     // connectivity between vertices
     QByteArray indexBytes;
@@ -204,14 +186,33 @@ Qt3DCore::QEntity *createEntityBox(const QVector3D &min,
     *indices++ = 6; *indices++ = 7;
     *indices++ = 7; *indices++ = 4;
 
+    auto lineEntity = new Qt3DCore::QEntity(parent);
+    QObject::connect(lineEntity, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityBox destroyed"; });
+
+    auto geometry = new Qt3DRender::QGeometry(lineEntity);
+
     auto indexBuffer = new Qt3DRender::QBuffer(geometry);
     indexBuffer->setData(indexBytes);
+
+    auto *vertexBuffer = new Qt3DRender::QBuffer(geometry);
+    vertexBuffer->setData(bufferBytes);
+
+    auto *positionAttribute = new Qt3DRender::QAttribute(geometry);
+    positionAttribute->setName(Qt3DRender::QAttribute::defaultPositionAttributeName());
+    positionAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
+    positionAttribute->setVertexSize(3);
+    positionAttribute->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
+    positionAttribute->setBuffer(vertexBuffer);
+    positionAttribute->setByteStride(3 * sizeof(float));
+    positionAttribute->setCount(8);
 
     auto indexAttribute = new Qt3DRender::QAttribute(geometry);
     indexAttribute->setVertexBaseType(Qt3DRender::QAttribute::UnsignedInt);
     indexAttribute->setAttributeType(Qt3DRender::QAttribute::IndexAttribute);
     indexAttribute->setBuffer(indexBuffer);
     indexAttribute->setCount(24);
+
+    geometry->addAttribute(positionAttribute);
     geometry->addAttribute(indexAttribute);
 
     // mesh
@@ -309,38 +310,40 @@ void deleteEntity(Qt3DCore::QEntity *entity)
 {
     if(!entity) {qCritical() << __func__ << ": entity is empty";  return; }
 
-    entity->setEnabled(false);
-    entity->deleteLater();
-
-
-    //    qDebug() << entity << "components count: " << entity->components().count();
-    //    for(auto c: entity->components())
-    //    {
-    //        if(c->parent() == entity)
-    //        {
-    //            c->setEnabled(false);
-    //            c->deleteLater();
-    //        }
-    //        entity->removeComponent(c);
-    //    }
-
-    //    QVector<Qt3DCore::QEntity*> ve;
-    //    qDebug() << entity << "child nodes count: " << entity->childNodes().count();
-    //    for(auto n: entity->childNodes())
-    //    {
-    //        auto e = qobject_cast<Qt3DCore::QEntity*>(n);
-    //        if(e) ve.append(e);
-    //        else
-    //        {
-    //            n->setEnabled(false);
-    //            n->deleteLater();
-    //        }
-    //    }
-
-    //    qDebug() << entity << "child entities count: " << ve.count();
-    //    for(auto e: ve) deleteEntity(e);
-
+    //    for(auto n: entity->childNodes()) n->setEnabled(false);
+    //    qDeleteAll(entity->childNodes());
+    //    entity->setEnabled(false);
     //    entity->deleteLater();
+
+    qDebug() << entity << "deletion...";
+    qDebug() << entity << "components count: " << entity->components().count();
+    for(auto c: entity->components())
+    {
+        if(c->parent() == entity)
+        {
+            c->setEnabled(false);
+            c->deleteLater();
+        }
+        entity->removeComponent(c);
+    }
+
+    QVector<Qt3DCore::QEntity*> ve;
+    qDebug() << entity << "child nodes count: " << entity->childNodes().count();
+    for(auto n: entity->childNodes())
+    {
+        auto e = qobject_cast<Qt3DCore::QEntity*>(n);
+        if(e) ve.append(e);
+        else
+        {
+            n->setEnabled(false);
+            n->deleteLater();
+        }
+    }
+
+    qDebug() << entity << "child entities count: " << ve.count();
+    for(auto e: ve) deleteEntity(e);
+
+    entity->deleteLater();
 }
 
 QMap<QString, int> RenderSortPolicyTypeToMap()

@@ -50,8 +50,8 @@ void TextEntity::setText(const QString &text)
 void TextEntity::setTextWeight(int value)
 {
     m_Font.setWeight(value);
-    resize();
     m_Text2D->setFont(m_Font);
+    resize();
 }
 
 void TextEntity::resize()
@@ -63,4 +63,3 @@ void TextEntity::resize()
     m_Text2D->setWidth(rect.width());
 }
 Qt3DCore::QTransform *TextEntity::Transform() const { return m_Transform; }
-void TextEntity::setTransform(Qt3DCore::QTransform* transform) { m_Transform = transform; }
