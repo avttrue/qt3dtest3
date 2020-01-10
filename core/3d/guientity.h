@@ -17,6 +17,8 @@ private:
     Qt3DCore::QTransform* m_Transform;
 };
 
+
+//TODO: TextEntity есть проблема с динамическим удалением объекта со сцены
 class TextEntity : public Qt3DCore::QEntity
 {
 public:
