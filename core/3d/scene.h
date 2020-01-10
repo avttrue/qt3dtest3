@@ -95,8 +95,8 @@ private:
     SceneEntity* m_SelectedEntity;
     FrameRateCalculator* m_FRC;
     Qt3DCore::QEntity* m_Box;
-    GuiEntity* m_Gui;
-    TextEntity* m_InterfaceText1;
+    GuiEntity* m_Gui; //test
+    TextEntity* m_InterfaceText1; //test
     QHash <QString, Light*> m_Lights;
     QHash <QString, SceneObject*> m_Objects;
     QHash <QString, Qt3DRender::QGeometryRenderer*> m_Geometries;
