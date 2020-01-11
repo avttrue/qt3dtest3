@@ -5,8 +5,6 @@
 #include "helpers3d.h"
 #include "material.h"
 
-#include <Qt3DRender/QObjectPicker>
-
 SceneEntity::SceneEntity(Scene *parent) :
     Qt3DCore::QEntity(parent),    
     m_Scene(parent),

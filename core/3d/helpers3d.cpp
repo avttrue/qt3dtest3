@@ -1,6 +1,5 @@
 #include "helpers3d.h"
 
-
 #include <QUuid>
 #include <QMetaEnum>
 

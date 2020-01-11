@@ -8,9 +8,6 @@
 
 #include <cmath>
 
-#include <Qt3DExtras/QForwardRenderer>
-#include <Qt3DCore/QTransform>
-#include <Qt3DRender/QPointLight>
 #include <Qt3DRender/QRenderSettings>
 #include <Qt3DRender/QSortPolicy>
 #include <Qt3DRender/QCameraSelector>

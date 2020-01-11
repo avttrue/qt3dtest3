@@ -8,12 +8,8 @@
 #include "properties.h"
 
 #include <QDir>
-#include <QFileInfo>
-#include <QMetaProperty>
 #include <cmath>
 
-#include <Qt3DCore/QTransform>
-#include <Qt3DRender/QPointLight>
 #include <Qt3DRender/QMesh>
 
 Scene::Scene(SceneView *view,
@@ -57,6 +53,7 @@ Scene::Scene(SceneView *view,
                                        QVector3D(0.0, 0.0, 0.0),
                                        QVector3D(RealSize().x(), 0.0, RealSize().z()), m_CellSize,
                                        config->SceneColorGrid());
+
     grid->setObjectName("SceneGrid");
     grid->addComponent(m_View->OpaqueLayer());
 

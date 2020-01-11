@@ -1,7 +1,6 @@
 #ifndef CAMERACONTROLLER_H
 #define CAMERACONTROLLER_H
 
-#include <Qt3DCore/QEntity>
 #include <Qt3DInput/QMouseDevice>
 #include <Qt3DInput/QKeyboardDevice>
 #include <Qt3DInput/QLogicalDevice>
