@@ -21,7 +21,8 @@ class SceneObject;
 class FrameRateCalculator;
 class Light;
 class EntityText;
-class EntityTransform;
+class EntityBox;
+
 
 class Scene : public Qt3DCore::QEntity
 {
@@ -58,10 +59,10 @@ public:
     void SelectEntity(SceneEntity* entity);
     QString EntityGeometry(SceneEntity* entity) const;
     QString EntityMaterial(SceneEntity* entity) const;
-    void setEntityPosition(SceneEntity* entity, const QVector3D& position);
     QVector3D EntityPosition(SceneEntity* entity) const;
-    void setEntitySize(SceneEntity* entity, const QVector3D& size);
     QVector3D EntitySize(SceneEntity* entity) const;
+    void setEntitySize(SceneEntity* entity, const QVector3D& size);
+    void setEntityPosition(SceneEntity* entity, const QVector3D& position);
     void setEntityGeometry(SceneEntity* entity, const QString& name);
     void setEntityMaterial(SceneEntity* entity, const QString& name);
     void applyEntityRenderLayer(SceneEntity* entity);
@@ -95,6 +96,7 @@ private:
     FrameRateCalculator* m_FRC;
     Qt3DCore::QEntity* m_Box;
     EntityText* m_InterfaceText1; //test
+    EntityBox* m_EntityBox;
     QHash <QString, Light*> m_Lights;
     QHash <QString, SceneObject*> m_Objects;
     QHash <QString, Qt3DRender::QGeometryRenderer*> m_Geometries;

@@ -54,16 +54,19 @@ SceneView::SceneView(QScreen *screen):
     m_OpaqueLayer = new Qt3DRender::QLayer;
     auto opaqueFilter = new Qt3DRender::QLayerFilter(m_Camera);
     m_OpaqueLayer->setObjectName("OpaqueLayer");
+    m_OpaqueLayer->setRecursive(true);
     opaqueFilter->addLayer(m_OpaqueLayer);
 
     m_TransparentLayer = new Qt3DRender::QLayer;
     auto transparentFilter = new Qt3DRender::QLayerFilter(m_Camera);
     m_TransparentLayer->setObjectName("TransparentLayer");
+    m_TransparentLayer->setRecursive(true);
     transparentFilter->addLayer(m_TransparentLayer);
 
     m_InterfaceLayer = new Qt3DRender::QLayer;
     auto interfaceFilter = new Qt3DRender::QLayerFilter(m_Camera);
     m_InterfaceLayer->setObjectName("InterfaceLayer");
+    m_TransparentLayer->setRecursive(true);
     interfaceFilter->addLayer(m_InterfaceLayer);
 
     setActiveFrameGraph(renderSurfaceSelector);

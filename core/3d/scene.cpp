@@ -27,7 +27,6 @@ Scene::Scene(SceneView *view,
     m_FrameAction(nullptr),
     m_SelectedEntity(nullptr),
     m_FRC(nullptr),
-    m_Box(nullptr),
     m_CellSize(abs(ceilf(cell))),
     m_Height(abs(ceilf(height))),
     m_Width(abs(ceilf(width))),
@@ -36,20 +35,42 @@ Scene::Scene(SceneView *view,
 {
     applyEntityName(this, "scene", name);
 
-//    auto m_SkyBox = new Qt3DExtras::QSkyboxEntity(this);
-//    m_SkyBox->setGammaCorrectEnabled(true);
-//    m_SkyBox->setBaseName(config->PathAssetsDir() + QDir::separator() + QStringLiteral("default_sky"));
-//    m_SkyBox->setExtension(QStringLiteral(".png"));
-//    auto skytrfm = new Qt3DCore::QTransform();
-//    skytrfm->setTranslation(QVector3D( 0.0f, 0.0f, 0.0f));
-//    skytrfm->setScale3D(QVector3D(SCENE_WIDTH, SCENE_HEIGHT, SCENE_DEPTH));
-//    m_SkyBox->addComponent(skytrfm);
+    //    auto m_SkyBox = new Qt3DExtras::QSkyboxEntity(this);
+    //    m_SkyBox->setGammaCorrectEnabled(true);
+    //    m_SkyBox->setBaseName(config->PathAssetsDir() + QDir::separator() + QStringLiteral("default_sky"));
+    //    m_SkyBox->setExtension(QStringLiteral(".png"));
+    //    auto skytrfm = new Qt3DCore::QTransform();
+    //    skytrfm->setTranslation(QVector3D( 0.0f, 0.0f, 0.0f));
+    //    skytrfm->setScale3D(QVector3D(SCENE_WIDTH, SCENE_HEIGHT, SCENE_DEPTH));
+    //    m_SkyBox->addComponent(skytrfm);
+
+    m_Box = createEntityBox(this,
+                            QVector3D(0.0, 0.0, 0.0) + QVector3D(config->SceneExcess(),
+                                                                 config->SceneExcess(),
+                                                                 config->SceneExcess()),
+                            RealSize() - QVector3D(config->SceneExcess(),
+                                                   config->SceneExcess(),
+                                                   config->SceneExcess()),
+                            config->SceneColorBox());
+    m_Box->addComponent(m_View->OpaqueLayer());
+    m_Box->setObjectName("SceneBox");
+
+    auto grid = createEntityBottomGrid(m_Box,
+                                       QVector3D(0.0, 0.0, 0.0),
+                                       QVector3D(RealSize().x(), 0.0, RealSize().z()), m_CellSize,
+                                       config->SceneColorGrid());
+    grid->setObjectName("SceneGrid");
+    grid->addComponent(m_View->OpaqueLayer());
+
+    m_EntityBox = new EntityBox(this, config->SceneExcess(), config->SceneColorSelect());
+    m_EntityBox->addComponentToDeep(m_View->InterfaceLayer());
+    m_EntityBox->setEnabled(false);
 
     // test
     m_InterfaceText1 = new EntityText(this, 5, "");
     m_InterfaceText1->setEnabled(false);
-    m_InterfaceText1->Transform()->setTranslation(cell * QVector3D( 0.0f, height - 1,  0.0f));
-    m_InterfaceText1->addComponent(View()->InterfaceLayer());
+    m_InterfaceText1->Transform()->setTranslation(m_CellSize * QVector3D( 0.0f, m_Height - 1,  0.0f));
+    m_InterfaceText1->addComponentToDeep(m_View->InterfaceLayer());
     //
 
     QObject::connect(this, &QObject::destroyed, [=](QObject* o){ qDebug() << o->objectName() << ": destroyed"; });
@@ -222,8 +243,9 @@ bool Scene::delLight(const QString &name)
     auto light = m_Lights.take(name);
     if(light)
     {
-        if(m_SelectedEntity == light) m_SelectedEntity = nullptr;
         deleteEntity(light);
+        if(m_SelectedEntity == light) m_SelectedEntity = nullptr;
+        m_EntityBox->setEnabled(false);
         Q_EMIT signalSelectedEntityChanged(m_SelectedEntity);
         Q_EMIT signalLightChanged(name);
         qDebug() << objectName() << ": Lights count" << m_Lights.count();
@@ -271,9 +293,10 @@ bool Scene::delObject(const QString &name)
 {
     auto entity = m_Objects.take(name);
     if(entity)
-    {
-        if(m_SelectedEntity == entity) m_SelectedEntity = nullptr;
+    { 
         deleteEntity(entity);
+        if(m_SelectedEntity == entity) m_SelectedEntity = nullptr;
+        m_EntityBox->setEnabled(false);
         Q_EMIT signalSelectedEntityChanged(m_SelectedEntity);
         Q_EMIT signalObjectChanged(name);
         qDebug() << objectName() << ": Objects count" << m_Objects.count();
@@ -291,24 +314,16 @@ bool Scene::delObject(SceneEntity *entity)
 void Scene::SelectEntity(SceneEntity *entity)
 {
     if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong Entity"; return; }
-    if(!m_SelectedEntity)
+
+    if(m_SelectedEntity == entity)
     {
-        entity->slotSelect(true);
-        m_SelectedEntity = entity;
+        m_EntityBox->setEnabled(false);
+        m_SelectedEntity = nullptr;
     }
     else
     {
-        if(m_SelectedEntity == entity)
-        {
-            entity->slotSelect(false);
-            m_SelectedEntity = nullptr;
-        }
-        else
-        {
-            m_SelectedEntity->slotSelect(false);
-            entity->slotSelect(true);
-            m_SelectedEntity = entity;
-        }
+        m_EntityBox->applyToEntity(entity);
+        m_SelectedEntity = entity;
     }
 
     // test
@@ -343,6 +358,7 @@ void Scene::setEntityPosition(SceneEntity *entity, const QVector3D &position)
     if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity"; return; }
 
     entity->applyPosition(entity->Size() + m_CellSize * position);
+    if(m_SelectedEntity == entity) m_EntityBox->applyToEntity(entity);
 }
 
 QVector3D Scene::EntityPosition(SceneEntity *entity) const
@@ -358,7 +374,9 @@ QVector3D Scene::EntityPosition(SceneEntity *entity) const
 void Scene::setEntitySize(SceneEntity *entity, const QVector3D &size)
 {
     if(!entity) { qCritical() << objectName() << "(" << __func__ << "): Wrong entity"; return; }
+
     entity->applySize(m_CellSize * size / 2);
+    if(m_SelectedEntity == entity) m_EntityBox->applyToEntity(entity);
 }
 
 QVector3D Scene::EntitySize(SceneEntity *entity) const
@@ -379,6 +397,9 @@ void Scene::setEntityGeometry(SceneEntity* entity, const QString &name)
     if(!gr){ qCritical() << objectName() << "(" << __func__ << "): Wrong geometry name:" << name;  return; }
 
     entity->applyGeometry(gr);
+
+    // TODO: m_EntityBox не ресайзится под геометрию
+    if(m_SelectedEntity == entity) m_EntityBox->applyToEntity(entity);
 }
 
 void Scene::setEntityMaterial(SceneEntity *entity, const QString &name)
@@ -427,31 +448,7 @@ void Scene::slotShowBoxes(bool value)
 {
     for(Light* l: m_Lights) l->slotShowGeometry(value);
 
-    if(m_Box)
-    {
-        m_Box->setEnabled(false);
-        m_Box->deleteLater();
-        m_Box = nullptr;
-    }
-    if(!value) return;
-
-    m_Box = createEntityBox(this,
-                            QVector3D(0.0, 0.0, 0.0) + QVector3D(config->SceneExcess(),
-                                                                 config->SceneExcess(),
-                                                                 config->SceneExcess()),
-                            RealSize() - QVector3D(config->SceneExcess(),
-                                                   config->SceneExcess(),
-                                                   config->SceneExcess()),
-                            config->SceneColorBox());
-    m_Box->addComponent(m_View->OpaqueLayer());
-    applyEntityName(m_Box, "box", "scene_box");
-
-    auto grid = createEntityBottomGrid(m_Box,
-                                       QVector3D(0.0, 0.0, 0.0),
-                                       QVector3D(RealSize().x(), 0.0, RealSize().z()), m_CellSize,
-                                       config->SceneColorGrid());
-    applyEntityName(grid, "grid", "scene_grid");
-    grid->addComponent(m_View->OpaqueLayer());
+    m_Box->setEnabled(value);
 }
 
 float Scene::CellSize() const { return m_CellSize; }

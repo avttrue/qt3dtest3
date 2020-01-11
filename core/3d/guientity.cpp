@@ -7,10 +7,10 @@
 EntityTransform::EntityTransform(Qt3DCore::QEntity *parent):
     Qt3DCore::QEntity(parent)
 {
-   m_Transform = new Qt3DCore::QTransform;
-   addComponent(m_Transform);
-   QObject::connect(this, &QObject::destroyed,
-                    [=]() { qDebug() << parent->objectName() << ":" << objectName() << "destroyed"; });
+    m_Transform = new Qt3DCore::QTransform;
+    addComponent(m_Transform);
+    QObject::connect(this, &QObject::destroyed,
+                     [=]() { qDebug() << parent->objectName() << ":" << objectName() << "destroyed"; });
 }
 
 Qt3DCore::QTransform *EntityTransform::Transform() const { return m_Transform; }
@@ -50,6 +50,8 @@ void EntityText::setTextWeight(int value)
     resize();
 }
 
+void EntityText::addComponentToDeep(Qt3DCore::QComponent *comp) { m_Text2DEntity->addComponent(comp); }
+
 void EntityText::resize()
 {
     QFontMetrics fm(m_Font);
@@ -61,20 +63,31 @@ void EntityText::resize()
 
 EntityBox::EntityBox(Qt3DCore::QEntity *parent,
                      float excess,
-                     const QColor &color,
-                     const QVector3D &min,
-                     const QVector3D &max):
+                     const QColor &color):
     EntityTransform(parent),
     m_Excess(excess)
 {
     setObjectName("EntityBox");
 
+    // изначальный размер 1x1x1 с началом координат в 0-0-0
+    auto min = QVector3D(-0.5f, -0.5f, -0.5f);
+    auto max = QVector3D(0.5f, 0.5f, 0.5f);
     m_Box = createEntityBox(this, min, max, color);
 }
 
 void EntityBox::applyToEntity(SceneEntity *entity)
 {
     m_Transform->setTranslation(entity->Position());
-    m_Transform->setScale3D(m_Excess * QVector3D(1.0f, 1.0f, 1.0f) + entity->Size());
+
+    auto delta = entity->Geometry()->geometry()->maxExtent() -
+                 entity->Geometry()->geometry()->minExtent();
+
+    m_Transform->setScale3D(m_Excess * QVector3D(2.0f, 2.0f, 2.0f) +
+                            entity->Transform()->scale3D() * delta);
+
     setEnabled(true);
 }
+
+void EntityBox::setExcess(float excess) { m_Excess = excess; }
+void EntityBox::addComponentToDeep(Qt3DCore::QComponent *comp) { m_Box->addComponent(comp); }
+

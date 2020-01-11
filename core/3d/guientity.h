@@ -29,6 +29,7 @@ public:
                int weight = QFont::Bold);
     void setText(const QString& text);
     void setTextWeight(int value);
+    void addComponentToDeep(Qt3DCore::QComponent *comp);
 
 protected:
     void resize();
@@ -41,11 +42,12 @@ private:
 class EntityBox : public EntityTransform
 {
 public:
-    EntityBox(Qt3DCore::QEntity *parent, float excess,
-              const QColor &color,
-              const QVector3D &min = QVector3D(0.0f, 0.0f, 0.0f),
-              const QVector3D &max = QVector3D(1.0f, 1.0f, 1.0f));
+    EntityBox(Qt3DCore::QEntity *parent,
+              float excess,
+              const QColor &color);
     void applyToEntity(SceneEntity* entity);
+    void setExcess(float excess);
+    void addComponentToDeep(Qt3DCore::QComponent *comp);
 
 private:
     Qt3DCore::QEntity* m_Box;

@@ -26,12 +26,12 @@ public:
     void Interactive(bool value);
     QVector3D Size() const;
     void applySize(const QVector3D &size);
+    Qt3DCore::QTransform *Transform() const;
 
 Q_SIGNALS:
 
 public Q_SLOTS:
     void slotClicked(Qt3DRender::QPickEvent *event);
-    void slotSelect(bool value = true);
 
 protected:
     Scene* m_Scene;
@@ -39,10 +39,7 @@ protected:
     Qt3DRender::QGeometryRenderer* m_Geometry;
     Qt3DRender::QMaterial* m_Material;
     Qt3DRender::QObjectPicker* m_Picker;
-    Qt3DCore::QEntity* m_SelectionBox;
     QVector3D m_Size;
-
-    void createSelectionBox();
 };
 
 #endif // SCENEENTITY_H
