@@ -38,8 +38,6 @@ void Material::loadTexture(MapTypes type, const QString &path, bool mirrored)
     {
         if(s == Qt3DRender::QAbstractTexture::Ready)
         {
-            QObject::disconnect(texture2d, &Qt3DRender::QAbstractTexture::statusChanged, nullptr, nullptr);
-
             if(type == MapTypes::DiffuseMap)
                 setDiffuse(QVariant::fromValue<Qt3DRender::QTexture2D*>(texture2d));
 
@@ -53,12 +51,14 @@ void Material::loadTexture(MapTypes type, const QString &path, bool mirrored)
 
             qDebug() << objectName() << ": Texture loaded" << fi.fileName();
             Q_EMIT signalTextureDone();
+
+            QObject::disconnect(texture2d, &Qt3DRender::QAbstractTexture::statusChanged, nullptr, nullptr);
         }
         else if(s == Qt3DRender::QAbstractTexture::Error)
         {
-            QObject::disconnect(texture2d, &Qt3DRender::QAbstractTexture::statusChanged, nullptr, nullptr);
             qCritical() << objectName() << ": Error at texture loading" << fi.fileName();
             Q_EMIT signalTextureDone();
+            QObject::disconnect(texture2d, &Qt3DRender::QAbstractTexture::statusChanged, nullptr, nullptr);
         }
         else
         { qDebug() << objectName() << ": Texture" << fi.fileName() << "loading status:" << s; }
@@ -80,8 +80,8 @@ void Material::slotTextureDone()
     m_MapsCount++;
     if(m_MapsCount >= MAPS_COUNT)
     {
-        QObject::disconnect(this, &Material::signalTextureDone, nullptr, nullptr);
         Q_EMIT signalReady();
+        QObject::disconnect(this, &Material::signalTextureDone, nullptr, nullptr);
     }
 }
 

@@ -86,11 +86,11 @@ void SceneView::createScene(float cell, float width, float height, float depth, 
 
     auto func = [=]()
     {
-        QObject::disconnect(m_Scene, &Scene::signalLoaded, nullptr, nullptr);
         applySceneCamera();
         m_Scene->slotShowBoxes(config->DrawSceneBoxes());
         m_Scene->setEnabled(true);
         Q_EMIT signalSceneChanged(m_Scene);
+        QObject::disconnect(m_Scene, &Scene::signalLoaded, nullptr, nullptr);
     };
     QObject::connect(m_Scene, &Scene::signalLoaded, func);
     m_Scene->load();

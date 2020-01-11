@@ -13,8 +13,6 @@
 #include <cmath>
 
 #include <Qt3DCore/QTransform>
-#include <Qt3DExtras/QPhongMaterial>
-#include <Qt3DExtras/QCuboidMesh>
 #include <Qt3DRender/QPointLight>
 #include <Qt3DRender/QMesh>
 
@@ -112,25 +110,22 @@ void Scene::loadGeometry(const QString &path)
     auto name = fi.baseName();
     auto geometry = m_Geometries.take(name);
     if(geometry) geometry->deleteLater();
-    Qt3DRender::QMesh* mesh = new Qt3DRender::QMesh(this);
+    auto mesh = new Qt3DRender::QMesh(this);
     mesh->setObjectName(name);
     auto func = [=](Qt3DRender::QMesh::Status s)
     {
         if(s == Qt3DRender::QMesh::Ready)
         {
-            QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
             m_Geometries.insert(name, mesh);
-            qDebug() << objectName() << ": Geometry loaded" << mesh->objectName();
+            qDebug() << objectName() << ": Geometry loaded" << name;
             Q_EMIT signalGeometryLoaded(name);
+            QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
         }
         else if(s == Qt3DRender::QMesh::Error)
-        {
-            QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
+        { 
             qCritical() << objectName() << ": Error at geometry loading" << name;
-            auto mesh = new Qt3DExtras::QCuboidMesh;
-            mesh->setXExtent(1.0f); mesh->setYExtent(1.0f); mesh->setZExtent(1.0f);
-            mesh->setObjectName(name);
             Q_EMIT signalGeometryLoaded(name);
+            QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
         }
         else
         { qDebug() << objectName() << ": Geometry" << name << "loading status:" << s; }
@@ -161,9 +156,9 @@ void Scene::loadGeometries(const QStringList &filters)
     {
         if(m_Geometries.count() == fileList.count())
         {
-            QObject::disconnect(this, &Scene::signalGeometryLoaded, this, nullptr);
             qDebug() << objectName() << "All geometries loaded:" << m_Geometries.count();
             Q_EMIT signalGeometriesLoaded(m_Geometries.count());
+            QObject::disconnect(this, &Scene::signalGeometryLoaded, this, nullptr);
         }
     };
     QObject::connect(this, &Scene::signalGeometryLoaded, func);
@@ -177,13 +172,14 @@ void Scene::loadMaterial(const QString& path)
     auto material = new Material(this);
     auto func = [=]()
     {
-        QObject::disconnect(material, &Material::signalReady, nullptr, nullptr);
         auto m = m_Materials.take(material->objectName());
         if(m) m->deleteLater();
 
         m_Materials.insert(material->objectName(), material);
         qDebug() << objectName() << ": Material loaded" << material->objectName();
         Q_EMIT signalMaterialLoaded(material->objectName());
+
+        QObject::disconnect(material, &Material::signalReady, nullptr, nullptr);
     };
     QObject::connect(material, &Material::signalReady, func);
     material->load(path);
@@ -210,9 +206,9 @@ void Scene::loadMaterials(const QStringList& filters)
     {
         if(m_Materials.count() == fileList.count())
         {
-            QObject::disconnect(this, &Scene::signalMaterialLoaded, this, nullptr);
             qDebug() << objectName() << "All materials loaded:" << m_Materials.count();
             Q_EMIT signalMaterialsLoaded(m_Materials.count());
+            QObject::disconnect(this, &Scene::signalMaterialLoaded, this, nullptr);
         }
     };
     QObject::connect(this, &Scene::signalMaterialLoaded, func);
@@ -396,10 +392,11 @@ void Scene::setEntityGeometry(SceneEntity* entity, const QString &name)
     auto gr = Geometries().value(name);
     if(!gr){ qCritical() << objectName() << "(" << __func__ << "): Wrong geometry name:" << name;  return; }
 
+    auto func = [=]()
+    { if(m_SelectedEntity == entity) m_EntityBox->applyToEntity(entity); };
+    QObject::connect(gr->geometry(), &Qt3DRender::QGeometry::maxExtentChanged, func);
+    QObject::connect(gr->geometry(), &Qt3DRender::QGeometry::minExtentChanged, func);
     entity->applyGeometry(gr);
-
-    // TODO: m_EntityBox не ресайзится под геометрию
-    if(m_SelectedEntity == entity) m_EntityBox->applyToEntity(entity);
 }
 
 void Scene::setEntityMaterial(SceneEntity *entity, const QString &name)
