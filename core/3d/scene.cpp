@@ -129,8 +129,8 @@ void Scene::loadGeometry(const QString &path)
         else
         { qInfo() << objectName() << ": Geometry" << name << "loading status:" << s; }
     };
-    QObject::connect(mesh, &QObject::destroyed, [=](QObject* o){ qInfo() << objectName() << ": Geometry" << o->objectName() << "destroyed"; });
     *conn = QObject::connect(mesh, &Qt3DRender::QMesh::statusChanged, func);
+    QObject::connect(mesh, &QObject::destroyed, [=](QObject* o){ qInfo() << objectName() << ": Geometry" << o->objectName() << "destroyed"; });
     mesh->setSource(QUrl::fromLocalFile(path));
 }
 

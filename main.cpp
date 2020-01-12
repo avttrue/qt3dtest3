@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForLocale(QTextCodec::codecForName(TEXT_CODEC.toLatin1()));
     config = new Config(application.applicationDirPath());
 
-    if(arglist.contains("-logtofile"))
+    if(arglist.contains(APP_ARG_WRITE_LOGS))
     {
         qInfo() << "Logging to file is enabled";
         // каталог логов
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-            auto filenameprefix = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss");
+            auto filenameprefix = QDateTime::currentDateTime().toString(LOG_FILE_PREFIX);
             auto logfile = config->PathAppLogDir() + QDir::separator() + filenameprefix + ".log";
 
             m_logFile.reset(new QFile(logfile));
@@ -50,7 +50,9 @@ int main(int argc, char *argv[])
             qInstallMessageHandler(consoleOut);
         }
     }
-    else qInfo() << "Logging to file is disabled, use '-logtofile' key for enabling";
+    else qInfo() << "Logging to file is disabled, use" << APP_ARG_WRITE_LOGS << "key for enabling";
+
+    qInfo() << "Git build:" << GIT_VERS;
 
     application.setStyleSheet(getTextFromRes(":/res/qss/main.css"));
 

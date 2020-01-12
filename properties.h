@@ -14,7 +14,9 @@ extern Config* config; // интерфейс над QSettings
 
 // дефолтные параметры
 const QString CFG_APP = "config.cfg";
+const QString APP_ARG_WRITE_LOGS = "-logtofile";
 const QString LOG_DIR = "logs";
+const QString LOG_FILE_PREFIX = "yyyyMMdd_hhmmss";
 const QString ASSETS_DIR = "assets";
 const QString DT_FORMAT = "hh:mm:ss.zzz";
 const QString TEXT_CODEC = "UTF-8";
