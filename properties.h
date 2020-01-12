@@ -8,7 +8,6 @@
 
 #include <QSize>
 #include <QString>
-#include <QVector3D>
 
 extern Config* config; // интерфейс над QSettings
 
@@ -44,11 +43,11 @@ const auto SCENE_CELL_SIZE = 10;
 const auto SCENE_HEIGHT = 15;
 const auto SCENE_WIDTH = 15;
 const auto SCENE_DEPTH = 15;
-
 const auto BUTTON_ACCELERATION = Qt::Key_Control;
 const auto MOVE_ACCELERATION = 10;
 const auto ROTATION_ACCELERATION = 5;
 const auto ROTATION_SPEED = 20;
 const auto MOVE_SPEED = 80;
+const auto CAMERA_FIELD_OF_VIEW = 45.0f;
 
 #endif // PROPERTIES_H

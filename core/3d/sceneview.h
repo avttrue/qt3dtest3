@@ -24,6 +24,7 @@ protected:
     void keyPressEvent(QKeyEvent *e);
     void resizeEvent(QResizeEvent *e);
     void applySceneCamera(); // устанавливает параметры и управление камерой для сцены
+    void setCameraPerspectiveProjection(Qt3DRender::QCamera* camera, int width, int height);
 
 private:
     Scene* m_Scene;

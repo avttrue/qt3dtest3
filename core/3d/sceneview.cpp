@@ -105,26 +105,22 @@ void SceneView::keyPressEvent(QKeyEvent *e)
 
 void SceneView::resizeEvent(QResizeEvent *e)
 {
-    if(!m_Scene) return;
-
-    auto camera_aspect = static_cast<float>(e->size().width()) / e->size().height();
-    camera()->lens()->setPerspectiveProjection(45.0f, camera_aspect, 0.1f, m_CameraFarPlane);
+    setCameraPerspectiveProjection(m_Camera, e->size().width(), e->size().height());
 }
 
 void SceneView::applySceneCamera()
 {
     if(!m_Scene) { qCritical() << __func__  << "Scene is empty"; return; }
 
-    auto w = m_Scene->CellSize()* m_Scene->Width();
-    auto h = m_Scene->CellSize()* m_Scene->Height();
-    auto d = m_Scene->CellSize()* m_Scene->Depth();
+    auto w = m_Scene->CellSize() * m_Scene->Width();
+    auto h = m_Scene->CellSize() * m_Scene->Height();
+    auto d = m_Scene->CellSize() * m_Scene->Depth();
 
     m_CameraFarPlane = static_cast<float>(sqrt(pow(static_cast<double>(w), 2) +
                                                pow(static_cast<double>(h), 2) +
                                                pow(static_cast<double>(d), 2)));
 
-    auto camera_aspect = static_cast<float>(width()) / height();
-    m_Camera->lens()->setPerspectiveProjection(45.0f, camera_aspect, 0.1f, m_CameraFarPlane);
+    setCameraPerspectiveProjection(m_Camera, width(), height());
 
     m_Camera->setUpVector(QVector3D(0.0f, 1.0f, 0.0f));
     m_Camera->setPosition(QVector3D(w, h, d) -
@@ -133,6 +129,14 @@ void SceneView::applySceneCamera()
 
     m_CameraController = new CameraController(m_Scene);
     m_CameraController->setCamera(m_Camera);
+}
+
+void SceneView::setCameraPerspectiveProjection(Qt3DRender::QCamera *camera, int width, int height)
+{
+    if(!m_Scene || !camera) return;
+
+    auto camera_aspect = static_cast<float>(width) / height;
+    camera->lens()->setPerspectiveProjection(CAMERA_FIELD_OF_VIEW, camera_aspect, 0.1f, m_CameraFarPlane);
 }
 
 void SceneView::slotRenderSortPolicyType(const QString& value)
