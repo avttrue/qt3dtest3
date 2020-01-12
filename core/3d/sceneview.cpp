@@ -81,21 +81,22 @@ void SceneView::createScene(float cell, float width, float height, float depth, 
     slotRenderSortPolicyType(config->RendererSortPolicyType());
     setRootEntity(m_Scene);
 
+    auto conn = std::make_shared<QMetaObject::Connection>();
     auto func = [=]()
     {
         applySceneCamera();
         m_Scene->slotShowBoxes(config->DrawSceneBoxes());
         m_Scene->setEnabled(true);
         Q_EMIT signalSceneChanged(m_Scene);
-        QObject::disconnect(m_Scene, &Scene::signalLoaded, nullptr, nullptr);
+        qInfo() << "Scene::signalLoaded disconnection:" << QObject::disconnect(*conn);
     };
-    QObject::connect(m_Scene, &Scene::signalLoaded, func);
+    *conn = QObject::connect(m_Scene, &Scene::signalLoaded, func);
     m_Scene->load();
 }
 
 void SceneView::keyPressEvent(QKeyEvent *e)
 {
-    qDebug() << "Button:" << e->key();
+    qInfo() << "Button:" << e->key();
     if(e->key() == Qt::Key_T)
     {
 

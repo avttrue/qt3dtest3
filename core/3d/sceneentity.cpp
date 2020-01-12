@@ -23,13 +23,13 @@ SceneEntity::SceneEntity(Scene *parent) :
     addComponent(m_Transform);
     addComponent(m_Picker);
 
-    QObject::connect(this, &QObject::destroyed, [=]() { qDebug() << objectName() << ": destroyed"; });
+    QObject::connect(this, &QObject::destroyed, [=]() { qInfo() << objectName() << ": destroyed"; });
     QObject::connect(m_Picker, &Qt3DRender::QObjectPicker::clicked, this, &SceneEntity::slotClicked, Qt::DirectConnection);
 }
 
 void SceneEntity::slotClicked(Qt3DRender::QPickEvent *event)
 {
-    qDebug() << objectName() << ": clicked";
+    qInfo() << objectName() << ": clicked";
 
     Q_EMIT m_Scene->signalEntityClicked(event, this);
 }

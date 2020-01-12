@@ -2,20 +2,18 @@
 #include <QTextCodec>
 #include <QDebug>
 #include <QDir>
+#include <QDateTime>
 
 #include "mainwindow.h"
 #include "properties.h"
 #include "helpers.h"
 
+// подготовка обработчика консоли
+static QScopedPointer<QFile> m_logFile;
+void consoleOut(QtMsgType type, const QMessageLogContext &context, const QString &msg);
+
 bool prepare()
 {
-    // каталог логов
-    if(!QDir().exists(config->PathAppLogDir()) && !QDir().mkpath(config->PathAppLogDir()))
-    {
-        qCritical() << "Directory not exist and cannot be created:" << config->PathAppLogDir();
-        return false;
-    }
-
     // копируются дефолтные текстуры
     if(!copyResources(DEF_TEXTURES, config->PathAssetsDir(), config->RewriteResources())) return false;
 
@@ -28,12 +26,33 @@ bool prepare()
 int main(int argc, char *argv[])
 {
     QApplication application(argc, argv);
+    auto arglist = application.arguments();
 
     QTextCodec::setCodecForLocale(QTextCodec::codecForName(TEXT_CODEC.toLatin1()));
-    application.setStyleSheet(getTextFromRes(":/res/qss/main.css"));
-
-    // параметры
     config = new Config(application.applicationDirPath());
+
+    if(arglist.contains("-logtofile"))
+    {
+        qInfo() << "Logging to file is enabled";
+        // каталог логов
+        if(!QDir().exists(config->PathAppLogDir()) && !QDir().mkpath(config->PathAppLogDir()))
+        {
+            qCritical() << "Directory not exist and cannot be created:" << config->PathAppLogDir();
+        }
+        else
+        {
+            auto filenameprefix = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss");
+            auto logfile = config->PathAppLogDir() + QDir::separator() + filenameprefix + ".log";
+
+            m_logFile.reset(new QFile(logfile));
+            m_logFile.data()->open(QFile::Append | QFile::Text);
+
+            qInstallMessageHandler(consoleOut);
+        }
+    }
+    else qInfo() << "Logging to file is disabled, use '-logtofile' key for enabling";
+
+    application.setStyleSheet(getTextFromRes(":/res/qss/main.css"));
 
     if(!prepare())
     {
@@ -45,4 +64,48 @@ int main(int argc, char *argv[])
 
     window.show();
     return application.exec();
+}
+
+// обработчик консоли
+void consoleOut(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QTextStream log_out(m_logFile.data());
+    log_out.setCodec(QTextCodec::codecForName(TEXT_CODEC.toLatin1()));
+
+    log_out << QDateTime::currentDateTime().toString(config->DateTimeFormat().append("\t"));
+
+    switch (type)
+    {
+    case QtDebugMsg:
+    {
+        log_out << "DBG:\t";
+        log_out << context.file << " : " << context.line << "\t" << msg << endl;
+        break;
+    }
+    case QtInfoMsg:
+    {
+        log_out << "INF:\t";
+        log_out << context.file << " : " << context.line << "\t" << msg << endl;
+        break;
+    }
+    case QtWarningMsg:
+    {
+        log_out << "WRN:\t";
+        log_out << context.file << " : " << context.line << "\t" << msg << endl;
+        break;
+    }
+    case QtCriticalMsg:
+    {
+        log_out << "CRT:\t";
+        log_out << context.file << " : " << context.line << "\t" << msg << endl;
+        break;
+    }
+    case QtFatalMsg:
+    {
+        log_out << "FTL:\t";
+        log_out << context.file << " : " << context.line << "\t" << msg << endl;
+        break;
+    }}
+
+    log_out.flush();
 }

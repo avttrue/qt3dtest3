@@ -68,8 +68,8 @@ Scene::Scene(SceneView *view,
     m_InterfaceText1->addComponentToDeep(m_View->InterfaceLayer());
     //
 
-    QObject::connect(this, &QObject::destroyed, [=](QObject* o){ qDebug() << o->objectName() << ": destroyed"; });
-    qDebug() << objectName() << ": Scene created";
+    QObject::connect(this, &QObject::destroyed, [=](QObject* o){ qInfo() << o->objectName() << ": destroyed"; });
+    qInfo() << objectName() << ": Scene created";
 }
 
 void Scene::slotLoaded()
@@ -85,7 +85,7 @@ void Scene::slotLoaded()
         QObject::connect(m_FrameAction, &Qt3DLogic::QFrameAction::triggered, this, &Scene::slotFrameActionTriggered);
         QObject::connect(config, &Config::signalDrawSceneBoxes, this, &Scene::slotShowBoxes);
 
-        qDebug() << objectName() << ": Resources loaded";
+        qInfo() << objectName() << ": Resources loaded";
         Q_EMIT signalLoaded();
     }
 }
@@ -109,26 +109,28 @@ void Scene::loadGeometry(const QString &path)
     if(geometry) geometry->deleteLater();
     auto mesh = new Qt3DRender::QMesh(this);
     mesh->setObjectName(name);
+
+    auto conn = std::make_shared<QMetaObject::Connection>();
     auto func = [=](Qt3DRender::QMesh::Status s)
     {
         if(s == Qt3DRender::QMesh::Ready)
         {
             m_Geometries.insert(name, mesh);
-            qDebug() << objectName() << ": Geometry loaded" << name;
+            qInfo() << objectName() << ": Geometry loaded" << name;
             Q_EMIT signalGeometryLoaded(name);
-            QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
+            qInfo() << "Qt3DRender::QMesh::statusChanged disconnection:" << QObject::disconnect(*conn);
         }
         else if(s == Qt3DRender::QMesh::Error)
         { 
             qCritical() << objectName() << ": Error at geometry loading" << name;
             Q_EMIT signalGeometryLoaded(name);
-            QObject::disconnect(mesh, &Qt3DRender::QMesh::statusChanged, nullptr, nullptr);
+            qInfo() << "Qt3DRender::QMesh::statusChanged disconnection:" << QObject::disconnect(*conn);
         }
         else
-        { qDebug() << objectName() << ": Geometry" << name << "loading status:" << s; }
+        { qInfo() << objectName() << ": Geometry" << name << "loading status:" << s; }
     };
-    QObject::connect(mesh, &QObject::destroyed, [=](QObject* o){ qDebug() << objectName() << ": Geometry" << o->objectName() << "destroyed"; });
-    QObject::connect(mesh, &Qt3DRender::QMesh::statusChanged, func);
+    QObject::connect(mesh, &QObject::destroyed, [=](QObject* o){ qInfo() << objectName() << ": Geometry" << o->objectName() << "destroyed"; });
+    *conn = QObject::connect(mesh, &Qt3DRender::QMesh::statusChanged, func);
     mesh->setSource(QUrl::fromLocalFile(path));
 }
 
@@ -149,16 +151,17 @@ void Scene::loadGeometries(const QStringList &filters)
         return;
     }
 
+    auto conn = std::make_shared<QMetaObject::Connection>();
     auto func = [=]()
     {
         if(m_Geometries.count() == fileList.count())
         {
-            qDebug() << objectName() << "All geometries loaded:" << m_Geometries.count();
+            qInfo() << objectName() << "All geometries loaded:" << m_Geometries.count();
             Q_EMIT signalGeometriesLoaded(m_Geometries.count());
-            QObject::disconnect(this, &Scene::signalGeometryLoaded, this, nullptr);
+            qInfo() << "Scene::signalGeometryLoaded disconnection:" << QObject::disconnect(*conn);
         }
     };
-    QObject::connect(this, &Scene::signalGeometryLoaded, func);
+    *conn = QObject::connect(this, &Scene::signalGeometryLoaded, func);
 
     for(QString f: fileList)
         loadGeometry(config->PathAssetsDir() + QDir::separator() + f);
@@ -167,18 +170,19 @@ void Scene::loadGeometries(const QStringList &filters)
 void Scene::loadMaterial(const QString& path)
 {
     auto material = new Material(this);
+    auto conn = std::make_shared<QMetaObject::Connection>();
     auto func = [=]()
     {
         auto m = m_Materials.take(material->objectName());
         if(m) m->deleteLater();
 
         m_Materials.insert(material->objectName(), material);
-        qDebug() << objectName() << ": Material loaded" << material->objectName();
+        qInfo() << objectName() << ": Material loaded" << material->objectName();
         Q_EMIT signalMaterialLoaded(material->objectName());
 
-        QObject::disconnect(material, &Material::signalReady, nullptr, nullptr);
+        qInfo() << "Material::signalReady disconnection:" << QObject::disconnect(*conn);
     };
-    QObject::connect(material, &Material::signalReady, func);
+    *conn = QObject::connect(material, &Material::signalReady, func);
     material->load(path);
 }
 
@@ -199,16 +203,17 @@ void Scene::loadMaterials(const QStringList& filters)
         return;
     }
 
+    auto conn = std::make_shared<QMetaObject::Connection>();
     auto func = [=]()
     {
         if(m_Materials.count() == fileList.count())
         {
-            qDebug() << objectName() << "All materials loaded:" << m_Materials.count();
+            qInfo() << objectName() << "All materials loaded:" << m_Materials.count();
             Q_EMIT signalMaterialsLoaded(m_Materials.count());
-            QObject::disconnect(this, &Scene::signalMaterialLoaded, this, nullptr);
+            qInfo() << "Scene::signalMaterialLoaded disconnection:" << QObject::disconnect(*conn);
         }
     };
-    QObject::connect(this, &Scene::signalMaterialLoaded, func);
+    *conn = QObject::connect(this, &Scene::signalMaterialLoaded, func);
 
     for(QString f: fileList)
         loadMaterial(config->PathAssetsDir() + QDir::separator() + f);
@@ -225,7 +230,7 @@ Light* Scene::addLight(Qt3DRender::QAbstractLight *light,
     delLight(l->objectName());
     m_Lights.insert(l->objectName(), l);
 
-    qDebug() << l->objectName() << ": Light added, count" << m_Lights.count();
+    qInfo() << l->objectName() << ": Light added, count" << m_Lights.count();
     Q_EMIT signalLightChanged(name);
 
     return l;
@@ -241,7 +246,7 @@ bool Scene::delLight(const QString &name)
         m_EntityBox->setEnabled(false);
         Q_EMIT signalSelectedEntityChanged(m_SelectedEntity);
         Q_EMIT signalLightChanged(name);
-        qDebug() << objectName() << ": Lights count" << m_Lights.count();
+        qInfo() << objectName() << ": Lights count" << m_Lights.count();
         return true;
     }
     return false;
@@ -263,7 +268,7 @@ SceneObject* Scene::addObject(Qt3DRender::QGeometryRenderer *geometry,
     delObject(entity->objectName());
     m_Objects.insert(entity->objectName(), entity);
 
-    qDebug() << objectName() << ": Entity created, count" << m_Objects.count();
+    qInfo() << objectName() << ": Entity created, count" << m_Objects.count();
     Q_EMIT signalObjectChanged(name);
 
     return entity;
@@ -292,7 +297,7 @@ bool Scene::delObject(const QString &name)
         m_EntityBox->setEnabled(false);
         Q_EMIT signalSelectedEntityChanged(m_SelectedEntity);
         Q_EMIT signalObjectChanged(name);
-        qDebug() << objectName() << ": Objects count" << m_Objects.count();
+        qInfo() << objectName() << ": Objects count" << m_Objects.count();
         return true;
     }
     return false;
@@ -389,10 +394,14 @@ void Scene::setEntityGeometry(SceneEntity* entity, const QString &name)
     auto gr = Geometries().value(name);
     if(!gr){ qCritical() << objectName() << "(" << __func__ << "): Wrong geometry name:" << name;  return; }
 
+    gr->disconnect(gr->geometry(), &Qt3DRender::QGeometry::maxExtentChanged, nullptr, nullptr);
+    gr->disconnect(gr->geometry(), &Qt3DRender::QGeometry::minExtentChanged, nullptr, nullptr);
+
     auto func = [=]()
     { if(m_SelectedEntity == entity) m_EntityBox->applyToEntity(entity); };
     QObject::connect(gr->geometry(), &Qt3DRender::QGeometry::maxExtentChanged, func);
     QObject::connect(gr->geometry(), &Qt3DRender::QGeometry::minExtentChanged, func);
+
     entity->applyGeometry(gr);
 }
 
@@ -429,7 +438,7 @@ void Scene::applyEntityRenderLayer(SceneEntity *entity)
         if(c == layer) continue; // тот же самый
         entity->removeComponent(c);
     }
-    qDebug() << entity->objectName() << ": RenderLayer applied" << layer->objectName();
+    qInfo() << entity->objectName() << ": RenderLayer applied" << layer->objectName();
 }
 
 void Scene::slotFrameActionTriggered(float dt)

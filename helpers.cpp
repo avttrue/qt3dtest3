@@ -104,7 +104,7 @@ bool copyResources(const QString& outPath, const QString& inPath, bool rewrite)
         if(rewrite && QFile::exists(newfilename))
         {
             if(!QFile::remove(newfilename)) qCritical() << "Unable to remove file" << newfilename;
-            //else qDebug() << "File removed" << newfilename;
+            //else qInfo() << "File removed" << newfilename;
         }
 
         if(!QFile::exists(newfilename) && !file.copy(newfilename))
@@ -116,7 +116,7 @@ bool copyResources(const QString& outPath, const QString& inPath, bool rewrite)
         {
             QFileDevice::Permissions p = QFile(newfilename).permissions();
             QFile::setPermissions(newfilename, p | QFileDevice::WriteOwner | QFileDevice::ReadOwner);
-            qDebug() << "Resource" << newfilename << "ready";
+            qInfo() << "Resource" << newfilename << "ready";
         }
     }
     return  true;

@@ -12,7 +12,7 @@ Material::Material(Scene *parent) :
     m_MapsCount(0),
     m_Transparent(false)
 {   
-    QObject::connect(this, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": Material" << objectName() << " destroyed"; });
+    QObject::connect(this, &QObject::destroyed, [=]() { qInfo() << parent->objectName() << ": Material" << objectName() << " destroyed"; });
     QObject::connect(this, &Material::signalTextureDone, this, &Material::slotTextureDone, Qt::DirectConnection);
 }
 
@@ -34,6 +34,7 @@ void Material::loadTexture(MapTypes type, const QString &path, bool mirrored)
 
     textureImage->setMirrored(mirrored);
 
+    auto conn = std::make_shared<QMetaObject::Connection>();
     auto func = [=](Qt3DRender::QAbstractTexture::Status s)
     {
         if(s == Qt3DRender::QAbstractTexture::Ready)
@@ -49,21 +50,21 @@ void Material::loadTexture(MapTypes type, const QString &path, bool mirrored)
             else
                 qCritical() << objectName() << ": Unknown texture type" << type;
 
-            qDebug() << objectName() << ": Texture loaded" << fi.fileName();
+            qInfo() << objectName() << ": Texture loaded" << fi.fileName();
             Q_EMIT signalTextureDone();
 
-            QObject::disconnect(texture2d, &Qt3DRender::QAbstractTexture::statusChanged, nullptr, nullptr);
+            qInfo() << "Qt3DRender::QAbstractTexture::statusChanged disconnection:" << QObject::disconnect(*conn);
         }
         else if(s == Qt3DRender::QAbstractTexture::Error)
         {
             qCritical() << objectName() << ": Error at texture loading" << fi.fileName();
             Q_EMIT signalTextureDone();
-            QObject::disconnect(texture2d, &Qt3DRender::QAbstractTexture::statusChanged, nullptr, nullptr);
+            qInfo() << "Qt3DRender::QAbstractTexture::statusChanged disconnection:" << QObject::disconnect(*conn);
         }
         else
-        { qDebug() << objectName() << ": Texture" << fi.fileName() << "loading status:" << s; }
+        { qInfo() << objectName() << ": Texture" << fi.fileName() << "loading status:" << s; }
     };
-    QObject::connect(texture2d, &Qt3DRender::QAbstractTexture::statusChanged, func);
+    *conn = QObject::connect(texture2d, &Qt3DRender::QAbstractTexture::statusChanged, func);
 
     if(fi.exists() && fi.isFile()) textureImage->setSource(QUrl::fromLocalFile(path));
     else

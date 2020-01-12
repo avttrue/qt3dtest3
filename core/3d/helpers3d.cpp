@@ -15,7 +15,7 @@ Qt3DCore::QEntity *createEntityLine(const QVector3D& start,
                                     Qt3DCore::QEntity* parent)
 {
     auto lineEntity = new Qt3DCore::QEntity(parent);
-    QObject::connect(lineEntity, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityLine destroyed"; });
+    QObject::connect(lineEntity, &QObject::destroyed, [=]() { qInfo() << parent->objectName() << ": EntityLine destroyed"; });
 
     auto geometry = new Qt3DRender::QGeometry(lineEntity);
 
@@ -66,7 +66,7 @@ Qt3DCore::QEntity *createEntityLine(const QVector3D& start,
     lineEntity->addComponent(line);
     lineEntity->addComponent(material);
 
-    qDebug() << parent->objectName() << ": EntityLine created";
+    qInfo() << parent->objectName() << ": EntityLine created";
     return lineEntity;
 }
 
@@ -77,13 +77,13 @@ Qt3DCore::QEntity *createEntityBottomGrid(Qt3DCore::QEntity* parent,
                                           const QColor& color)
 {
     auto lineEntity = new Qt3DCore::QEntity(parent);
-    QObject::connect(lineEntity, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": EntityHGrid destroyed"; });
+    QObject::connect(lineEntity, &QObject::destroyed, [=]() { qInfo() << parent->objectName() << ": EntityHGrid destroyed"; });
 
     auto width = static_cast<unsigned int>(abs(end.x() - start.x()) / cell);
     auto depth = static_cast<unsigned int>(abs(end.z() - start.z()) / cell);
     if(width <= 0 || depth <= 0)
     {
-        qDebug() << parent->objectName() << ": EntityHGrid created EMPTY";
+        qInfo() << parent->objectName() << ": EntityHGrid created EMPTY";
         return lineEntity;
     }
     auto geometry = new Qt3DRender::QGeometry(lineEntity);
@@ -145,7 +145,7 @@ Qt3DCore::QEntity *createEntityBottomGrid(Qt3DCore::QEntity* parent,
     lineEntity->addComponent(line);
     lineEntity->addComponent(material);
 
-    qDebug() << parent->objectName() << ": EntityHGrid created";
+    qInfo() << parent->objectName() << ": EntityHGrid created";
     return lineEntity;
 }
 
@@ -224,7 +224,7 @@ Qt3DCore::QEntity *createEntityBox(Qt3DCore::QEntity *parent,
     lineEntity->addComponent(line);
     lineEntity->addComponent(material);
 
-    qDebug() << parent->objectName() << ": EntityBox created";
+    qInfo() << parent->objectName() << ": EntityBox created";
     return lineEntity;
 }
 
@@ -257,7 +257,7 @@ void applyEntityGeometry(Qt3DCore::QEntity* entity, Qt3DRender::QGeometryRendere
         entity->removeComponent(c);
         if(c->parent() == entity) c->deleteLater();
     }
-    qDebug() << entity->objectName() << ": Geometry applied";
+    qInfo() << entity->objectName() << ": Geometry applied";
 }
 
 void applyEntityMaterial(Qt3DCore::QEntity* entity, Qt3DRender::QMaterial* material)
@@ -278,7 +278,7 @@ void applyEntityMaterial(Qt3DCore::QEntity* entity, Qt3DRender::QMaterial* mater
         entity->removeComponent(c);
         if(c->parent() == entity) c->deleteLater();
     }
-    qDebug() << entity->objectName() << ": Material applied";
+    qInfo() << entity->objectName() << ": Material applied";
 }
 
 void applyEntityLight(Qt3DCore::QEntity *entity, Qt3DRender::QAbstractLight *light)
@@ -300,7 +300,7 @@ void applyEntityLight(Qt3DCore::QEntity *entity, Qt3DRender::QAbstractLight *lig
         entity->removeComponent(c);
         if(c->parent() == entity) c->deleteLater();
     }
-    qDebug() << entity->objectName() << ": Light applied";
+    qInfo() << entity->objectName() << ": Light applied";
 }
 
 void deleteEntity(Qt3DCore::QEntity *entity)
@@ -312,8 +312,8 @@ void deleteEntity(Qt3DCore::QEntity *entity)
     //    entity->setEnabled(false);
     //    entity->deleteLater();
 
-    qDebug() << entity << "deletion...";
-    qDebug() << entity << "components count: " << entity->components().count();
+    qInfo() << entity << "deletion...";
+    qInfo() << entity << "components count: " << entity->components().count();
     for(auto c: entity->components())
     {
         if(c->parent() == entity)
@@ -325,7 +325,7 @@ void deleteEntity(Qt3DCore::QEntity *entity)
     }
 
     QVector<Qt3DCore::QEntity*> ve;
-    qDebug() << entity << "child nodes count: " << entity->childNodes().count();
+    qInfo() << entity << "child nodes count: " << entity->childNodes().count();
     for(auto n: entity->childNodes())
     {
         auto e = qobject_cast<Qt3DCore::QEntity*>(n);
@@ -337,7 +337,7 @@ void deleteEntity(Qt3DCore::QEntity *entity)
         }
     }
 
-    qDebug() << entity << "child entities count: " << ve.count();
+    qInfo() << entity << "child entities count: " << ve.count();
     for(auto e: ve) deleteEntity(e);
 
     entity->deleteLater();

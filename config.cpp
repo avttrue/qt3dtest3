@@ -14,9 +14,9 @@ Config::Config(const QString& in_AppDirectory):
     m_PathAppLogDir = m_PathAppDir + QDir::separator() + LOG_DIR;
     m_PathAssetsDir = m_PathAppDir + QDir::separator() + ASSETS_DIR;
 
-    qDebug() << "AppConfig:" << m_PathAppConfig;
-    qDebug() << "AppLogDir:" << m_PathAppLogDir;
-    qDebug() << "AssetsDir:" << m_PathAssetsDir;
+    qInfo() << "AppConfig:" << m_PathAppConfig;
+    qInfo() << "AppLogDir:" << m_PathAppLogDir;
+    qInfo() << "AssetsDir:" << m_PathAssetsDir;
 
     m_Settings = new QSettings(m_PathAppConfig, QSettings::IniFormat);
     m_Settings->setIniCodec(QTextCodec::codecForName(TEXT_CODEC.toLatin1()));

@@ -10,10 +10,19 @@ EntityTransform::EntityTransform(Qt3DCore::QEntity *parent):
     m_Transform = new Qt3DCore::QTransform;
     addComponent(m_Transform);
     QObject::connect(this, &QObject::destroyed,
-                     [=]() { qDebug() << parent->objectName() << ":" << objectName() << "destroyed"; });
+                     [=]() { qInfo() << parent->objectName() << ":" << objectName() << "destroyed"; });
 }
 
 Qt3DCore::QTransform *EntityTransform::Transform() const { return m_Transform; }
+
+void EntityTransform::addComponentToDeep(Qt3DCore::QComponent *comp)
+{
+    for(auto n: childNodes())
+    {
+        auto e = qobject_cast<Qt3DCore::QEntity*>(n);
+        if(e) e->addComponent(comp);
+    }
+}
 
 EntityText::EntityText(Qt3DCore::QEntity *parent,
                        int size,
@@ -49,8 +58,6 @@ void EntityText::setTextWeight(int value)
     m_Text2DEntity->setFont(m_Font);
     resize();
 }
-
-void EntityText::addComponentToDeep(Qt3DCore::QComponent *comp) { m_Text2DEntity->addComponent(comp); }
 
 void EntityText::resize()
 {
@@ -89,5 +96,3 @@ void EntityBox::applyToEntity(SceneEntity *entity)
 }
 
 void EntityBox::setExcess(float excess) { m_Excess = excess; }
-void EntityBox::addComponentToDeep(Qt3DCore::QComponent *comp) { m_Box->addComponent(comp); }
-

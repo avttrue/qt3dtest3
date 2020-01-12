@@ -13,6 +13,12 @@ public:
     EntityTransform(Qt3DCore::QEntity *parent);
     Qt3DCore::QTransform *Transform() const;
 
+    /*!
+     * \brief addComponentToDeep - предназначено для регистрации EntityTransform в Qt3DRender::QLayer.
+     * Когда Qt3DRender::QLayer.setRecursive(true) не срабатывает.
+     */
+    void addComponentToDeep(Qt3DCore::QComponent *comp);
+
 protected:
     Qt3DCore::QTransform* m_Transform;
 };
@@ -29,7 +35,6 @@ public:
                int weight = QFont::Bold);
     void setText(const QString& text);
     void setTextWeight(int value);
-    void addComponentToDeep(Qt3DCore::QComponent *comp);
 
 protected:
     void resize();
@@ -47,7 +52,6 @@ public:
               const QColor &color);
     void applyToEntity(SceneEntity* entity);
     void setExcess(float excess);
-    void addComponentToDeep(Qt3DCore::QComponent *comp);
 
 private:
     Qt3DCore::QEntity* m_Box;
