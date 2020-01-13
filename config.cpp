@@ -74,20 +74,20 @@ void Config::load()
     m_ButtonDownward = m_Settings->value("Keyboard/ButtonDownward").toInt();
 
     if(!m_Settings->contains("Camera/RotationSpeed"))
-        m_Settings->setValue("Camera/RotationSpeed", ROTATION_SPEED);
-    m_RotationSpeed = m_Settings->value("Camera/RotationSpeed").toInt();
+        m_Settings->setValue("Camera/RotationSpeed", CAMERA_ROTATION_SPEED);
+    m_CameraRotationSpeed = m_Settings->value("Camera/RotationSpeed").toInt();
 
     if(!m_Settings->contains("Camera/MoveSpeed"))
-        m_Settings->setValue("Camera/MoveSpeed", MOVE_SPEED);
-    m_MoveSpeed = m_Settings->value("Camera/MoveSpeed").toInt();
+        m_Settings->setValue("Camera/MoveSpeed", CAMERA_MOVE_SPEED);
+    m_CameraMoveSpeed = m_Settings->value("Camera/MoveSpeed").toInt();
 
     if(!m_Settings->contains("Camera/RotationAcceleration"))
-        m_Settings->setValue("Camera/RotationAcceleration", ROTATION_ACCELERATION);
-    m_RotationAcceleration = m_Settings->value("Camera/RotationAcceleration").toInt();
+        m_Settings->setValue("Camera/RotationAcceleration", CAMERA_ROTATION_ACCELERATION);
+    m_CameraRotationAcceleration = m_Settings->value("Camera/RotationAcceleration").toInt();
 
     if(!m_Settings->contains("Camera/MoveAcceleration"))
-        m_Settings->setValue("Camera/MoveAcceleration", MOVE_ACCELERATION);
-    m_MoveAcceleration = m_Settings->value("Camera/MoveAcceleration").toInt();
+        m_Settings->setValue("Camera/MoveAcceleration", CAMERA_MOVE_ACCELERATION);
+    m_CameraMoveAcceleration = m_Settings->value("Camera/MoveAcceleration").toInt();
 
     if(!m_Settings->contains("Scene/DrawBoxes"))
         m_Settings->setValue("Scene/DrawBoxes", SCENE_DRAW_BOXES);
@@ -170,17 +170,17 @@ void Config::setDefaults()
     m_Settings->setValue("Keyboard/ButtonDownward", BUTTON_DOWNWARD);
     m_ButtonDownward = m_Settings->value("Keyboard/ButtonDownward").toInt();
 
-    m_Settings->setValue("Camera/RotationSpeed", ROTATION_SPEED);
-    m_RotationSpeed = ROTATION_SPEED;
+    m_Settings->setValue("Camera/RotationSpeed", CAMERA_ROTATION_SPEED);
+    m_CameraRotationSpeed = CAMERA_ROTATION_SPEED;
 
-    m_Settings->setValue("Camera/MoveSpeed", MOVE_SPEED);
-    m_MoveSpeed = MOVE_SPEED;
+    m_Settings->setValue("Camera/MoveSpeed", CAMERA_MOVE_SPEED);
+    m_CameraMoveSpeed = CAMERA_MOVE_SPEED;
 
-    m_Settings->setValue("Camera/RotationAcceleration", ROTATION_ACCELERATION);
-    m_RotationAcceleration = ROTATION_ACCELERATION;
+    m_Settings->setValue("Camera/RotationAcceleration", CAMERA_ROTATION_ACCELERATION);
+    m_CameraRotationAcceleration = CAMERA_ROTATION_ACCELERATION;
 
-    m_Settings->setValue("Camera/MoveAcceleration", MOVE_ACCELERATION);
-    m_MoveAcceleration = MOVE_ACCELERATION;
+    m_Settings->setValue("Camera/MoveAcceleration", CAMERA_MOVE_ACCELERATION);
+    m_CameraMoveAcceleration = CAMERA_MOVE_ACCELERATION;
 
     m_Settings->setValue("Scene/DrawBoxes", SCENE_DRAW_BOXES);
     m_DrawSceneBoxes = SCENE_DRAW_BOXES;
@@ -323,35 +323,35 @@ void Config::setRewriteResources(bool inRewriteResources)
     Q_EMIT signalConfigChanged();
 }
 
-void Config::setRotationSpeed(int inRotationSpeed)
+void Config::setCameraRotationSpeed(int inRotationSpeed)
 {
-    if (m_RotationSpeed == inRotationSpeed) return;
-    m_RotationSpeed = inRotationSpeed;
-    m_Settings->setValue("Camera/RotationSpeed", m_RotationSpeed);
+    if (m_CameraRotationSpeed == inRotationSpeed) return;
+    m_CameraRotationSpeed = inRotationSpeed;
+    m_Settings->setValue("Camera/RotationSpeed", m_CameraRotationSpeed);
     Q_EMIT signalConfigChanged();
 }
 
-void Config::setMoveSpeed(int inMoveSpeed)
+void Config::setCameraMoveSpeed(int inMoveSpeed)
 {
-    if (m_MoveSpeed == inMoveSpeed) return;
-    m_MoveSpeed = inMoveSpeed;
-    m_Settings->setValue("Camera/MoveSpeed", m_MoveSpeed);
+    if (m_CameraMoveSpeed == inMoveSpeed) return;
+    m_CameraMoveSpeed = inMoveSpeed;
+    m_Settings->setValue("Camera/MoveSpeed", m_CameraMoveSpeed);
     Q_EMIT signalConfigChanged();
 }
 
-void Config::setRotationAcceleration(int inRotationAcceleration)
+void Config::setCameraRotationAcceleration(int inRotationAcceleration)
 {
-    if (m_RotationAcceleration == inRotationAcceleration) return;
-    m_RotationAcceleration = inRotationAcceleration;
-    m_Settings->setValue("Camera/RotationAcceleration", m_RotationAcceleration);
+    if (m_CameraRotationAcceleration == inRotationAcceleration) return;
+    m_CameraRotationAcceleration = inRotationAcceleration;
+    m_Settings->setValue("Camera/RotationAcceleration", m_CameraRotationAcceleration);
     Q_EMIT signalConfigChanged();
 }
 
-void Config::setMoveAcceleration(int inMoveAcceleration)
+void Config::setCameraMoveAcceleration(int inMoveAcceleration)
 {
-    if (m_MoveAcceleration == inMoveAcceleration) return;
-    m_MoveAcceleration = inMoveAcceleration;
-    m_Settings->setValue("Camera/MoveAcceleration", m_MoveAcceleration);
+    if (m_CameraMoveAcceleration == inMoveAcceleration) return;
+    m_CameraMoveAcceleration = inMoveAcceleration;
+    m_Settings->setValue("Camera/MoveAcceleration", m_CameraMoveAcceleration);
     Q_EMIT signalConfigChanged();
 }
 
@@ -444,10 +444,10 @@ int Config::ButtonBackward() const { return m_ButtonBackward; }
 int Config::ButtonForward() const { return m_ButtonForward; }
 int Config::ButtonDownward() const { return m_ButtonDownward; }
 int Config::ButtonUpward() const { return m_ButtonUpward; }
-int Config::MoveAcceleration() const { return m_MoveAcceleration; }
-int Config::RotationAcceleration() const { return m_RotationAcceleration; }
-int Config::MoveSpeed() const { return m_MoveSpeed; }
-int Config::RotationSpeed() const { return m_RotationSpeed; }
+int Config::CameraMoveAcceleration() const { return m_CameraMoveAcceleration; }
+int Config::CameraRotationAcceleration() const { return m_CameraRotationAcceleration; }
+int Config::CameraMoveSpeed() const { return m_CameraMoveSpeed; }
+int Config::CameraRotationSpeed() const { return m_CameraRotationSpeed; }
 QString Config::DateTimeFormat() const { return m_DateTimeFormat; }
 QString Config::PathApp() const { return m_PathAppDir; }
 QString Config::PathAppLogDir() const { return m_PathAppLogDir; }

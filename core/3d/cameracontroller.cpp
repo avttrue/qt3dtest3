@@ -152,8 +152,8 @@ void CameraController::frameActionTriggered(float dt)
 
     auto translate =  QVector3D(0.0f, 0.0f, 0.0f);
 
-    float la = (m_ButtonAccelerationPressed ? config->RotationAcceleration() : 1) * config->RotationSpeed();
-    float ma = (m_ButtonAccelerationPressed ? config->MoveAcceleration() : 1) * config->MoveSpeed();
+    float la = (m_ButtonAccelerationPressed ? config->CameraRotationAcceleration() : 1) * config->CameraRotationSpeed();
+    float ma = (m_ButtonAccelerationPressed ? config->CameraMoveAcceleration() : 1) * config->CameraMoveSpeed();
 
     if(m_LeftButtonPressed)
     {

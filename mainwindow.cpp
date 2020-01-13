@@ -402,7 +402,11 @@ void MainWindow::slotOptions()
         {tr("Show grid, lights, etc."),
          tr("Render: Face Culling"),
          tr("Overwrite resources at start"),
-         tr("Render:\nSort Policy")
+         tr("Render:\nSort Policy"),
+         tr("camera move speed"),
+         tr("camera move speed acceleration"),
+         tr("camera rotation speed"),
+         tr("camera rotation speed acceleration")
         };
     QMap<QString, DialogValue> map =
         {{keys.at(0), {QVariant::Bool, config->DrawSceneBoxes()}},
@@ -410,7 +414,11 @@ void MainWindow::slotOptions()
          {keys.at(2), {QVariant::Bool, config->RewriteResources()}},
          {keys.at(3), {QVariant::StringList,
                        config->RendererSortPolicyType().split(',', QString::SkipEmptyParts),
-                       "", QStringList(mapSortPolicy.keys()), DialogValueMode::ManyFromList}}
+                       "", QStringList(mapSortPolicy.keys()), DialogValueMode::ManyFromList}},
+         {keys.at(4), {QVariant::Int, config->CameraMoveSpeed(), 1, 100}},
+         {keys.at(5), {QVariant::Int, config->CameraMoveAcceleration(), 1, 100}},
+         {keys.at(6), {QVariant::Int, config->CameraRotationSpeed(), 1, 100}},
+         {keys.at(7), {QVariant::Int, config->CameraRotationAcceleration(), 1, 100}}
         };
     auto dvl = new DialogValuesList(":/res/icons/setup.svg", tr("Options"), true, &map, this);
 
@@ -420,6 +428,10 @@ void MainWindow::slotOptions()
     config->setRendererCullFaceMode(map.value(keys.at(1)).value.toBool());
     config->setRewriteResources(map.value(keys.at(2)).value.toBool());
     config->setRendererSortPolicyType(map.value(keys.at(3)).value.toStringList().join(','));
+    config->setCameraMoveSpeed(map.value(keys.at(4)).value.toInt());
+    config->setCameraMoveAcceleration(map.value(keys.at(5)).value.toInt());
+    config->setCameraRotationSpeed(map.value(keys.at(6)).value.toInt());
+    config->setCameraRotationAcceleration(map.value(keys.at(7)).value.toInt());
 }
 
 void MainWindow::slotTest()

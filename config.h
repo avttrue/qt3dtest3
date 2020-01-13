@@ -31,15 +31,15 @@ public:
     QString PathApp() const;
     QString PathAppConfig() const;
     QString PathAssetsDir() const;
-    QString PathAppLogDir() const;   
-    int MoveAcceleration() const;
-    void setMoveAcceleration(int inMoveAcceleration);
-    int RotationAcceleration() const;
-    void setRotationAcceleration(int inRotationAcceleration);
-    int MoveSpeed() const;
-    void setMoveSpeed(int inMoveSpeed);
-    int RotationSpeed() const;
-    void setRotationSpeed(int inRotationSpeed);
+    QString PathAppLogDir() const;
+    int CameraMoveAcceleration() const;
+    void setCameraMoveAcceleration(int inMoveAcceleration);
+    int CameraRotationAcceleration() const;
+    void setCameraRotationAcceleration(int inRotationAcceleration);
+    int CameraMoveSpeed() const;
+    void setCameraMoveSpeed(int inMoveSpeed);
+    int CameraRotationSpeed() const;
+    void setCameraRotationSpeed(int inRotationSpeed);
     bool RewriteResources() const;
     void setRewriteResources(bool inRewriteResources);
     int SceneCellSize() const;
@@ -100,10 +100,10 @@ private:
     int m_ButtonRightward;              // кнопка перемещения вправо
     int m_ButtonUpward;                 // кнопка перемещения вверх
     int m_ButtonDownward;               // кнопка перемещения вниз
-    int m_MoveAcceleration;             // ускорение линейного перемещения
-    int m_RotationAcceleration;         // ускорение поворота
-    int m_MoveSpeed;                    // скорость линейного перемещения
-    int m_RotationSpeed;                // скорость поворота
+    int m_CameraMoveAcceleration;       // ускорение линейного перемещения
+    int m_CameraRotationAcceleration;   // ускорение поворота
+    int m_CameraMoveSpeed;              // скорость линейного перемещения
+    int m_CameraRotationSpeed;          // скорость поворота
     int m_SceneCellSize;                // размер ячейки сцены
     int m_SceneHeight;                  // размер сцены высота
     int m_SceneWidth;                   // размер сцены ширина

@@ -50,10 +50,10 @@ const auto BUTTON_LEFTWARD = Qt::Key_A;
 const auto BUTTON_RIGHTWARD = Qt::Key_D;
 const auto BUTTON_UPWARD = Qt::Key_Shift;
 const auto BUTTON_DOWNWARD = Qt::Key_Space;
-const auto MOVE_ACCELERATION = 10;
-const auto ROTATION_ACCELERATION = 5;
-const auto ROTATION_SPEED = 30;
-const auto MOVE_SPEED = 50;
+const auto CAMERA_MOVE_ACCELERATION = 10;
+const auto CAMERA_ROTATION_ACCELERATION = 5;
+const auto CAMERA_ROTATION_SPEED = 30;
+const auto CAMERA_MOVE_SPEED = 50;
 const auto CAMERA_FIELD_OF_VIEW = 45.0f;
 
 #endif // PROPERTIES_H
