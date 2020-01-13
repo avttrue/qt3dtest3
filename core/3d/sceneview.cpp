@@ -127,8 +127,7 @@ void SceneView::applySceneCamera()
                           QVector3D(config->SceneExcess(), config->SceneExcess(), config->SceneExcess()));
     m_Camera->setViewCenter(QVector3D(0.0f, 0.0f, 0.0f));
 
-    m_CameraController = new CameraController(m_Scene);
-    m_CameraController->setCamera(m_Camera);
+    m_CameraController = new CameraController(m_Scene, m_Camera);
 }
 
 void SceneView::setCameraPerspectiveProjection(Qt3DRender::QCamera *camera, int width, int height)

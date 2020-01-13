@@ -108,7 +108,7 @@ private:
     int m_LoadingSteps;
 
 Q_SIGNALS:
-    void signalSelectedEntityChanged(SceneEntity* entity);
+    void signalSelectedEntity(SceneEntity* entity);
     void signalObjectChanged(const QString& name);
     void signalLightChanged(const QString& name);
     void signalEntityClicked(Qt3DRender::QPickEvent *event, SceneEntity *entity);

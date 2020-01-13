@@ -159,10 +159,10 @@ void MainWindow::slotSceneChanged(Scene *scene)
     QObject::connect(scene, &Scene::signalMaterialsLoaded, this, &MainWindow::slotWriteSceneStat);
     QObject::connect(scene, &Scene::signalEntityClicked, this, &MainWindow::slotSceneEntityClicked);
 
-    QObject::connect(scene->FRC(), &FrameRateCalculator::signalFramesPerSecondChanged, [=](auto value)
+    QObject::connect(scene->FRC(), &FrameRateCalculator::signalFramesPerSecond, [=](auto value)
                      { labelSceneFPS->setText(tr("<b>FPS:</b>%1 | ").arg(QString::number(value, 'f', 1))); });
-    QObject::connect(scene, &Scene::signalSelectedEntityChanged, [=](SceneEntity* se) { btnEditEntity->setEnabled(se); });
-    QObject::connect(scene, &Scene::signalSelectedEntityChanged, [=](SceneEntity* se) { actionDelObject->setEnabled(se); });
+    QObject::connect(scene, &Scene::signalSelectedEntity, [=](SceneEntity* se) { btnEditEntity->setEnabled(se); });
+    QObject::connect(scene, &Scene::signalSelectedEntity, [=](SceneEntity* se) { actionDelObject->setEnabled(se); });
 }
 
 void MainWindow::slotCreateScene()
@@ -360,7 +360,7 @@ void MainWindow::slotEditSelectedEntity()
 
     auto dvl = new DialogValuesList(":/res/icons/edit.svg", tr("Edit object"), true, &map, this);
     dvl->addToolbarButton(actionDelObject);
-    QObject::connect(s, &Scene::signalSelectedEntityChanged, dvl, &QDialog::reject);
+    QObject::connect(s, &Scene::signalSelectedEntity, dvl, &QDialog::reject);
 
     if(!dvl->exec()) return;
 

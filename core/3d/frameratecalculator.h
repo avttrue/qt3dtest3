@@ -6,7 +6,6 @@
 class FrameRateCalculator : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int Period READ Period WRITE setPeriod)
 
 private:
     long long m_Time;
@@ -22,7 +21,7 @@ public:
     void setPeriod(int Period);
 
 Q_SIGNALS:
-    void signalFramesPerSecondChanged(float FramesPerSecond);
+    void signalFramesPerSecond(float value);
 
 };
 

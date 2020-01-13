@@ -16,8 +16,7 @@ class CameraController: public Qt3DCore::QEntity
     Q_OBJECT
 
 public:
-    CameraController(Qt3DCore::QNode* parent = nullptr);
-    void setCamera(Qt3DRender::QCamera *Camera);
+    CameraController( Qt3DCore::QNode* parent, Qt3DRender::QCamera* camera);
 
 protected:
 
@@ -41,9 +40,9 @@ private:
     Qt3DInput::QAction* m_ButtonUpwardAction;
     Qt3DInput::QAction* m_ButtonDownwardAction;
 
-    Qt3DInput::QAction* m_LeftButtonAction;
+    Qt3DInput::QAction* m_MouseLeftButtonAction;
 
-    Qt3DInput::QActionInput* m_LeftButtonInput;
+    Qt3DInput::QActionInput* m_MouseLeftButtonInput;
     Qt3DInput::QActionInput* m_ButtonAccelerationInput;
     Qt3DInput::QActionInput* m_ButtonForwardInput;
     Qt3DInput::QActionInput* m_ButtonBackwardInput;
@@ -67,7 +66,7 @@ private:
     float m_dy;
     float m_dz;
 
-    bool m_LeftButtonPressed;
+    bool m_MouseLeftButtonPressed;
     bool m_ButtonAccelerationPressed;   
 };
 

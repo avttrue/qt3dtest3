@@ -22,7 +22,7 @@ void FrameRateCalculator::calculate()
         if(abs(m_FramesPerSecond - fps) > 0.09f)
         {
             m_FramesPerSecond = fps;
-            Q_EMIT signalFramesPerSecondChanged(m_FramesPerSecond);
+            Q_EMIT signalFramesPerSecond(m_FramesPerSecond);
         }
 
         m_Time = time;

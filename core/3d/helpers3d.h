@@ -40,20 +40,15 @@ Qt3DCore::QEntity* createEntityBox(Qt3DCore::QEntity* parent,
                                    const QColor& color);
 
 void applyEntityName(Qt3DCore::QEntity* entity, const QString &prefix, const QString& name = "");
-
 void applyEntityGeometry(Qt3DCore::QEntity* entity, Qt3DRender::QGeometryRenderer *geometryrenderer);
-
 void applyEntityMaterial(Qt3DCore::QEntity* entity, Qt3DRender::QMaterial* material);
-
 void applyEntityLight(Qt3DCore::QEntity* entity, Qt3DRender::QAbstractLight* light);
 
 /*!
  * \brief deleteEntity - корректное удаление сущности
  */
 void deleteEntity(Qt3DCore::QEntity *entity);
-
 QMap<QString, int> RenderSortPolicyTypeToMap();
-
 QVector<Qt3DRender::QSortPolicy::SortType> StringListToRenderSortPolicyType(const QStringList& list);
 
 #endif // HELPERS_H

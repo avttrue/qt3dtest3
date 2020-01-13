@@ -244,7 +244,7 @@ bool Scene::delLight(const QString &name)
         deleteEntity(light);
         if(m_SelectedEntity == light) m_SelectedEntity = nullptr;
         m_EntityBox->setEnabled(false);
-        Q_EMIT signalSelectedEntityChanged(m_SelectedEntity);
+        Q_EMIT signalSelectedEntity(m_SelectedEntity);
         Q_EMIT signalLightChanged(name);
         qInfo() << objectName() << ": Lights count" << m_Lights.count();
         return true;
@@ -295,7 +295,7 @@ bool Scene::delObject(const QString &name)
         deleteEntity(entity);
         if(m_SelectedEntity == entity) m_SelectedEntity = nullptr;
         m_EntityBox->setEnabled(false);
-        Q_EMIT signalSelectedEntityChanged(m_SelectedEntity);
+        Q_EMIT signalSelectedEntity(m_SelectedEntity);
         Q_EMIT signalObjectChanged(name);
         qInfo() << objectName() << ": Objects count" << m_Objects.count();
         return true;
@@ -336,7 +336,7 @@ void Scene::SelectEntity(SceneEntity *entity)
         m_InterfaceText1->setEnabled(false);
     }
 
-    Q_EMIT signalSelectedEntityChanged(m_SelectedEntity);
+    Q_EMIT signalSelectedEntity(m_SelectedEntity);
 }
 
 QString Scene::EntityGeometry(SceneEntity *entity) const
