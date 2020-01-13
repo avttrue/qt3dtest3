@@ -81,16 +81,7 @@ void SceneView::createScene(float cell, float width, float height, float depth, 
     slotRenderSortPolicyType(config->RendererSortPolicyType());
     setRootEntity(m_Scene);
 
-    auto conn = std::make_shared<QMetaObject::Connection>();
-    auto func = [=]()
-    {
-        applySceneCamera();
-        m_Scene->slotShowBoxes(config->DrawSceneBoxes());
-        m_Scene->setEnabled(true);
-        Q_EMIT signalSceneChanged(m_Scene);
-        qDebug() << "Scene::signalLoaded disconnection:" << QObject::disconnect(*conn);
-    };
-    *conn = QObject::connect(m_Scene, &Scene::signalLoaded, func);
+    QObject::connect(m_Scene, &Scene::signalLoaded, this, &SceneView::slotSceneLoaded);
     m_Scene->load();
 }
 
@@ -149,6 +140,15 @@ void SceneView::slotRenderSortPolicyType(const QString& value)
     activeFrameGraph()->setParent(m_SortPolicy);
 
     m_SortPolicy->setSortTypes(vector);
+}
+
+void SceneView::slotSceneLoaded()
+{
+    applySceneCamera();
+    m_Scene->slotShowBoxes(config->DrawSceneBoxes());
+    m_Scene->setEnabled(true);
+    Q_EMIT signalSceneChanged(m_Scene);
+    QObject::disconnect(m_Scene, &Scene::signalLoaded, this, &SceneView::slotSceneLoaded);
 }
 
 void SceneView::slotCullFace(bool mode)

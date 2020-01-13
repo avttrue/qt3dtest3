@@ -49,6 +49,9 @@ public Q_SLOTS:
      */
     void slotRenderSortPolicyType(const QString &value);
 
+private Q_SLOTS:
+    void slotSceneLoaded(); // когда сцена дала сигнал, что загружена
+
 Q_SIGNALS:
     void signalSceneChanged(Scene* scene);
 

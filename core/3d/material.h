@@ -68,7 +68,7 @@ Q_SIGNALS:
     /*!
      * \brief signalReady - испускается когда материал полность загружен
      */
-    void signalReady();
+    void signalReady(Material* material);
 
 };
 

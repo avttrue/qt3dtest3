@@ -167,22 +167,21 @@ void Scene::loadGeometries(const QStringList &filters)
         loadGeometry(config->PathAssetsDir() + QDir::separator() + f);
 }
 
+void Scene::slotMaterialReady(Material* material)
+{
+    auto m = m_Materials.take(material->objectName());
+    if(m) m->deleteLater();
+    m_Materials.insert(material->objectName(), material);
+
+    qInfo() << objectName() << ": Material loaded" << material->objectName();
+    Q_EMIT signalMaterialLoaded(material->objectName());
+    QObject::disconnect(material, &Material::signalReady, this, &Scene::slotMaterialReady);
+}
+
 void Scene::loadMaterial(const QString& path)
 {
     auto material = new Material(this);
-    auto conn = std::make_shared<QMetaObject::Connection>();
-    auto func = [=]()
-    {
-        auto m = m_Materials.take(material->objectName());
-        if(m) m->deleteLater();
-
-        m_Materials.insert(material->objectName(), material);
-        qInfo() << objectName() << ": Material loaded" << material->objectName();
-        Q_EMIT signalMaterialLoaded(material->objectName());
-
-        qDebug() << "Material::signalReady disconnection:" << QObject::disconnect(*conn);
-    };
-    *conn = QObject::connect(material, &Material::signalReady, func);
+    QObject::connect(material, &Material::signalReady, this, &Scene::slotMaterialReady);
     material->load(path);
 }
 

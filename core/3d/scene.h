@@ -22,7 +22,7 @@ class FrameRateCalculator;
 class Light;
 class EntityText;
 class EntityBox;
-
+class Material;
 
 class Scene : public Qt3DCore::QEntity
 {
@@ -146,7 +146,7 @@ private Q_SLOTS:
      * испускает signalLoaded.
      */
     void slotLoaded();
-
+    void slotMaterialReady(Material* material); // когда загружаемый материал дал сигнал, что готов
 };
 
 #endif // SCENE_H

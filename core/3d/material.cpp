@@ -81,7 +81,7 @@ void Material::slotTextureDone()
     m_MapsCount++;
     if(m_MapsCount >= MAPS_COUNT)
     {
-        Q_EMIT signalReady();
+        Q_EMIT signalReady(this);
         QObject::disconnect(this, &Material::signalTextureDone, nullptr, nullptr);
     }
 }
