@@ -49,6 +49,30 @@ void Config::load()
         m_Settings->setValue("Keyboard/ButtonAcceleration", BUTTON_ACCELERATION);
     m_ButtonAcceleration = m_Settings->value("Keyboard/ButtonAcceleration").toInt();
 
+    if(!m_Settings->contains("Keyboard/ButtonForward"))
+        m_Settings->setValue("Keyboard/ButtonForward", BUTTON_FORWARD);
+    m_ButtonForward = m_Settings->value("Keyboard/ButtonForward").toInt();
+
+    if(!m_Settings->contains("Keyboard/ButtonBackward"))
+        m_Settings->setValue("Keyboard/ButtonBackward", BUTTON_BACKWADR);
+    m_ButtonBackward = m_Settings->value("Keyboard/ButtonBackward").toInt();
+
+    if(!m_Settings->contains("Keyboard/ButtonLeftward"))
+        m_Settings->setValue("Keyboard/ButtonLeftward", BUTTON_LEFTWARD);
+    m_ButtonLeftward = m_Settings->value("Keyboard/ButtonLeftward").toInt();
+
+    if(!m_Settings->contains("Keyboard/ButtonRightward"))
+        m_Settings->setValue("Keyboard/ButtonRightward", BUTTON_RIGHTWARD);
+    m_ButtonRightward = m_Settings->value("Keyboard/ButtonRightward").toInt();
+
+    if(!m_Settings->contains("Keyboard/ButtonUpward"))
+        m_Settings->setValue("Keyboard/ButtonUpward", BUTTON_UPWARD);
+    m_ButtonUpward = m_Settings->value("Keyboard/ButtonUpward").toInt();
+
+    if(!m_Settings->contains("Keyboard/ButtonDownward"))
+        m_Settings->setValue("Keyboard/ButtonDownward", BUTTON_DOWNWARD);
+    m_ButtonDownward = m_Settings->value("Keyboard/ButtonDownward").toInt();
+
     if(!m_Settings->contains("Camera/RotationSpeed"))
         m_Settings->setValue("Camera/RotationSpeed", ROTATION_SPEED);
     m_RotationSpeed = m_Settings->value("Camera/RotationSpeed").toInt();
@@ -127,6 +151,24 @@ void Config::setDefaults()
 
     m_Settings->setValue("Keyboard/ButtonAcceleration", BUTTON_ACCELERATION);
     m_ButtonAcceleration = m_Settings->value("Keyboard/ButtonAcceleration").toInt();
+
+    m_Settings->setValue("Keyboard/ButtonForward", BUTTON_FORWARD);
+    m_ButtonForward = m_Settings->value("Keyboard/ButtonForward").toInt();
+
+    m_Settings->setValue("Keyboard/ButtonBackward", BUTTON_BACKWADR);
+    m_ButtonBackward = m_Settings->value("Keyboard/ButtonBackward").toInt();
+
+    m_Settings->setValue("Keyboard/ButtonLeftward", BUTTON_LEFTWARD);
+    m_ButtonLeftward = m_Settings->value("Keyboard/ButtonLeftward").toInt();
+
+    m_Settings->setValue("Keyboard/ButtonRightward", BUTTON_RIGHTWARD);
+    m_ButtonRightward = m_Settings->value("Keyboard/ButtonRightward").toInt();
+
+    m_Settings->setValue("Keyboard/ButtonUpward", BUTTON_UPWARD);
+    m_ButtonUpward = m_Settings->value("Keyboard/ButtonUpward").toInt();
+
+    m_Settings->setValue("Keyboard/ButtonDownward", BUTTON_DOWNWARD);
+    m_ButtonDownward = m_Settings->value("Keyboard/ButtonDownward").toInt();
 
     m_Settings->setValue("Camera/RotationSpeed", ROTATION_SPEED);
     m_RotationSpeed = ROTATION_SPEED;
@@ -313,12 +355,6 @@ void Config::setMoveAcceleration(int inMoveAcceleration)
     Q_EMIT signalConfigChanged();
 }
 
-QString Config::Caption(QString key)
-{
-    QString result = captions.value(key);
-    return result.isEmpty() ? key : result;
-}
-
 void Config::setDateTimeFormat(QString inDateTimeFormat)
 {
     if (m_DateTimeFormat == inDateTimeFormat) return;
@@ -332,6 +368,54 @@ void Config::setButtonAcceleration(int inButtonAcceleration)
     if (m_ButtonAcceleration == inButtonAcceleration) return;
     m_ButtonAcceleration = inButtonAcceleration;
     m_Settings->setValue("Keyboard/ButtonAcceleration", m_ButtonAcceleration);
+    Q_EMIT signalConfigChanged();
+}
+
+void Config::setButtonRightward(int inButtonRightward)
+{
+    if (m_ButtonRightward == inButtonRightward) return;
+    m_ButtonRightward = inButtonRightward;
+    m_Settings->setValue("Keyboard/ButtonRightward", m_ButtonRightward);
+    Q_EMIT signalConfigChanged();
+}
+
+void Config::setButtonLeftward(int inButtonLeftward)
+{
+    if (m_ButtonLeftward == inButtonLeftward) return;
+    m_ButtonLeftward = inButtonLeftward;
+    m_Settings->setValue("Keyboard/ButtonLeftward", m_ButtonLeftward);
+    Q_EMIT signalConfigChanged();
+}
+
+void Config::setButtonBackward(int inButtonBackward)
+{
+    if (m_ButtonBackward == inButtonBackward) return;
+    m_ButtonBackward = inButtonBackward;
+    m_Settings->setValue("Keyboard/ButtonBackward", m_ButtonBackward);
+    Q_EMIT signalConfigChanged();
+}
+
+void Config::setButtonForward(int inButtonForward)
+{
+    if (m_ButtonForward == inButtonForward) return;
+    m_ButtonForward = inButtonForward;
+    m_Settings->setValue("Keyboard/ButtonForward", m_ButtonForward);
+    Q_EMIT signalConfigChanged();
+}
+
+void Config::setButtonDownward(int inButtonDownward)
+{
+    if (m_ButtonDownward == inButtonDownward) return;
+    m_ButtonDownward = inButtonDownward;
+    m_Settings->setValue("Keyboard/ButtonDownward", m_ButtonDownward);
+    Q_EMIT signalConfigChanged();
+}
+
+void Config::setButtonUpward(int inButtonUpward)
+{
+    if (m_ButtonUpward == inButtonUpward) return;
+    m_ButtonUpward = inButtonUpward;
+    m_Settings->setValue("Keyboard/ButtonUpward", m_ButtonUpward);
     Q_EMIT signalConfigChanged();
 }
 
@@ -354,6 +438,12 @@ bool Config::DrawSceneBoxes() const { return m_DrawSceneBoxes; }
 QString Config::RendererSortPolicyType() const { return m_RendererSortPolicyType; }
 int Config::SplashTime() const { return m_SplashTime; }
 int Config::ButtonAcceleration() const { return m_ButtonAcceleration; }
+int Config::ButtonRightward() const { return m_ButtonRightward; }
+int Config::ButtonLeftward() const { return m_ButtonLeftward; }
+int Config::ButtonBackward() const { return m_ButtonBackward; }
+int Config::ButtonForward() const { return m_ButtonForward; }
+int Config::ButtonDownward() const { return m_ButtonDownward; }
+int Config::ButtonUpward() const { return m_ButtonUpward; }
 int Config::MoveAcceleration() const { return m_MoveAcceleration; }
 int Config::RotationAcceleration() const { return m_RotationAcceleration; }
 int Config::MoveSpeed() const { return m_MoveSpeed; }

@@ -22,7 +22,7 @@ public:
 protected:
 
 
-protected slots:
+protected Q_SLOTS:
     void activeChanged(bool isActiv);
     void valueChanged(float value);
     void frameActionTriggered(float dt);
@@ -34,10 +34,23 @@ private:
 
     Qt3DInput::QAction* m_RollZRightKeyAction;
     Qt3DInput::QAction* m_ButtonAccelerationAction;
+    Qt3DInput::QAction* m_ButtonForwardAction;
+    Qt3DInput::QAction* m_ButtonBackwardAction;
+    Qt3DInput::QAction* m_ButtonLeftwardAction;
+    Qt3DInput::QAction* m_ButtonRightwardAction;
+    Qt3DInput::QAction* m_ButtonUpwardAction;
+    Qt3DInput::QAction* m_ButtonDownwardAction;
+
     Qt3DInput::QAction* m_LeftButtonAction;
 
     Qt3DInput::QActionInput* m_LeftButtonInput;
     Qt3DInput::QActionInput* m_ButtonAccelerationInput;
+    Qt3DInput::QActionInput* m_ButtonForwardInput;
+    Qt3DInput::QActionInput* m_ButtonBackwardInput;
+    Qt3DInput::QActionInput* m_ButtonLeftwardInput;
+    Qt3DInput::QActionInput* m_ButtonRightwardInput;
+    Qt3DInput::QActionInput* m_ButtonUpwardInput;
+    Qt3DInput::QActionInput* m_ButtonDownwardInput;
     Qt3DLogic::QFrameAction* m_FrameAction;
 
     Qt3DInput::QAxis* m_XAxis;

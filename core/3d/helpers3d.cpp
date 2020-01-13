@@ -14,19 +14,28 @@ Qt3DCore::QEntity *createEntityLine(const QVector3D& start,
                                     const QColor& color,
                                     Qt3DCore::QEntity* parent)
 {
-    auto lineEntity = new Qt3DCore::QEntity(parent);
-    QObject::connect(lineEntity, &QObject::destroyed, [=]() { qInfo() << parent->objectName() << ": EntityLine destroyed"; });
-
-    auto geometry = new Qt3DRender::QGeometry(lineEntity);
-
     QByteArray bufferBytes;
     bufferBytes.resize(3 * 2 * sizeof(float));
     float *positions = reinterpret_cast<float*>(bufferBytes.data());
     *positions++ = start.x(); *positions++ = start.y(); *positions++ = start.z();
     *positions++ = end.x(); *positions++ = end.y(); *positions++ = end.z();
 
+    // connectivity between vertices
+    QByteArray indexBytes;
+    indexBytes.resize(2 * sizeof(unsigned int));
+    unsigned int *indices = reinterpret_cast<unsigned int*>(indexBytes.data());
+    *indices++ = 0; *indices++ = 1;
+
+    auto lineEntity = new Qt3DCore::QEntity(parent);
+    QObject::connect(lineEntity, &QObject::destroyed, [=]() { qInfo() << parent->objectName() << ": EntityLine destroyed"; });
+
+    auto geometry = new Qt3DRender::QGeometry(lineEntity);
+
     auto vertexBuffer = new Qt3DRender::QBuffer(geometry);
     vertexBuffer->setData(bufferBytes);
+
+    auto indexBuffer = new Qt3DRender::QBuffer(geometry);
+    indexBuffer->setData(indexBytes);
 
     auto positionAttribute = new Qt3DRender::QAttribute(geometry);
     positionAttribute->setName(Qt3DRender::QAttribute::defaultPositionAttributeName());
@@ -36,16 +45,7 @@ Qt3DCore::QEntity *createEntityLine(const QVector3D& start,
     positionAttribute->setBuffer(vertexBuffer);
     positionAttribute->setByteStride(3 * sizeof(float));
     positionAttribute->setCount(2);
-    geometry->addAttribute(positionAttribute);
-
-    // connectivity between vertices
-    QByteArray indexBytes;
-    indexBytes.resize(2 * sizeof(unsigned int));
-    unsigned int *indices = reinterpret_cast<unsigned int*>(indexBytes.data());
-    *indices++ = 0; *indices++ = 1;
-
-    auto indexBuffer = new Qt3DRender::QBuffer(geometry);
-    indexBuffer->setData(indexBytes);
+    geometry->addAttribute(positionAttribute);    
 
     auto indexAttribute = new Qt3DRender::QAttribute(geometry);
     indexAttribute->setVertexBaseType(Qt3DRender::QAttribute::UnsignedInt);
@@ -86,7 +86,6 @@ Qt3DCore::QEntity *createEntityBottomGrid(Qt3DCore::QEntity* parent,
         qInfo() << parent->objectName() << ": EntityHGrid created EMPTY";
         return lineEntity;
     }
-    auto geometry = new Qt3DRender::QGeometry(lineEntity);
 
     QByteArray bufferBytes;
     bufferBytes.resize(static_cast<int>(3 * 2 * (width + depth) * sizeof(float)));
@@ -103,8 +102,20 @@ Qt3DCore::QEntity *createEntityBottomGrid(Qt3DCore::QEntity* parent,
         *positions++ = end.x(); *positions++ = start.y(); *positions++ = start.z() + d * cell;
     }
 
+    QByteArray indexBytes;
+    indexBytes.resize(static_cast<int>(2 * (width + depth) * sizeof(unsigned int)));
+    unsigned int *indices = reinterpret_cast<unsigned int*>(indexBytes.data());
+
+    for(unsigned int i = 0; i < width + depth; i++)
+    { *indices++ = i * 2; *indices++ = i * 2 + 1; }
+
+    auto geometry = new Qt3DRender::QGeometry(lineEntity);
+
     auto vertexBuffer = new Qt3DRender::QBuffer(geometry);
     vertexBuffer->setData(bufferBytes);
+
+    auto indexBuffer = new Qt3DRender::QBuffer(geometry);
+    indexBuffer->setData(indexBytes);
 
     auto positionAttribute = new Qt3DRender::QAttribute(geometry);
     positionAttribute->setName(Qt3DRender::QAttribute::defaultPositionAttributeName());
@@ -115,16 +126,6 @@ Qt3DCore::QEntity *createEntityBottomGrid(Qt3DCore::QEntity* parent,
     positionAttribute->setByteStride(3 * sizeof(float));
     positionAttribute->setCount(2 * (width + depth));
     geometry->addAttribute(positionAttribute);
-
-    QByteArray indexBytes;
-    indexBytes.resize(static_cast<int>(2 * (width + depth) * sizeof(unsigned int)));
-    unsigned int *indices = reinterpret_cast<unsigned int*>(indexBytes.data());
-
-    for(unsigned int i = 0; i < width + depth; i++)
-    { *indices++ = i * 2; *indices++ = i * 2 + 1; }
-
-    auto indexBuffer = new Qt3DRender::QBuffer(geometry);
-    indexBuffer->setData(indexBytes);
 
     auto indexAttribute = new Qt3DRender::QAttribute(geometry);
     indexAttribute->setVertexBaseType(Qt3DRender::QAttribute::UnsignedInt);

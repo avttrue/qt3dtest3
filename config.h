@@ -12,10 +12,6 @@
 class Config : public QObject
 {
     Q_OBJECT
-    // в Q_PROPERTY пишутся только те параметры, которые может изменять пользователь
-    Q_PROPERTY(QString DateTimeFormat READ DateTimeFormat WRITE setDateTimeFormat FINAL)
-    Q_PROPERTY(bool DrawSceneBoxes READ DrawSceneBoxes WRITE setDrawSceneBoxes NOTIFY signalDrawSceneBoxes FINAL)
-    Q_PROPERTY(int ButtonAcceleration READ ButtonAcceleration WRITE setButtonAcceleration FINAL)
 
 public:
     explicit Config(const QString& in_AppDirectory);
@@ -68,6 +64,18 @@ public:
     void setRendererSortPolicyType(const QString& inRendererSortPolicyType);
     bool RendererCullFaceMode() const;
     void setRendererCullFaceMode(bool inRendererCullFaceMode);
+    int ButtonForward() const;
+    void setButtonForward(int inButtonForward);
+    int ButtonBackward() const;
+    void setButtonBackward(int inButtonBackward);
+    int ButtonLeftward() const;
+    void setButtonLeftward(int inButtonLeftward);
+    int ButtonRightward() const;
+    void setButtonRightward(int inButtonRightward);
+    int ButtonUpward() const;
+    void setButtonUpward(int inButtonUpward);
+    int ButtonDownward() const;
+    void setButtonDownward(int inButtonDownward);
 
 protected:
     void load();
@@ -84,11 +92,14 @@ private:
     QString m_SceneColorBox;            // цвет границ сцены
     QString m_SceneColorGrid;           // цвет координатной сетки
     QString m_RendererSortPolicyType;   // пересортировка объектов относительно камеры
-    bool m_RewriteResources;            // переписывать при копировании файлы ресурсов
-    bool m_DrawSceneBoxes;              // отображать контуры сцены и служебных объектов
-    bool m_RendererCullFaceMode;        // включает Face Culling
     int m_SplashTime;                   // время отображения сплеш-заставки
     int m_ButtonAcceleration;           // кнопка ускорения перемещения
+    int m_ButtonForward;                // кнопка перемещения вперёд
+    int m_ButtonBackward;               // кнопка перемещения назад
+    int m_ButtonLeftward;               // кнопка перемещения влево
+    int m_ButtonRightward;              // кнопка перемещения вправо
+    int m_ButtonUpward;                 // кнопка перемещения вверх
+    int m_ButtonDownward;               // кнопка перемещения вниз
     int m_MoveAcceleration;             // ускорение линейного перемещения
     int m_RotationAcceleration;         // ускорение поворота
     int m_MoveSpeed;                    // скорость линейного перемещения
@@ -98,16 +109,11 @@ private:
     int m_SceneWidth;                   // размер сцены ширина
     int m_SceneDepth;                   // размер сцены глубина
     float m_SceneExcess;                // отступы при отображении служебных сущностей
+    bool m_RewriteResources;            // переписывать при копировании файлы ресурсов
+    bool m_DrawSceneBoxes;              // отображать контуры сцены и служебных объектов
+    bool m_RendererCullFaceMode;        // включает Face Culling
 
-    // TODO: config.captions
-    const QHash<QString, QString> captions =
-        {
-            {"DateTimeFormat", tr("формат времени")},
-            {"ButtonAcceleration", tr("кнопка ускорения камеры")},
-            {"DrawSceneBoxes", tr("отображать контуры сцены и сл. объектов")}
-        };
-
-signals:
+Q_SIGNALS:
     void signalConfigChanged();         // сигнал изменения параметров
     void signalDrawSceneBoxes(bool value); // сигнал изменения параметров отрисовки контуров сцены и служебных объектов
     void signalRendererCullFaceMode(bool value); // сигнал изменения параметра Face Culling

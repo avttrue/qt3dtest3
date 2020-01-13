@@ -44,10 +44,16 @@ const auto SCENE_HEIGHT = 15;
 const auto SCENE_WIDTH = 15;
 const auto SCENE_DEPTH = 15;
 const auto BUTTON_ACCELERATION = Qt::Key_Control;
+const auto BUTTON_FORWARD = Qt::Key_W;
+const auto BUTTON_BACKWADR = Qt::Key_S;
+const auto BUTTON_LEFTWARD = Qt::Key_A;
+const auto BUTTON_RIGHTWARD = Qt::Key_D;
+const auto BUTTON_UPWARD = Qt::Key_Shift;
+const auto BUTTON_DOWNWARD = Qt::Key_Space;
 const auto MOVE_ACCELERATION = 10;
 const auto ROTATION_ACCELERATION = 5;
-const auto ROTATION_SPEED = 20;
-const auto MOVE_SPEED = 80;
+const auto ROTATION_SPEED = 30;
+const auto MOVE_SPEED = 50;
 const auto CAMERA_FIELD_OF_VIEW = 45.0f;
 
 #endif // PROPERTIES_H
