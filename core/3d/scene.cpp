@@ -68,7 +68,7 @@ Scene::Scene(SceneView *view,
     m_InterfaceText1->addComponentToDeep(m_View->InterfaceLayer());
     //
 
-    QObject::connect(this, &QObject::destroyed, [=](QObject* o){ qInfo() << o->objectName() << ": destroyed"; });
+    QObject::connect(this, &QObject::destroyed, [=](QObject* o){ qDebug() << o->objectName() << ": destroyed"; });
     qInfo() << objectName() << ": Scene created";
 }
 
@@ -118,19 +118,19 @@ void Scene::loadGeometry(const QString &path)
             m_Geometries.insert(name, mesh);
             qInfo() << objectName() << ": Geometry loaded" << name;
             Q_EMIT signalGeometryLoaded(name);
-            qInfo() << "Qt3DRender::QMesh::statusChanged disconnection:" << QObject::disconnect(*conn);
+            qDebug() << "Qt3DRender::QMesh::statusChanged disconnection:" << QObject::disconnect(*conn);
         }
         else if(s == Qt3DRender::QMesh::Error)
         { 
             qCritical() << objectName() << ": Error at geometry loading" << name;
             Q_EMIT signalGeometryLoaded(name);
-            qInfo() << "Qt3DRender::QMesh::statusChanged disconnection:" << QObject::disconnect(*conn);
+            qDebug() << "Qt3DRender::QMesh::statusChanged disconnection:" << QObject::disconnect(*conn);
         }
         else
-        { qInfo() << objectName() << ": Geometry" << name << "loading status:" << s; }
+        { qDebug() << objectName() << ": Geometry" << name << "loading status:" << s; }
     };
     *conn = QObject::connect(mesh, &Qt3DRender::QMesh::statusChanged, func);
-    QObject::connect(mesh, &QObject::destroyed, [=](QObject* o){ qInfo() << objectName() << ": Geometry" << o->objectName() << "destroyed"; });
+    QObject::connect(mesh, &QObject::destroyed, [=](QObject* o){ qDebug() << objectName() << ": Geometry" << o->objectName() << "destroyed"; });
     mesh->setSource(QUrl::fromLocalFile(path));
 }
 
@@ -158,7 +158,7 @@ void Scene::loadGeometries(const QStringList &filters)
         {
             qInfo() << objectName() << "All geometries loaded:" << m_Geometries.count();
             Q_EMIT signalGeometriesLoaded(m_Geometries.count());
-            qInfo() << "Scene::signalGeometryLoaded disconnection:" << QObject::disconnect(*conn);
+            qDebug() << "Scene::signalGeometryLoaded disconnection:" << QObject::disconnect(*conn);
         }
     };
     *conn = QObject::connect(this, &Scene::signalGeometryLoaded, func);
@@ -180,7 +180,7 @@ void Scene::loadMaterial(const QString& path)
         qInfo() << objectName() << ": Material loaded" << material->objectName();
         Q_EMIT signalMaterialLoaded(material->objectName());
 
-        qInfo() << "Material::signalReady disconnection:" << QObject::disconnect(*conn);
+        qDebug() << "Material::signalReady disconnection:" << QObject::disconnect(*conn);
     };
     *conn = QObject::connect(material, &Material::signalReady, func);
     material->load(path);
@@ -210,7 +210,7 @@ void Scene::loadMaterials(const QStringList& filters)
         {
             qInfo() << objectName() << "All materials loaded:" << m_Materials.count();
             Q_EMIT signalMaterialsLoaded(m_Materials.count());
-            qInfo() << "Scene::signalMaterialLoaded disconnection:" << QObject::disconnect(*conn);
+            qDebug() << "Scene::signalMaterialLoaded disconnection:" << QObject::disconnect(*conn);
         }
     };
     *conn = QObject::connect(this, &Scene::signalMaterialLoaded, func);
@@ -394,13 +394,26 @@ void Scene::setEntityGeometry(SceneEntity* entity, const QString &name)
     auto gr = Geometries().value(name);
     if(!gr){ qCritical() << objectName() << "(" << __func__ << "): Wrong geometry name:" << name;  return; }
 
-    gr->disconnect(gr->geometry(), &Qt3DRender::QGeometry::maxExtentChanged, nullptr, nullptr);
-    gr->disconnect(gr->geometry(), &Qt3DRender::QGeometry::minExtentChanged, nullptr, nullptr);
+    // события maxExtentChanged и minExtentChanged не всегда вызываются, на всякий случай освобождаем
+    qDebug() << "Qt3DRender::QGeometry::maxExtentChanged preventive disconnection:"
+            << gr->disconnect(gr->geometry(), &Qt3DRender::QGeometry::maxExtentChanged, nullptr, nullptr);
+    qDebug() << "Qt3DRender::QGeometry::minExtentChanged preventive disconnection:"
+            << gr->disconnect(gr->geometry(), &Qt3DRender::QGeometry::minExtentChanged, nullptr, nullptr);
 
-    auto func = [=]()
-    { if(m_SelectedEntity == entity) m_EntityBox->applyToEntity(entity); };
-    QObject::connect(gr->geometry(), &Qt3DRender::QGeometry::maxExtentChanged, func);
-    QObject::connect(gr->geometry(), &Qt3DRender::QGeometry::minExtentChanged, func);
+    auto conn1 = std::make_shared<QMetaObject::Connection>();
+    auto conn2 = std::make_shared<QMetaObject::Connection>();
+    auto func1 = [=]()
+    {
+        if(m_SelectedEntity == entity) m_EntityBox->applyToEntity(entity);
+        qDebug() << "Qt3DRender::QGeometry::maxExtentChanged disconnection:" << QObject::disconnect(*conn1);
+    };
+    auto func2 = [=]()
+    {
+        if(m_SelectedEntity == entity) m_EntityBox->applyToEntity(entity);
+        qDebug() << "Qt3DRender::QGeometry::minExtentChanged disconnection:" << QObject::disconnect(*conn2);
+    };
+    *conn1 = QObject::connect(gr->geometry(), &Qt3DRender::QGeometry::maxExtentChanged, func1);
+    *conn2 = QObject::connect(gr->geometry(), &Qt3DRender::QGeometry::minExtentChanged, func2);
 
     entity->applyGeometry(gr);
 }

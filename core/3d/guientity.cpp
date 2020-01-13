@@ -10,7 +10,7 @@ EntityTransform::EntityTransform(Qt3DCore::QEntity *parent):
     m_Transform = new Qt3DCore::QTransform;
     addComponent(m_Transform);
     QObject::connect(this, &QObject::destroyed,
-                     [=]() { qInfo() << parent->objectName() << ":" << objectName() << "destroyed"; });
+                     [=]() { qDebug() << parent->objectName() << ":" << objectName() << "destroyed"; });
 }
 
 Qt3DCore::QTransform *EntityTransform::Transform() const { return m_Transform; }

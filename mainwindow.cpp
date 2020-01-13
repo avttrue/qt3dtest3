@@ -471,16 +471,16 @@ void MainWindow::slotSceneEntityClicked(Qt3DRender::QPickEvent *event, SceneEnti
 
     if(event->button() == Qt3DRender::QPickEvent::Buttons::LeftButton)
     {
-        qInfo() << "Mouse button: LeftButton";
+        qDebug() << "Mouse button: LeftButton";
         s->SelectEntity(entity);
     }
     else if(event->button() == Qt3DRender::QPickEvent::Buttons::MiddleButton)
     {
-        qInfo() << "Mouse button: MiddleButton";
+        qDebug() << "Mouse button: MiddleButton";
     }
     else if(event->button() == Qt3DRender::QPickEvent::Buttons::RightButton)
     {
-        qInfo() << "Mouse button: RightButton";        
+        qDebug() << "Mouse button: RightButton";
     }
 }
 

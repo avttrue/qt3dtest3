@@ -88,7 +88,7 @@ void SceneView::createScene(float cell, float width, float height, float depth, 
         m_Scene->slotShowBoxes(config->DrawSceneBoxes());
         m_Scene->setEnabled(true);
         Q_EMIT signalSceneChanged(m_Scene);
-        qInfo() << "Scene::signalLoaded disconnection:" << QObject::disconnect(*conn);
+        qDebug() << "Scene::signalLoaded disconnection:" << QObject::disconnect(*conn);
     };
     *conn = QObject::connect(m_Scene, &Scene::signalLoaded, func);
     m_Scene->load();
@@ -96,7 +96,7 @@ void SceneView::createScene(float cell, float width, float height, float depth, 
 
 void SceneView::keyPressEvent(QKeyEvent *e)
 {
-    qInfo() << "Button:" << e->key();
+    //qDebug() << "Button:" << e->key();
     if(e->key() == Qt::Key_T)
     {
 

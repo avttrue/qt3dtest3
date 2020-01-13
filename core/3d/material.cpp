@@ -11,8 +11,8 @@ Material::Material(Scene *parent) :
     Qt3DExtras::QDiffuseSpecularMaterial(parent),
     m_MapsCount(0),
     m_Transparent(false)
-{   
-    QObject::connect(this, &QObject::destroyed, [=]() { qInfo() << parent->objectName() << ": Material" << objectName() << " destroyed"; });
+{
+    QObject::connect(this, &QObject::destroyed, [=]() { qDebug() << parent->objectName() << ": Material" << objectName() << " destroyed"; });
     QObject::connect(this, &Material::signalTextureDone, this, &Material::slotTextureDone, Qt::DirectConnection);
 }
 
@@ -53,16 +53,16 @@ void Material::loadTexture(MapTypes type, const QString &path, bool mirrored)
             qInfo() << objectName() << ": Texture loaded" << fi.fileName();
             Q_EMIT signalTextureDone();
 
-            qInfo() << "Qt3DRender::QAbstractTexture::statusChanged disconnection:" << QObject::disconnect(*conn);
+            qDebug() << "Qt3DRender::QAbstractTexture::statusChanged disconnection:" << QObject::disconnect(*conn);
         }
         else if(s == Qt3DRender::QAbstractTexture::Error)
         {
             qCritical() << objectName() << ": Error at texture loading" << fi.fileName();
             Q_EMIT signalTextureDone();
-            qInfo() << "Qt3DRender::QAbstractTexture::statusChanged disconnection:" << QObject::disconnect(*conn);
+            qDebug() << "Qt3DRender::QAbstractTexture::statusChanged disconnection:" << QObject::disconnect(*conn);
         }
         else
-        { qInfo() << objectName() << ": Texture" << fi.fileName() << "loading status:" << s; }
+        { qDebug() << objectName() << ": Texture" << fi.fileName() << "loading status:" << s; }
     };
     *conn = QObject::connect(texture2d, &Qt3DRender::QAbstractTexture::statusChanged, func);
 
