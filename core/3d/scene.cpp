@@ -394,7 +394,7 @@ void Scene::setEntityGeometry(SceneEntity* entity, const QString &name)
     auto gr = Geometries().value(name);
     if(!gr){ qCritical() << objectName() << "(" << __func__ << "): Wrong geometry name:" << name;  return; }
 
-    // события maxExtentChanged и minExtentChanged не всегда вызываются, на всякий случай освобождаем
+    // события maxExtentChanged и minExtentChanged не всегда вызываются, на всякий случай сбрасываем соединения
     qDebug() << "Qt3DRender::QGeometry::maxExtentChanged preventive disconnection:"
             << gr->disconnect(gr->geometry(), &Qt3DRender::QGeometry::maxExtentChanged, nullptr, nullptr);
     qDebug() << "Qt3DRender::QGeometry::minExtentChanged preventive disconnection:"
