@@ -9,6 +9,8 @@ class SceneEntity;
 
 class EntityTransform : public Qt3DCore::QEntity
 {
+    Q_OBJECT
+
 public:
     EntityTransform(Qt3DCore::QEntity *parent);
     Qt3DCore::QTransform *Transform() const;

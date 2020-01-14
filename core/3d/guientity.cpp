@@ -22,7 +22,11 @@ void EntityTransform::addComponentToDeep(Qt3DCore::QComponent *comp)
     for(auto n: childNodes())
     {
         auto e = qobject_cast<Qt3DCore::QEntity*>(n);
-        if(e) e->addComponent(comp);
+        if(e)
+        {
+            if(qobject_cast<EntityTransform*>(e)) addComponentToDeep(comp);
+            else e->addComponent(comp);
+        }
     }
 }
 
