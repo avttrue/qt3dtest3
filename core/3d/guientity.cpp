@@ -17,6 +17,8 @@ Qt3DCore::QTransform *EntityTransform::Transform() const { return m_Transform; }
 
 void EntityTransform::addComponentToDeep(Qt3DCore::QComponent *comp)
 {
+    if(!comp) {qCritical() << __func__ << ": component is empty";  return; }
+
     for(auto n: childNodes())
     {
         auto e = qobject_cast<Qt3DCore::QEntity*>(n);
@@ -84,6 +86,8 @@ EntityBox::EntityBox(Qt3DCore::QEntity *parent,
 
 void EntityBox::applyToEntity(SceneEntity *entity)
 {
+    if(!entity) {qCritical() << __func__ << ": entity is empty";  return; }
+
     m_Transform->setTranslation(entity->Position());
 
     auto delta = entity->Geometry()->geometry()->maxExtent() -

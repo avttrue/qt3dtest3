@@ -88,6 +88,7 @@ void SceneView::createScene(float cell, float width, float height, float depth, 
 void SceneView::keyPressEvent(QKeyEvent *e)
 {
     //qDebug() << "Button:" << e->key();
+    //qDebug() << "Button:" << e->nativeScanCode();
     if(e->key() == Qt::Key_T)
     {
 
@@ -125,6 +126,8 @@ void SceneView::setCameraPerspectiveProjection(Qt3DRender::QCamera *camera, int 
 {
     if(!m_Scene) return;
     if(!camera) { qCritical() << __func__  << "Camera is empty"; return; }
+    if(!height) return; // перестраховка
+
 
     auto camera_aspect = static_cast<float>(width) / height;
     camera->lens()->setPerspectiveProjection(CAMERA_FIELD_OF_VIEW, camera_aspect, 0.1f, m_CameraFarPlane);

@@ -5,7 +5,7 @@
 FrameRateCalculator::FrameRateCalculator(int period, QObject *parent) :
     QObject(parent),
     m_FramesPerSecond(0.0),
-    m_Period(abs(period))
+    m_Period(period != 0 ? abs(period) : 100)
 {
     m_Time = QDateTime::currentDateTime().toMSecsSinceEpoch();
 }
