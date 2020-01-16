@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QDateTime>
+#include <QSurfaceFormat>
 
 #include "mainwindow.h"
 #include "properties.h"
@@ -26,6 +27,13 @@ bool prepare()
 int main(int argc, char *argv[])
 {
     QApplication application(argc, argv);
+
+    // OpenGL surface format
+    QSurfaceFormat format;
+    format.setDepthBufferSize(32);
+    format.setSamples(8);
+    QSurfaceFormat::setDefaultFormat(format);
+
     auto arglist = application.arguments();
 
     QTextCodec::setCodecForLocale(QTextCodec::codecForName(TEXT_CODEC.toLatin1()));
