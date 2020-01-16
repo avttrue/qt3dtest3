@@ -64,7 +64,7 @@ Scene::Scene(SceneView *view,
     // test
     m_InterfaceText1 = new EntityText(this, 10, "");
     m_InterfaceText1->setEnabled(false);
-    m_InterfaceText1->Transform()->setTranslation(m_CellSize * QVector3D( 0.0f, 0.0,  0.0f));
+    m_InterfaceText1->Transform()->setTranslation(m_CellSize * QVector3D( 0.0f, m_Height  - 5,  0.0f));
     m_InterfaceText1->addComponentToDeep(m_View->InterfaceLayer());
     //
 

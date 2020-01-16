@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QDateTime>
 #include <QSurfaceFormat>
+#include <QOpenGLContext>
 
 #include "mainwindow.h"
 #include "properties.h"
@@ -30,9 +31,14 @@ int main(int argc, char *argv[])
 
     // OpenGL surface format
     QSurfaceFormat format;
-    format.setDepthBufferSize(32);
-    format.setSamples(8);
-    QSurfaceFormat::setDefaultFormat(format);
+    if (QOpenGLContext::openGLModuleType() == QOpenGLContext::LibGL)
+    {
+        format.setVersion(3, 2);
+        format.setProfile(QSurfaceFormat::CoreProfile);
+    }
+    format.setDepthBufferSize(24);
+    format.setStencilBufferSize(8);
+    format.setSamples(4);
 
     auto arglist = application.arguments();
 

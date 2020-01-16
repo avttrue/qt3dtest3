@@ -127,7 +127,6 @@ void SceneView::setCameraPerspectiveProjection(Qt3DRender::QCamera *camera, int 
     if(!camera) { qCritical() << __func__  << "Camera is empty"; return; }
     if(!height) return; // перестраховка
 
-
     auto camera_aspect = static_cast<float>(width) / height;
     camera->lens()->setPerspectiveProjection(CAMERA_FIELD_OF_VIEW, camera_aspect, 0.1f, m_CameraFarPlane);
 }
