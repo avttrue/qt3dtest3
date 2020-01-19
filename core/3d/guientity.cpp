@@ -19,6 +19,7 @@ void EntityTransform::addComponentToDeep(Qt3DCore::QComponent *comp)
 {
     if(!comp) {qCritical() << __func__ << ": component is empty";  return; }
 
+    addComponent(comp);
     for(auto n: childNodes())
     {
         auto e = qobject_cast<Qt3DCore::QEntity*>(n);

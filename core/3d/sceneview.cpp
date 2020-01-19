@@ -34,6 +34,11 @@ SceneView::SceneView(QScreen *screen):
     clearBuffers->setBuffers(Qt3DRender::QClearBuffers::AllBuffers);
     clearBuffers->setClearColor(config->SceneColorBG());
 
+    auto renderStateSet = new Qt3DRender::QRenderStateSet(clearBuffers);
+    m_CullFace = new Qt3DRender::QCullFace(renderStateSet);
+    slotCullFace(config->RendererCullFaceMode());
+    renderStateSet->addRenderState(m_CullFace);
+
     m_Camera = new Qt3DRender::QCamera(cameraSelector);
     cameraSelector->setCamera(m_Camera);
 
@@ -55,11 +60,6 @@ SceneView::SceneView(QScreen *screen):
     m_InterfaceLayer->setObjectName("InterfaceLayer");
     m_TransparentLayer->setRecursive(true);
     interfaceFilter->addLayer(m_InterfaceLayer);
-
-    auto renderStateSet = new Qt3DRender::QRenderStateSet(clearBuffers);
-    m_CullFace = new Qt3DRender::QCullFace(renderStateSet);
-    slotCullFace(config->RendererCullFaceMode());
-    renderStateSet->addRenderState(m_CullFace);
 
     //    auto depthTest = new Qt3DRender::QDepthTest;
     //    depthTest->setDepthFunction(Qt3DRender::QDepthTest::Less);
