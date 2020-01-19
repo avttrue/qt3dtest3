@@ -37,7 +37,9 @@ EntityText::EntityText(Qt3DCore::QEntity *parent,
                        const QColor &color,
                        const QString &family,
                        int weight):
-    EntityTransform(parent)
+    EntityTransform(parent),
+    m_Width(0),
+    m_Height(0)
 {
     setObjectName("EntityText");
 
@@ -71,9 +73,15 @@ void EntityText::resize()
     QFontMetrics fm(m_Font);
     auto rect = fm.boundingRect(m_Text2DEntity->text());
 
-    m_Text2DEntity->setHeight(rect.height());
-    m_Text2DEntity->setWidth(rect.width());
+    m_Width = rect.width();
+    m_Height = rect.height();
+
+    m_Text2DEntity->setHeight(m_Height);
+    m_Text2DEntity->setWidth(m_Width);
 }
+
+int EntityText::Height() const { return m_Height; }
+int EntityText::Width() const { return m_Width; }
 
 EntityBox::EntityBox(Qt3DCore::QEntity *parent,
                      float excess,
